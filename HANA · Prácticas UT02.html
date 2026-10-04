@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HANA · Prácticas UT02 — Diseño de Interfaces Web</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand:    hsl(0 70% 35%);
+      --brand-dk: hsl(0 70% 25%);
+      --brand-lt: hsl(0 70% 96%);
+      --accent:   hsl(35 90% 52%);
+      --ink:      hsl(220 15% 12%);
+      --muted:    hsl(220 8% 48%);
+      --bg:       hsl(35 20% 97%);
+      --surface:  hsl(0 0% 100%);
+      --border:   hsl(35 15% 88%);
+      --ok:       hsl(142 70% 35%);
+      --ok-lt:    hsl(142 50% 95%);
+      --sans:     'DM Sans', system-ui, sans-serif;
+      --display:  'Playfair Display', Georgia, serif;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .logo {
+      font-family: var(--display);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--brand);
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      line-height: 1;
+    }
+    .header-meta {
+      border-left: 2px solid var(--border);
+      padding-left: 1.5rem;
+    }
+    .header-meta p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+    .header-meta strong { color: var(--ink); font-weight: 600; display: block; }
+
+    .header-ds {
+      margin-left: auto;
+    }
+    .btn-ds {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.82rem; font-weight: 600; color: var(--brand);
+      background: var(--brand-lt); border: 1.5px solid hsl(0 70% 80%);
+      padding: 0.45rem 0.9rem; border-radius: 4px; text-decoration: none;
+      transition: background 150ms ease;
+    }
+    .btn-ds:hover { background: hsl(0 70% 92%); }
+
+    /* ── Main ── */
+    .main { max-width: 860px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+    .intro {
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .intro h1 {
+      font-family: var(--display);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+      line-height: 1.25;
+    }
+    .intro p { font-size: 0.95rem; color: var(--muted); max-width: 62ch; }
+
+    /* ── Sesión ── */
+    .sesion-bloque {
+      margin-bottom: 1rem;
+    }
+
+    .sesion {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: box-shadow 200ms ease;
+    }
+    .sesion:hover { box-shadow: 0 2px 12px hsl(220 15% 12% / 0.07); }
+
+    .sesion-header {
+      display: grid;
+      grid-template-columns: 3rem 1fr auto;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      gap: 1rem;
+    }
+
+    .sesion-num {
+      font-family: 'DM Sans', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+
+    .sesion-info {}
+    .sesion-tipo {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.15rem;
+    }
+    .sesion-titulo {
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+    .sesion-contenidos {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+      line-height: 1.45;
+    }
+
+    /* Estado y enlaces */
+    .sesion-acciones {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.4rem;
+      min-width: 140px;
+    }
+
+    /* Pill de estado */
+    .estado {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 9999px;
+      white-space: nowrap;
+    }
+    .estado::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .estado.disponible { background: var(--ok-lt); color: var(--ok); }
+    .estado.disponible::before { background: var(--ok); }
+    .estado.proximo { background: hsl(35 90% 52% / 0.12); color: hsl(35 60% 35%); }
+    .estado.proximo::before { background: hsl(35 90% 52%); }
+    .estado.pendiente { background: hsl(220 8% 94%); color: var(--muted); }
+    .estado.pendiente::before { background: hsl(220 8% 70%); }
+
+    /* Botones de enlace */
+    .enlaces { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: flex-end; }
+    .enlace-btn {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.75rem; font-weight: 600;
+      padding: 0.3rem 0.7rem; border-radius: 4px;
+      text-decoration: none; transition: background 150ms ease;
+      white-space: nowrap;
+    }
+    .enlace-btn.guiada {
+      background: var(--brand); color: white;
+    }
+    .enlace-btn.guiada:hover { background: var(--brand-dk); }
+    .enlace-btn.consolidacion {
+      background: transparent; color: var(--brand);
+      border: 1.5px solid hsl(0 70% 75%);
+    }
+    .enlace-btn.consolidacion:hover { background: var(--brand-lt); }
+
+    /* Separador de bloque (tipo/libre/evaluación) */
+    .bloque-label {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--muted);
+      margin: 2rem 0 0.6rem;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .bloque-label::before {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .bloque-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* Sesiones especiales */
+    .sesion.especial { border-color: hsl(35 60% 78%); }
+    .sesion.especial .sesion-num { color: hsl(35 60% 40%); }
+    .sesion.examen { border-color: hsl(220 15% 80%); background: hsl(220 8% 98%); }
+
+    /* Footer */
+    .site-footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+    .site-footer a { color: var(--brand); text-decoration: none; }
+    .site-footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <span class="logo">HANA</span>
+    <div class="header-meta">
+      <strong>UT02 — CSS, modelo de caja y primeros layouts</strong>
+      <p>Diseño de Interfaces Web · DAW · 12 sesiones</p>
+    </div>
+    <div class="header-ds">
+      <a href="design-system.html" class="btn-ds" target="_blank">
+        🎨 Guía de estilos HANA
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="intro">
+      <h1>Prácticas de la unidad</h1>
+      <p>
+        Cada sesión construye un componente real de la web de HANA.
+        La ficha guiada explica el porqué de cada propiedad;
+        la ficha de consolidación comprueba si lo has interiorizado — sin apuntes.
+      </p>
+    </div>
+
+    <!-- BLOQUE GUIADA + CONSOLIDACIÓN -->
+    <p class="bloque-label">Prácticas guiadas</p>
+
+    <!-- S1 -->
+    <div class="sesion-bloque">
+      <div class="sesion">
+        <div class="sesion-header">
+          <div class="sesion-num">S01</div>
+          <div class="sesion-info">
+            <div class="sesion-tipo">Guiada + Consolidación</div>
+            <div class="sesion-titulo">Card de plato</div>
+            <div class="sesion-contenidos">Modelo de caja · box-sizing · object-fit · position relative/absolute · overflow:hidden · transition + hover</div>
+          </div>
+          <div class="sesion-acciones">
+            <span class="estado disponible">Disponible</span>
+            <div class="enlaces">
+              <a href="https://claude.ai/artifact/57pyHJYomjDb9WjFigPiwj" target="_blank" class="enlace-btn guiada">Guiada →</a>
+              <a href="https://claude.ai/artifact/GJzjfbQL1NrcLZ8MPmRpj5" target="_blank" class="enlace-btn consolidacion">Consolidación →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div class="sesion-bloque">
+      <div class="sesion">
+        <div class="sesion-header">
+          <div class="sesion-num">S02</div>
+          <div class="sesion-info">
+            <div class="sesion-tipo">Guiada + Consolidación</div>
+            <div class="sesion-titulo">Barra de navegación</div>
+            <div class="sesion-contenidos">Flexbox (row) · justify-content · align-items · gap · position:fixed · selectores combinados · ::after · :not()</div>
+          </div>
+          <div class="sesion-acciones">
+            <span class="estado disponible">Disponible</span>
+            <div class="enlaces">
+              <a href="https://claude.ai/artifact/AA2r2TPkmZ3Wpzn5UFhWxj" target="_blank" class="enlace-btn guiada">Guiada →</a>
+              <a href="https://claude.ai/artifact/RbV8bFsUT2Xm2c2EuuRow9" target="_blank" class="enlace-btn consolidacion">Consolidación →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3 -->
+    <div class="sesion-bloque">
+      <div class="sesion">
+        <div class="sesion-header">
+          <div class="sesion-num">S03</div>
+          <div class="sesion-info">
+            <div class="sesion-tipo">Guiada + Consolidación</div>
+            <div class="sesion-titulo">Hero de portada</div>
+            <div class="sesion-contenidos">Flexbox column · min-height + vh · background multicapa + overlay gradiente · clamp() · max-width en ch · botón ghost</div>
+          </div>
+          <div class="sesion-acciones">
+            <span class="estado disponible">Disponible</span>
+            <div class="enlaces">
+              <a href="https://claude.ai/artifact/P72G9TXpWu1stD2WuuiNBY" target="_blank" class="enlace-btn guiada">Guiada →</a>
+              <a href="#" class="enlace-btn consolidacion" style="opacity:0.4; pointer-events:none;">Consolidación →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S4 -->
+    <div class="sesion-bloque">
+      <div class="sesion">
+        <div class="sesion-header">
+          <div class="sesion-num">S04</div>
+          <div class="sesion-info">
+            <div class="sesion-tipo">Guiada + Consolidación</div>
+            <div class="sesion-titulo">Sección del menú — rejilla de cards</div>
+            <div class="sesion-contenidos">Grid básico · grid-template-columns · fr · repeat() · gap · auto-fit + minmax</div>
+          </div>
+          <div class="sesion-acciones">
+            <span class="estado proximo">Próximamente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S5 -->
+    <div class="sesion-bloque">
+      <div class="sesion">
+        <div class="sesion-header">
+          <div class="sesion-num">S05</div>
+          <div class="sesion-info">
+            <div class="sesion-tipo">Guiada + Consolidación</div>
+            <div class="sesion-titulo">Formulario de reserva</div>
+            <div class="sesion-contenidos">:focus-visible · :required · :user-invalid · :has() · ::placeholder · ::after para errores · selectores [attr]</div>
+          </div>
+          <div class="sesion-acciones">
+            <span class="estado proximo">Próximamente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S6 -->
+    <div class="sesion-bloque">
+      <div class="sesion">
+        <div class="sesion-header">
+          <div class="sesion-num">S06</div>
+          <div class="sesion-info">
+            <div class="sesion-tipo">Guiada + Consolidación</div>
+            <div class="sesion-titulo">Tabla de alérgenos</div>
+            <div class="sesion-contenidos">border-collapse · border-spacing · :nth-child · :first/:last-child · :hover en fila · ::marker</div>
+          </div>
+          <div class="sesion-acciones">
+            <span class="estado proximo">Próximamente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S7 -->
+    <div class="sesion-bloque">
+      <div class="sesion">
+        <div class="sesion-header">
+          <div class="sesion-num">S07</div>
+          <div class="sesion-info">
+            <div class="sesion-tipo">Guiada + Consolidación</div>
+            <div class="sesion-titulo">Sección «Sobre nosotros»</div>
+            <div class="sesion-contenidos">Escala tipográfica · rem · Google Fonts / @font-face · line-height · ::selection · ::first-letter · blockquote + ::before</div>
+          </div>
+          <div class="sesion-acciones">
+            <span class="estado proximo">Próximamente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOQUE LIBRE -->
+    <p class="bloque-label">Consolidación libre</p>
+
+    <!-- S8 -->
+    <div class="sesion-bloque">
+      <div class="sesion especial">
+        <div class="sesion-header">
+          <div class="sesion-num">S08</div>
+          <div class="sesion-info">
+            <div class="sesion-tipo">Práctica libre — código ajeno</div>
+            <div class="sesion-titulo">Landing «NORI» — ramen</div>
+            <div class="sesion-contenidos">Lee código de otra persona y complétalo. Consolidación global de UT02 sin andamiaje.</div>
+          </div>
+          <div class="sesion-acciones">
+            <span class="estado pendiente">Pendiente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S9 -->
+    <div class="sesion-bloque">
+      <div class="sesion especial">
+        <div class="sesion-header">
+          <div class="sesion-num">S09</div>
+          <div class="sesion-info">
+            <div class="sesion-tipo">Miniproyecto libre</div>
+            <div class="sesion-titulo">A elegir: formulario avanzado · tabla de precios · slider con scroll-snap</div>
+            <div class="sesion-contenidos">Aplica lo aprendido en un componente de tu elección.</div>
+          </div>
+          <div class="sesion-acciones">
+            <span class="estado pendiente">Pendiente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOQUE EVALUACIÓN -->
+    <p class="bloque-label">Evaluación</p>
+
+    <!-- S10 -->
+    <div class="sesion-bloque">
+      <div class="sesion examen">
+        <div class="sesion-header">
+          <div class="sesion-num">S10</div>
+          <div class="sesion-info">
+            <div class="sesion-tipo">Simulacro · 55 min · individual</div>
+            <div class="sesion-titulo">Simulacro de examen</div>
+            <div class="sesion-contenidos">Condiciones de examen. Se publica el enunciado al inicio de la sesión.</div>
+          </div>
+          <div class="sesion-acciones">
+            <span class="estado pendiente">Pendiente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S11 -->
+    <div class="sesion-bloque">
+      <div class="sesion examen">
+        <div class="sesion-header">
+          <div class="sesion-num">S11</div>
+          <div class="sesion-info">
+            <div class="sesion-tipo">Corrección</div>
+            <div class="sesion-titulo">Corrección del simulacro</div>
+            <div class="sesion-contenidos">Revisión comentada en clase.</div>
+          </div>
+          <div class="sesion-acciones">
+            <span class="estado pendiente">Pendiente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S12 -->
+    <div class="sesion-bloque">
+      <div class="sesion examen">
+        <div class="sesion-header">
+          <div class="sesion-num">S12</div>
+          <div class="sesion-info">
+            <div class="sesion-tipo">Examen oficial · 65 min</div>
+            <div class="sesion-titulo">Examen UT02</div>
+            <div class="sesion-contenidos">Evaluación oficial. RA02 criterios b, c, d, e, f, g, h.</div>
+          </div>
+          <div class="sesion-acciones">
+            <span class="estado pendiente">Pendiente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    Diseño de Interfaces Web · DAW ·
+    <a href="design-system.html" target="_blank">Guía de estilos HANA</a>
+  </footer>
+
+</body>
+</html>
