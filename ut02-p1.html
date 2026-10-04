@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HANA · P1 — Card de plato</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #F7F6F3;
+      --surface:   #FFFFFF;
+      --ink:       #1A1A1A;
+      --ink-muted: #6B6B6B;
+      --accent:    #2563EB;
+      --accent-lt: #EFF4FF;
+      --warn:      #DC2626;
+      --warn-lt:   #FEF2F2;
+      --ok:        #16A34A;
+      --ok-lt:     #F0FDF4;
+      --amber:     #B45309;
+      --amber-lt:  #FFFBEB;
+      --border:    #E2E2DC;
+      --radius:    6px;
+      --mono:      'DM Sans', monospace;
+      --sans:      'DM Sans', system-ui, sans-serif;
+
+      /* Tokens HANA — los mismos que en el design system */
+      --hana-brand:      hsl(0 70% 35%);
+      --hana-brand-dark: hsl(0 70% 25%);
+      --hana-brand-lt:   hsl(0 70% 96%);
+      --hana-accent:     hsl(35 90% 52%);
+      --hana-ink:        hsl(220 15% 12%);
+      --hana-muted:      hsl(220 8% 48%);
+      --hana-subtle:     hsl(220 8% 68%);
+      --hana-bg:         hsl(35 20% 97%);
+      --hana-surface:    hsl(0 0% 100%);
+      --hana-border:     hsl(35 15% 88%);
+    }
+
+    body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.6; }
+    .ficha { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+    /* Cabecera */
+    .ficha-header {
+      border-bottom: 2px solid var(--ink); padding-bottom: 1.25rem;
+      margin-bottom: 2rem; display: flex; align-items: baseline;
+      gap: 1rem; flex-wrap: wrap;
+    }
+    .ficha-codigo {
+      font-family: var(--mono); font-size: 0.75rem; font-weight: 500;
+      color: var(--hana-brand); background: var(--hana-brand-lt);
+      padding: 0.2rem 0.6rem; border-radius: 3px;
+      letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .ficha-titulo { font-size: 1.5rem; font-weight: 600; line-height: 1.25; font-family: 'Playfair Display', serif; }
+    .ficha-meta { margin-left: auto; text-align: right; font-size: 0.8rem; color: var(--ink-muted); line-height: 1.8; }
+
+    /* Secciones */
+    .seccion { margin-bottom: 2.25rem; }
+    .seccion-titulo {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-muted); margin-bottom: 0.6rem;
+    }
+    .seccion p { font-size: 0.95rem; max-width: 68ch; }
+    .seccion p + p { margin-top: 0.6rem; }
+
+    /* Contexto */
+    .contexto {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 4px solid var(--hana-brand); border-radius: var(--radius);
+      padding: 1.1rem 1.25rem; font-size: 0.92rem; line-height: 1.65; max-width: 72ch;
+    }
+    .contexto strong { color: var(--hana-brand); }
+
+    /* Callouts */
+    .callout {
+      border-radius: var(--radius); padding: 0.85rem 1.1rem;
+      font-size: 0.88rem; display: flex; gap: 0.7rem;
+      align-items: flex-start; margin-top: 0.75rem; max-width: 72ch;
+    }
+    .callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
+    .callout-body { line-height: 1.55; }
+    .callout-body strong { display: block; margin-bottom: 0.15rem; }
+    .callout.info  { background: var(--accent-lt); color: #1E3A8A; }
+    .callout.warn  { background: var(--warn-lt);   color: #991B1B; }
+    .callout.ok    { background: var(--ok-lt);     color: #14532D; }
+    .callout.amber { background: var(--amber-lt);  color: #78350F; }
+
+    hr.div { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+    /* Código */
+    .code-block {
+      background: #1E1E2E; border-radius: var(--radius);
+      padding: 1.25rem 1.5rem; overflow-x: auto; margin-top: 0.75rem;
+    }
+    .code-block code {
+      font-family: 'DM Sans', monospace; font-size: 0.82rem;
+      line-height: 1.85; color: #CDD6F4; white-space: pre; display: block;
+    }
+    .tk  { color: #89B4FA; } .tv  { color: #A6E3A1; }
+    .tc  { color: #6C7086; font-style: italic; }
+    .ts  { color: #F38BA8; } .tst { color: #FAB387; }
+    .tn  { color: #CBA6F7; } .tps { color: #94E2D5; }
+    .tpe { color: #F9E2AF; } .tat { color: #CBA6F7; }
+
+    /* Pasos */
+    .pasos { counter-reset: paso; list-style: none; display: flex; flex-direction: column; gap: 1.25rem; }
+    .pasos > li {
+      counter-increment: paso; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.1rem 1.25rem 1.1rem 3.5rem; position: relative; font-size: 0.92rem;
+    }
+    .pasos > li::before {
+      content: counter(paso); position: absolute; left: 1rem; top: 1.1rem;
+      width: 1.6rem; height: 1.6rem; background: var(--hana-brand);
+      color: #fff; border-radius: 50%; font-family: var(--mono);
+      font-size: 0.75rem; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pasos > li strong { color: var(--hana-brand); }
+
+    /* Bloque de tarea destacado */
+    .tarea {
+      background: hsl(0 70% 35% / 0.06);
+      border: 1.5px solid hsl(0 70% 35% / 0.25);
+      border-radius: var(--radius);
+      padding: 0.85rem 1.1rem;
+      margin-top: 0.85rem;
+      font-size: 0.9rem;
+    }
+    .tarea-titulo {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--hana-brand);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .tarea ol, .tarea ul {
+      padding-left: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .tarea li { line-height: 1.55; }
+    .tarea li strong { color: var(--hana-brand); font-size: 0.88rem; }
+    .pasos > li p { margin-top: 0.35rem; color: var(--ink-muted); font-size: 0.88rem; }
+
+    /* Rúbrica */
+    .rubrica { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; font-size: 0.875rem; }
+    .rubrica-fila { display: grid; grid-template-columns: 2fr 1fr 2fr; border-bottom: 1px solid var(--border); }
+    .rubrica-fila:last-child { border-bottom: none; }
+    .rubrica-head { background: var(--ink); color: #fff; }
+    .rubrica-fila > div { padding: 0.6rem 0.9rem; border-right: 1px solid var(--border); }
+    .rubrica-fila > div:last-child { border-right: none; }
+    .rubrica-head > div { font-family: var(--mono); font-size: 0.76rem; font-weight: 500; }
+    .badge {
+      display: inline-block; font-family: var(--mono); font-size: 0.7rem;
+      padding: 0.15rem 0.45rem; border-radius: 3px;
+      background: var(--hana-brand-lt); color: var(--hana-brand);
+    }
+
+    .entrega {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem 1.5rem; font-size: 0.9rem;
+    }
+    .entrega ul { margin-top: 0.6rem; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.3rem; color: var(--ink-muted); }
+    .entrega ul li::marker { color: var(--hana-brand); }
+
+    /* Pregunta */
+    .pregunta-block {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem 1.25rem;
+      margin-top: 0.75rem; font-size: 0.9rem; max-width: 72ch;
+    }
+    .pregunta-block ol { padding-left: 1.25rem; margin-top: 0.5rem; }
+    .pregunta-block ol li { margin-bottom: 0.9rem; line-height: 1.5; }
+    .resp-box {
+      border: 2px dashed var(--border); border-radius: var(--radius);
+      padding: 0.6rem 0.9rem; margin-top: 0.4rem;
+      font-family: var(--mono); font-size: 0.82rem;
+      color: var(--ink-muted); min-height: 2.2rem;
+    }
+
+    /* ── Maqueta de referencia ── */
+    .maqueta-wrap {
+      background: var(--hana-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+    }
+
+    /* ── Demo card real (resultado esperado) ── */
+    .demo-card {
+      width: 300px;
+      background: var(--hana-surface);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px hsl(220 15% 12% / 0.10), 0 2px 4px hsl(220 15% 12% / 0.06);
+      font-family: 'DM Sans', sans-serif;
+      position: relative;          /* ancla el badge */
+      transition: transform 250ms ease, box-shadow 250ms ease;
+    }
+    .demo-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px hsl(220 15% 12% / 0.12), 0 4px 8px hsl(220 15% 12% / 0.06);
+    }
+    /* Imagen: primer hijo directo de la card, sin wrapper */
+    .demo-card__img {
+      display: block;
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      /* simulamos la imagen con un gradiente porque no tenemos foto */
+      background: linear-gradient(135deg, hsl(0 35% 18%), hsl(35 55% 28%));
+      font-size: 4rem;
+      /* centramos el emoji de demo */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .demo-card__badge {
+      position: absolute;
+      top: 12px; right: 12px;
+      background: hsl(35 90% 52%);
+      color: hsl(220 15% 12%);
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      letter-spacing: 0.04em;
+    }
+    .demo-card__body {
+      padding: 20px;
+    }
+    .demo-card__cat {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: hsl(0 70% 35%);
+      margin-bottom: 6px;
+    }
+    .demo-card__titulo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: hsl(220 15% 12%);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .demo-card__desc {
+      font-size: 0.875rem;
+      color: hsl(220 8% 48%);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    .demo-card__alergenos {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .demo-card__alergen {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      border: 1px solid;
+    }
+    .demo-card__alergen--fish   { color: hsl(210 70% 40%); border-color: hsl(210 70% 70%); background: hsl(210 70% 96%); }
+    .demo-card__alergen--sesame { color: hsl(30 70% 40%);  border-color: hsl(30 70% 70%);  background: hsl(30 70% 96%); }
+    .demo-card__footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid hsl(35 15% 88%);
+    }
+    .demo-card__precio {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: hsl(0 70% 35%);
+    }
+    .demo-card__btn {
+      background: hsl(0 70% 35%);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 10px 16px;
+      border-radius: 4px;
+      border: 2px solid hsl(0 70% 35%);
+      text-decoration: none;
+      cursor: pointer;
+      display: inline-block;
+      transition: background 250ms ease, border-color 250ms ease;
+    }
+    .demo-card__btn:hover {
+      background: hsl(0 70% 25%);
+      border-color: hsl(0 70% 25%);
+    }
+    .demo-card__btn:focus-visible {
+      outline: 3px solid hsl(0 70% 35%);
+      outline-offset: 3px;
+    }
+  </style>
+</head>
+<body>
+<main class="ficha">
+
+  <!-- CABECERA -->
+  <header class="ficha-header">
+    <span class="ficha-codigo">HANA · P1</span>
+    <h1 class="ficha-titulo">Card de plato</h1>
+    <div class="ficha-meta">
+      Sesión 1 de 12<br>
+      Tiempo estimado: 55 min<br>
+      Modalidad: guiada
+    </div>
+  </header>
+
+  <!-- OBJETIVOS -->
+  <section class="seccion">
+    <p class="seccion-titulo">Qué vas a aprender</p>
+    <p>
+      Esta práctica te enfrenta al primer componente real del restaurante HANA.
+      Antes de escribir una sola línea de CSS, leerás la maqueta, identificarás
+      las capas del modelo de caja de cada elemento y razonarás qué hace
+      el navegador <em>por defecto</em> cuando coloca esas etiquetas.
+      Al terminar sabrás controlar dimensiones, espaciados, bordes y sombras
+      con precisión, y tendrás la base sobre la que construiremos todos
+      los componentes siguientes.
+    </p>
+  </section>
+
+  <!-- SITUACIÓN -->
+  <section class="seccion">
+    <p class="seccion-titulo">Situación</p>
+    <div class="contexto">
+      El restaurante <strong>HANA</strong> te ha contratado como desarrollador
+      frontend freelance. Lo primero que te piden es la <strong>card de plato</strong>
+      que aparecerá en la sección del menú online. El diseñador ya tiene la maqueta
+      lista en el sistema de diseño. Tu tarea es traducirla a HTML y CSS limpio,
+      siguiendo los tokens del sistema, sin usar Flexbox todavía:
+      solo el flujo normal del documento y el modelo de caja.
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- MAQUETA DE REFERENCIA -->
+  <section class="seccion">
+    <p class="seccion-titulo">Maqueta de referencia — resultado esperado</p>
+    <p>Este es el componente que debes conseguir. Inspecciona cada zona antes de abrir el editor.</p>
+
+    <div class="maqueta-wrap">
+      <!-- Card resultado final — estructura estándar sin wrapper de imagen -->
+      <article class="demo-card">
+        <div class="demo-card__img" role="img" aria-label="Nigiri de atún rojo sobre tabla de madera oscura">🍣</div>
+        <span class="demo-card__badge">Nuevo</span>
+        <div class="demo-card__body">
+          <p class="demo-card__cat">Nigiris</p>
+          <h2 class="demo-card__titulo">Nigiri de atún rojo</h2>
+          <p class="demo-card__desc">
+            Atún rojo de almadraba sobre arroz de sushi
+            con un toque de wasabi y jengibre encurtido.
+          </p>
+          <div class="demo-card__alergenos">
+            <span class="demo-card__alergen demo-card__alergen--fish">Pescado</span>
+            <span class="demo-card__alergen demo-card__alergen--sesame">Sésamo</span>
+          </div>
+          <div class="demo-card__footer">
+            <span class="demo-card__precio">3,80 €</span>
+            <a href="#" class="demo-card__btn" onclick="return false">Añadir</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Anotaciones de la card — estructura estándar -->
+      <div style="max-width: 280px;">
+        <svg width="280" height="460" viewBox="0 0 280 460" xmlns="http://www.w3.org/2000/svg"
+             role="img" aria-label="Anatomía de la card: article como raíz con position relative, img directo, badge absoluto, cuerpo con padding">
+
+          <rect width="280" height="460" fill="hsl(35 20% 97%)" rx="6"/>
+          <text x="12" y="18" font-size="8" fill="#6B6B6B" font-family="monospace" font-weight="600" letter-spacing="0.5">ANATOMÍA DEL COMPONENTE</text>
+
+          <!-- ── article.card ── contexto de posicionamiento -->
+          <rect x="12" y="26" width="256" height="340" rx="6"
+                fill="none" stroke="hsl(220 15% 12%)" stroke-width="1.5"/>
+          <text x="18" y="38" font-size="7.5" fill="hsl(220 15% 12%)" font-family="monospace" font-weight="600">article.card</text>
+          <text x="18" y="49" font-size="7" fill="#7C3AED" font-family="monospace">position: relative ← ancla el badge</text>
+          <text x="18" y="59" font-size="7" fill="#2563EB" font-family="monospace">overflow: hidden ← respeta border-radius</text>
+
+          <!-- ── img — primer hijo directo ── -->
+          <rect x="12" y="66" width="256" height="90" rx="0"
+                fill="hsl(0 35% 18% / 0.20)" stroke="hsl(0 70% 35%)" stroke-width="1" stroke-dasharray="4 2"/>
+          <text x="140" y="104" font-size="8" fill="hsl(0 70% 35%)" text-anchor="middle" font-family="monospace" font-weight="600">img</text>
+          <text x="140" y="116" font-size="7.5" fill="hsl(0 70% 35%)" text-anchor="middle" font-family="monospace">width: 100% · height: 180px</text>
+          <text x="140" y="128" font-size="7.5" fill="hsl(0 70% 35%)" text-anchor="middle" font-family="monospace">object-fit: cover · display: block</text>
+          <!-- flecha apuntando a img como hijo directo -->
+          <text x="270" y="72" font-size="7" fill="hsl(0 70% 35%)" font-family="monospace" text-anchor="end">1er hijo</text>
+          <text x="270" y="81" font-size="7" fill="hsl(0 70% 35%)" font-family="monospace" text-anchor="end">directo</text>
+
+          <!-- ── span.card__badge — absoluto dentro de article ── -->
+          <rect x="186" y="74" width="52" height="18" rx="9999"
+                fill="hsl(35 90% 52%)" opacity="0.9"/>
+          <text x="212" y="86" font-size="7.5" fill="hsl(220 15% 12%)" text-anchor="middle" font-family="monospace" font-weight="700">Nuevo</text>
+          <!-- anotación badge -->
+          <line x1="212" y1="93" x2="212" y2="110" stroke="#B45309" stroke-width="1" stroke-dasharray="2 2"/>
+          <text x="214" y="120" font-size="7" fill="#B45309" font-family="monospace">span.card__badge</text>
+          <text x="214" y="130" font-size="7" fill="#B45309" font-family="monospace">position: absolute</text>
+          <text x="214" y="140" font-size="7" fill="#B45309" font-family="monospace">top: 12px · right: 12px</text>
+          <text x="214" y="150" font-size="7" fill="#B45309" font-family="monospace">2º hijo directo</text>
+
+          <!-- ── div.card__cuerpo ── -->
+          <rect x="12" y="156" width="256" height="210" rx="0"
+                fill="hsl(35 90% 52% / 0.06)" stroke="hsl(35 90% 52%)" stroke-width="1" stroke-dasharray="4 2"/>
+          <text x="20" y="170" font-size="7.5" fill="hsl(35 60% 40%)" font-family="monospace" font-weight="600">div.card__cuerpo · padding: 20px</text>
+          <text x="20" y="180" font-size="7" fill="hsl(35 60% 40%)" font-family="monospace">3er hijo directo</text>
+
+          <!-- Contenido del cuerpo -->
+          <rect x="32" y="188" width="72" height="9" rx="2" fill="hsl(0 70% 35% / 0.35)"/>
+          <text x="108" y="196" font-size="7" fill="#6B6B6B" font-family="monospace">p.card__categoria · text-xs · uppercase</text>
+
+          <rect x="32" y="202" width="180" height="13" rx="2" fill="hsl(220 15% 12% / 0.18)"/>
+          <text x="108" y="214" font-size="7" fill="#6B6B6B" font-family="monospace">h2.card__titulo · Playfair · text-xl</text>
+
+          <rect x="32" y="220" width="195" height="7" rx="2" fill="hsl(220 8% 48% / 0.25)"/>
+          <rect x="32" y="231" width="165" height="7" rx="2" fill="hsl(220 8% 48% / 0.25)"/>
+          <text x="32" y="248" font-size="7" fill="#6B6B6B" font-family="monospace">p.card__descripcion · text-sm · lh-body</text>
+
+          <rect x="32" y="254" width="42" height="11" rx="9999" fill="hsl(210 70% 60% / 0.35)"/>
+          <rect x="78" y="254" width="38" height="11" rx="9999" fill="hsl(30 70% 60% / 0.35)"/>
+          <text x="32" y="277" font-size="7" fill="#6B6B6B" font-family="monospace">ul.card__alergenos · list-style: none</text>
+          <text x="32" y="286" font-size="7" fill="#6B6B6B" font-family="monospace">li con display: inline-block</text>
+
+          <!-- Separador footer -->
+          <line x1="32" y1="296" x2="244" y2="296" stroke="hsl(35 15% 88%)" stroke-width="1.5"/>
+          <text x="32" y="306" font-size="7" fill="#6B6B6B" font-family="monospace">div.card__pie · border-top · display:flex</text>
+          <text x="32" y="315" font-size="7" fill="#6B6B6B" font-family="monospace">justify-content: space-between</text>
+
+          <rect x="32" y="320" width="55" height="16" rx="2" fill="hsl(0 70% 35% / 0.25)"/>
+          <text x="59" y="332" font-size="8" fill="hsl(0 70% 35%)" text-anchor="middle" font-family="monospace">precio</text>
+          <rect x="178" y="318" width="46" height="18" rx="4" fill="hsl(0 70% 35% / 0.5)"/>
+          <text x="201" y="330" font-size="8" fill="white" text-anchor="middle" font-family="monospace">Añadir</text>
+
+          <!-- ── Leyenda de propiedades clave de article.card ── -->
+          <line x1="12" y1="376" x2="268" y2="376" stroke="#E2E2DC" stroke-width="1"/>
+          <text x="12" y="390" font-size="7.5" fill="#7C3AED" font-family="monospace">● position: relative</text>
+          <text x="140" y="390" font-size="7" fill="#6B6B6B" font-family="monospace">→ article es el padre posicionado del badge</text>
+          <text x="12" y="403" font-size="7.5" fill="#2563EB" font-family="monospace">● overflow: hidden</text>
+          <text x="140" y="403" font-size="7" fill="#6B6B6B" font-family="monospace">→ img respeta el border-radius: 16px</text>
+          <text x="12" y="416" font-size="7.5" fill="hsl(0 70% 35%)" font-family="monospace">● max-width: 300px</text>
+          <text x="140" y="416" font-size="7" fill="#6B6B6B" font-family="monospace">→ + margin: 0 auto para centrar</text>
+          <text x="12" y="429" font-size="7.5" fill="hsl(35 60% 40%)" font-family="monospace">● box-shadow: --shadow-md</text>
+          <text x="140" y="429" font-size="7" fill="#6B6B6B" font-family="monospace">→ --shadow-lg en :hover</text>
+          <text x="12" y="442" font-size="7.5" fill="#555" font-family="monospace">● background: --color-surface</text>
+          <text x="140" y="442" font-size="7" fill="#6B6B6B" font-family="monospace">→ + border-radius: --radius-lg</text>
+          <text x="12" y="455" font-size="7.5" fill="#555" font-family="monospace">● transition: transform, box-shadow</text>
+          <text x="140" y="455" font-size="7" fill="#6B6B6B" font-family="monospace">→ 250ms ease en :hover</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">🧠</span>
+      <div class="callout-body">
+        <strong>Antes de abrir el editor: lee la estructura en papel</strong>
+        Identifica cuántos elementos tiene la card, cuáles son hijos directos del contenedor
+        y cuáles están anidados más profundo. Dibuja el árbol HTML antes de escribirlo.
+        Esta es la habilidad más importante que vas a practicar hoy.
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- CÓDIGO DE PARTIDA -->
+  <section class="seccion">
+    <p class="seccion-titulo">Código de partida</p>
+    <p>
+      Se te entrega la estructura de archivos y el HTML completo.
+      <strong>No modifiques el HTML.</strong> Todo tu trabajo va en <code>css/style.css</code>.
+    </p>
+
+    <div class="code-block"><code><span class="tc">proyecto-hana/
+├── index.html
+├── css/
+│   └── style.css        ← aquí escribes tú
+└── img/
+    └── atun-rojo.jpg    ← cualquier foto de prueba</span></code></div>
+
+    <div class="code-block" style="margin-top:1rem;"><code><span class="tc">&lt;!-- index.html · HANA P1 — NO modificar --&gt;</span>
+<span class="tk">&lt;!DOCTYPE html&gt;</span>
+<span class="tk">&lt;html</span> <span class="tv">lang</span>=<span class="tst">"es"</span><span class="tk">&gt;</span>
+<span class="tk">&lt;head&gt;</span>
+  <span class="tk">&lt;meta</span> <span class="tv">charset</span>=<span class="tst">"UTF-8"</span><span class="tk">&gt;</span>
+  <span class="tk">&lt;meta</span> <span class="tv">name</span>=<span class="tst">"viewport"</span> <span class="tv">content</span>=<span class="tst">"width=device-width, initial-scale=1.0"</span><span class="tk">&gt;</span>
+  <span class="tk">&lt;title&gt;</span>HANA — Menú<span class="tk">&lt;/title&gt;</span>
+  <span class="tk">&lt;link</span> <span class="tv">rel</span>=<span class="tst">"preconnect"</span> <span class="tv">href</span>=<span class="tst">"https://fonts.googleapis.com"</span><span class="tk">&gt;</span>
+  <span class="tk">&lt;link</span> <span class="tv">href</span>=<span class="tst">"https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=DM+Sans:wght@400;500;600&amp;display=swap"</span>
+        <span class="tv">rel</span>=<span class="tst">"stylesheet"</span><span class="tk">&gt;</span>
+  <span class="tk">&lt;link</span> <span class="tv">rel</span>=<span class="tst">"stylesheet"</span> <span class="tv">href</span>=<span class="tst">"css/style.css"</span><span class="tk">&gt;</span>
+<span class="tk">&lt;/head&gt;</span>
+<span class="tk">&lt;body&gt;</span>
+
+  <span class="tk">&lt;main</span> <span class="tv">class</span>=<span class="tst">"pagina"</span><span class="tk">&gt;</span>
+
+    <span class="tk">&lt;article</span> <span class="tv">class</span>=<span class="tst">"card"</span><span class="tk">&gt;</span>
+
+      <span class="tc">&lt;!-- img: primer hijo directo — no necesita wrapper --&gt;</span>
+      <span class="tk">&lt;img</span>
+        <span class="tv">src</span>=<span class="tst">"img/atun-rojo.jpg"</span>
+        <span class="tv">alt</span>=<span class="tst">"Nigiri de atún rojo sobre tabla de madera oscura"</span>
+        <span class="tv">width</span>=<span class="tst">"600"</span>
+        <span class="tv">height</span>=<span class="tst">"400"</span>
+        <span class="tv">class</span>=<span class="tst">"card__imagen"</span>
+      <span class="tk">&gt;</span>
+
+      <span class="tc">&lt;!-- badge: segundo hijo directo, flota sobre la imagen con position absolute --&gt;</span>
+      <span class="tk">&lt;span</span> <span class="tv">class</span>=<span class="tst">"card__badge"</span> <span class="tv">aria-label</span>=<span class="tst">"Nuevo en carta"</span><span class="tk">&gt;</span>Nuevo<span class="tk">&lt;/span&gt;</span>
+
+      <span class="tk">&lt;div</span> <span class="tv">class</span>=<span class="tst">"card__cuerpo"</span><span class="tk">&gt;</span>
+        <span class="tk">&lt;p</span>  <span class="tv">class</span>=<span class="tst">"card__categoria"</span><span class="tk">&gt;</span>Nigiris<span class="tk">&lt;/p&gt;</span>
+        <span class="tk">&lt;h2</span> <span class="tv">class</span>=<span class="tst">"card__titulo"</span><span class="tk">&gt;</span>Nigiri de atún rojo<span class="tk">&lt;/h2&gt;</span>
+        <span class="tk">&lt;p</span>  <span class="tv">class</span>=<span class="tst">"card__descripcion"</span><span class="tk">&gt;</span>
+          Atún rojo de almadraba sobre arroz de sushi
+          con un toque de wasabi y jengibre encurtido.
+        <span class="tk">&lt;/p&gt;</span>
+
+        <span class="tk">&lt;ul</span> <span class="tv">class</span>=<span class="tst">"card__alergenos"</span> <span class="tv">aria-label</span>=<span class="tst">"Alérgenos"</span><span class="tk">&gt;</span>
+          <span class="tk">&lt;li</span> <span class="tv">class</span>=<span class="tst">"card__alergen card__alergen--pescado"</span><span class="tk">&gt;</span>Pescado<span class="tk">&lt;/li&gt;</span>
+          <span class="tk">&lt;li</span> <span class="tv">class</span>=<span class="tst">"card__alergen card__alergen--sesamo"</span><span class="tk">&gt;</span>Sésamo<span class="tk">&lt;/li&gt;</span>
+        <span class="tk">&lt;/ul&gt;</span>
+
+        <span class="tk">&lt;div</span> <span class="tv">class</span>=<span class="tst">"card__pie"</span><span class="tk">&gt;</span>
+          <span class="tk">&lt;span</span> <span class="tv">class</span>=<span class="tst">"card__precio"</span><span class="tk">&gt;</span>3,80 €<span class="tk">&lt;/span&gt;</span>
+          <span class="tk">&lt;a</span> <span class="tv">href</span>=<span class="tst">"#"</span> <span class="tv">class</span>=<span class="tst">"card__boton"</span><span class="tk">&gt;</span>Añadir<span class="tk">&lt;/a&gt;</span>
+        <span class="tk">&lt;/div&gt;</span>
+
+      <span class="tk">&lt;/div&gt;</span>
+    <span class="tk">&lt;/article&gt;</span>
+
+  <span class="tk">&lt;/main&gt;</span>
+<span class="tk">&lt;/body&gt;</span>
+<span class="tk">&lt;/html&gt;</span></code></div>
+
+    <div class="callout warn">
+      <span class="callout-icon">♿</span>
+      <div class="callout-body">
+        <strong>Accesibilidad integrada desde el primer día</strong>
+        El <code>alt</code> de la imagen describe la foto real, no dice «imagen de».
+        La lista de alérgenos tiene <code>aria-label</code> para que los lectores
+        de pantalla anuncien de qué es la lista. El badge tiene <code>aria-label</code>
+        porque su texto solo («Nuevo») puede ser ambiguo fuera de contexto.
+        Estos no son extras: son parte de construir bien.
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- PASOS GUIADOS -->
+  <section class="seccion">
+    <p class="seccion-titulo">Pasos</p>
+    <ol class="pasos">
+
+      <li>
+        <strong>Crea el archivo CSS y copia los tokens</strong>
+        <p>
+          Abre el navegador con el HTML antes de escribir nada.
+          Observa lo que el navegador aplica por defecto: los elementos
+          se apilan uno debajo del otro, cada bloque ocupa todo el ancho,
+          hay márgenes entre párrafos y encabezados que no has definido.
+          Eso es el CSS de agente de usuario — la capa base que el navegador
+          añade siempre. El reset que vas a escribir la borra para partir de cero.
+        </p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea</span>
+          <ol>
+            <li>Crea el archivo <code>css/style.css</code>.</li>
+            <li>Escribe el reset universal (<code>*, *::before, *::after</code>) con <code>box-sizing: border-box</code>, <code>margin: 0</code> y <code>padding: 0</code>.</li>
+            <li>Añade la regla defensiva para imágenes: <code>max-width: 100%</code>, <code>height: auto</code> y <code>display: block</code>.</li>
+            <li>Crea el bloque <code>:root { }</code> y pega dentro el bloque completo de tokens de la guía de estilos de HANA.</li>
+            <li>Guarda, recarga el navegador y comprueba que los márgenes por defecto han desaparecido.</li>
+          </ol>
+        </div>
+        <div class="code-block"><code><span class="tc">/* css/style.css */</span>
+
+<span class="tc">/* 1. Reset: borramos los márgenes y paddings por defecto del navegador
+      y hacemos que el modelo de caja incluya el borde en el ancho total */</span>
+<span class="ts">*</span>,
+<span class="ts">*::before</span>,
+<span class="ts">*::after</span> {
+  <span class="tk">box-sizing</span>: <span class="tv">border-box</span>;
+  <span class="tk">margin</span>:     <span class="tn">0</span>;
+  <span class="tk">padding</span>:    <span class="tn">0</span>;
+}
+
+<span class="tc">/* 2. Regla defensiva para imágenes — explica el paso 3 */</span>
+<span class="ts">img</span> {
+  <span class="tk">max-width</span>: <span class="tv">100%</span>;
+  <span class="tk">height</span>:    <span class="tv">auto</span>;
+  <span class="tk">display</span>:   <span class="tv">block</span>;
+}
+
+<span class="tc">/* 3. Variables del sistema de diseño */</span>
+<span class="ts">:root</span> {
+  <span class="tc">/* ← pega aquí el bloque completo de la guía de estilos de HANA */</span>
+}</code></div>
+
+        <div class="callout amber">
+          <span class="callout-icon">🔍</span>
+          <div class="callout-body">
+            <strong>¿Por qué <code>display: block</code> en las imágenes?</strong>
+            Por defecto <code>&lt;img&gt;</code> es inline, igual que una letra dentro de un párrafo.
+            El navegador reserva un pequeño espacio debajo para los descendentes tipográficos
+            (como la parte de abajo de la «g» o la «p»), aunque la imagen no sea texto.
+            Ese espacio aparece como un hueco inexplicable bajo la imagen.
+            Compruébalo ahora: quita <code>display: block</code> y mira el hueco
+            que aparece entre la imagen y el cuerpo de la card.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <strong>Limita el ancho de la card y céntrala</strong>
+        <p>
+          La card ocupa todo el ancho de la ventana porque <code>&lt;article&gt;</code>
+          es un elemento de bloque: el navegador lo estira hasta llenar su contenedor por defecto.
+          Si pones <code>width: 300px</code>, prueba a estrechar la ventana —
+          la card se saldrá porque <code>width</code> fija el ancho exacto sin adaptarse.
+          Lo que necesitas es una propiedad que establezca un límite máximo
+          pero que permita que la card sea más estrecha si el espacio no llega a 300px.
+          Con solo esa propiedad, la card sigue ocupando el 100% del padre
+          hasta llegar a ese techo — por eso no hace falta escribir ningún <code>width</code> explícito.
+        </p>
+        <p style="margin-top:0.5rem;">
+          Para centrarla: cuando la card no ocupa el 100% del padre,
+          hay espacio libre a sus lados. <code>margin: auto</code> en los laterales
+          reparte ese espacio libre igual a izquierda y derecha.
+          Si la card ocupara el 100%, no habría espacio libre que repartir
+          y el centrado no tendría ningún efecto.
+        </p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea</span>
+          <ol>
+            <li>En <code>.card</code>, escribe la propiedad que limita el ancho máximo a <strong>300px</strong> (no es <code>width</code>).</li>
+            <li>En <code>.card</code>, escribe la propiedad y el valor de <code>margin</code> que centra la card horizontalmente de forma automática.</li>
+            <li>Comprueba en el navegador: la card debe estar centrada y, al estrechar la ventana por debajo de 300px, debe adaptarse en lugar de salirse.</li>
+          </ol>
+        </div>
+        <div class="code-block"><code><span class="ts">.pagina</span> {
+  <span class="tk">min-height</span>: <span class="tv">100vh</span>;
+  <span class="tk">background</span>: <span class="tv">var(--color-bg)</span>;
+  <span class="tk">padding</span>:    <span class="tv">var(--space-12)</span> <span class="tv">var(--space-4)</span>;
+}
+
+<span class="ts">.card</span> {
+  <span class="tc">/* ← escribe aquí la propiedad que limita el ancho máximo a 300px */</span>
+  <span class="tc">/* ← escribe aquí la propiedad que centra la card horizontalmente */</span>
+
+  <span class="tk">background</span>:    <span class="tv">var(--color-surface)</span>;
+  <span class="tk">border-radius</span>: <span class="tv">var(--radius-lg)</span>;
+  <span class="tk">overflow</span>:      <span class="tv">hidden</span>;
+  <span class="tk">box-shadow</span>:    <span class="tv">var(--shadow-md)</span>;
+  <span class="tk">position</span>:      <span class="tv">relative</span>;
+}</code></div>
+
+        <div class="callout info">
+          <span class="callout-icon">🔍</span>
+          <div class="callout-body">
+            <strong>Comprueba <code>overflow: hidden</code> tú mismo</strong>
+            Con el CSS del paso anterior activo, quita <code>overflow: hidden</code>
+            de <code>.card</code> y mira las esquinas superiores de la imagen:
+            la imagen sobresale por encima del <code>border-radius</code>.
+            Esto ocurre porque <code>border-radius</code> solo redondea el contorno
+            del contenedor, pero no recorta lo que hay dentro.
+            <code>overflow: hidden</code> hace ese recorte.
+            Vuelve a ponerlo cuando termines de comprobar.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <strong>Estiliza la imagen</strong>
+        <p>
+          La imagen ahora mismo tiene su tamaño original (600×400px):
+          desborda la card por los lados y empuja el contenido hacia abajo.
+          Al poner <code>width: 100%</code> y <code>height: 180px</code> a la vez,
+          la imagen se estirará o comprimirá porque sus proporciones originales
+          no coinciden con esa relación de aspecto.
+          Hay una propiedad CSS que recorta la imagen para que rellene el espacio
+          sin deformarse —como el modo «rellenar» de cualquier editor de fotos.
+        </p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea</span>
+          <ol>
+            <li>En <code>.card__imagen</code>, escribe <code>display: block</code>, <code>width: 100%</code> y <code>height: 180px</code>.</li>
+            <li>Añade la propiedad que evita que la imagen se deforme al tener ancho y alto fijos distintos de sus proporciones originales.</li>
+            <li>Comprueba: la imagen debe ocupar exactamente el ancho de la card, medir 180px de alto y no deformarse. Las esquinas deben respetar el <code>border-radius</code> de la card — si no lo hacen, revisa <code>overflow: hidden</code> del paso anterior.</li>
+          </ol>
+        </div>
+        <div class="code-block"><code><span class="ts">.card__imagen</span> {
+  <span class="tk">display</span>: <span class="tv">block</span>;   <span class="tc">/* ya lo hereda del reset, pero lo explicitamos */</span>
+  <span class="tk">width</span>:   <span class="tv">100%</span>;
+  <span class="tk">height</span>:  <span class="tn">180px</span>;
+  <span class="tc">/* ← escribe aquí la propiedad que evita que la imagen se deforme */</span>
+}</code></div>
+
+        <div class="callout info">
+          <span class="callout-icon">💡</span>
+          <div class="callout-body">
+            <strong>La imagen no necesita un div envolvente</strong>
+            En este HTML la imagen es hija directa de <code>article.card</code>,
+            sin ningún <code>&lt;div&gt;</code> intermedio.
+            El <code>overflow: hidden</code> y el <code>position: relative</code>
+            ya están en la card — no hace falta un contenedor extra.
+            Añadir divs «por si acaso» es uno de los errores más comunes:
+            cada elemento extra tiene un coste sin aportar nada.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <strong>Posiciona el badge «Nuevo»</strong>
+        <p>
+          Ahora mismo el badge aparece en el flujo normal:
+          ocupa su propio espacio y empuja hacia abajo lo que viene después.
+          Necesita estar flotando <em>encima</em> de la imagen, en la esquina superior derecha,
+          sin ocupar espacio en el flujo normal del documento.
+          Para eso existe <code>position: absolute</code>: saca el elemento del flujo
+          y lo coloca en coordenadas exactas relativas a su ancestro posicionado más cercano.
+          Ese ancestro es <code>article.card</code>, que ya tiene
+          <code>position: relative</code> desde el paso 2 —
+          sin eso, el badge se posicionaría respecto a la página entera.
+        </p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea</span>
+          <ol>
+            <li>En <code>.card__badge</code>, escribe <code>position: absolute</code>.</li>
+            <li>Añade <code>top: 12px</code> y <code>right: 12px</code> para situarlo en la esquina superior derecha.</li>
+            <li>Comprueba: el badge debe aparecer sobre la imagen sin desplazar ningún otro elemento. Si se posiciona respecto a la página en lugar de a la card, revisa que <code>.card</code> tenga <code>position: relative</code>.</li>
+          </ol>
+        </div>
+        <div class="code-block"><code><span class="ts">.card__badge</span> {
+  <span class="tc">/* ← valor de position que saca el elemento del flujo */</span>
+  <span class="tc">/* ← 12px desde arriba */</span>
+  <span class="tc">/* ← 12px desde la derecha */</span>
+
+  <span class="tk">background</span>:     <span class="tv">var(--color-accent)</span>;
+  <span class="tk">color</span>:          <span class="tv">var(--color-ink)</span>;
+  <span class="tk">font-size</span>:      <span class="tv">var(--text-xs)</span>;
+  <span class="tk">font-weight</span>:    <span class="tn">700</span>;
+  <span class="tk">font-family</span>:    <span class="tv">var(--font-body)</span>;
+  <span class="tk">padding</span>:        <span class="tn">4px 12px</span>;
+  <span class="tk">border-radius</span>:  <span class="tv">var(--radius-full)</span>;
+  <span class="tk">letter-spacing</span>: <span class="tn">0.04em</span>;
+}</code></div>
+
+        <div class="callout amber">
+          <span class="callout-icon">🧠</span>
+          <div class="callout-body">
+            <strong>¿Por qué el badge se posiciona respecto a la card y no a la página?</strong>
+            Cuando un elemento tiene <code>position: absolute</code>,
+            el navegador busca hacia arriba en el árbol HTML hasta encontrar
+            el primer ancestro que tenga <code>position</code> distinto de <code>static</code>
+            (el valor por defecto). Ese ancestro es su referencia de coordenadas.
+            Si ningún ancestro estuviera posicionado, el badge se situaría
+            respecto a la página entera — que no es lo que queremos.
+            Por eso pusimos <code>position: relative</code> en la card en el paso 2.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <strong>Estiliza el cuerpo de la card con nesting CSS</strong>
+        <p>
+          Ahora el contenido del cuerpo aparece sin estilo: texto negro en Times New Roman,
+          sin espaciado, sin jerarquía tipográfica. Tienes que aplicar los estilos
+          de la guía de estilos a cada elemento.
+          Escríbelos con nesting CSS: en lugar de un bloque separado por cada clase,
+          todos van anidados dentro del bloque <code>.card { }</code>
+          que ya tienes del paso 2.
+        </p>
+        <p style="margin-top:0.5rem;">
+          Los badges de alérgenos son <code>&lt;li&gt;</code>, que por defecto
+          son bloques y se apilan verticalmente. Para que queden en fila
+          necesitan un <code>display</code> que los haga comportarse como
+          elementos de línea pero que respete su padding y borde —
+          no es <code>inline</code> puro, sino una variante de él.
+        </p>
+        <p style="margin-top:0.5rem;">
+          El separador horizontal entre descripción y pie no es un elemento HTML:
+          es un <code>border-top</code> en <code>.card__pie</code>.
+          El pie pone precio y botón uno a cada lado usando <code>display: flex</code>
+          con la propiedad que empuja los ítems a los extremos.
+        </p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea — solo estas propiedades las escribes tú</span>
+          <ol>
+            <li>En <code>.card__alergen</code>: escribe el valor de <code>display</code> que pone los badges en fila respetando su padding y borde (no es <code>inline</code> ni <code>block</code>).</li>
+            <li>En <code>.card__pie</code>: el pie ya tiene <code>display: flex</code> — añade la propiedad que empuja el precio al extremo izquierdo y el botón al extremo derecho.</li>
+            <li>En <code>.card__boton</code>: abre la guía de estilos de HANA, ve a la sección «Botones» y copia las propiedades de la variante <strong>btn-primary</strong> en tamaño base. Los estados <code>:hover</code> y <code>:focus-visible</code> ya están dados — escribe las propiedades base del botón encima de ellos.</li>
+          </ol>
+        </div>
+        <div class="code-block"><code><span class="ts">.card</span> {
+  <span class="tc">/* ... propiedades de los pasos anteriores ... */</span>
+
+  <span class="ts">.card__imagen</span> {
+    <span class="tc">/* mueve aquí el bloque completo del paso 3 */</span>
+  }
+
+  <span class="ts">.card__cuerpo</span> {
+    <span class="tk">padding</span>: <span class="tv">var(--space-5)</span>; <span class="tc">/* 20px interior por los cuatro lados */</span>
+  }
+
+  <span class="ts">.card__categoria</span> {
+    <span class="tk">font-size</span>:      <span class="tv">var(--text-xs)</span>;     <span class="tc">/* 12px — el más pequeño de la escala */</span>
+    <span class="tk">font-weight</span>:    <span class="tn">600</span>;
+    <span class="tk">letter-spacing</span>: <span class="tn">0.1em</span>;             <span class="tc">/* separa letras un 10% del tamaño de fuente */</span>
+    <span class="tk">text-transform</span>: <span class="tv">uppercase</span>;         <span class="tc">/* todo en mayúsculas */</span>
+    <span class="tk">color</span>:          <span class="tv">var(--color-brand)</span>;
+    <span class="tk">margin-bottom</span>:  <span class="tv">var(--space-2)</span>;    <span class="tc">/* 8px de separación hacia abajo */</span>
+  }
+
+  <span class="ts">.card__titulo</span> {
+    <span class="tk">font-family</span>:   <span class="tv">var(--font-display)</span>; <span class="tc">/* Playfair Display — fuente editorial */</span>
+    <span class="tk">font-size</span>:     <span class="tv">var(--text-xl)</span>;      <span class="tc">/* 20px */</span>
+    <span class="tk">font-weight</span>:   <span class="tn">600</span>;
+    <span class="tk">color</span>:         <span class="tv">var(--color-ink)</span>;
+    <span class="tk">line-height</span>:   <span class="tv">var(--lh-snug)</span>;     <span class="tc">/* 1.4 — más compacto que el cuerpo */</span>
+    <span class="tk">margin-bottom</span>: <span class="tv">var(--space-2)</span>;
+  }
+
+  <span class="ts">.card__descripcion</span> {
+    <span class="tk">font-size</span>:     <span class="tv">var(--text-sm)</span>;     <span class="tc">/* 14px */</span>
+    <span class="tk">color</span>:         <span class="tv">var(--color-muted)</span>; <span class="tc">/* gris medio — jerarquía visual */</span>
+    <span class="tk">line-height</span>:   <span class="tv">var(--lh-body)</span>;    <span class="tc">/* 1.7 — cómodo para leer */</span>
+    <span class="tk">margin-bottom</span>: <span class="tv">var(--space-3)</span>;
+  }
+
+  <span class="ts">.card__alergenos</span> {
+    <span class="tk">list-style</span>:    <span class="tv">none</span>;              <span class="tc">/* quita los puntos de lista */</span>
+    <span class="tk">margin-bottom</span>: <span class="tv">var(--space-4)</span>;
+  }
+
+  <span class="ts">.card__alergen</span> {
+    <span class="tc">/* ← TÚ: display que los pone en fila respetando padding y borde */</span>
+    <span class="tk">font-size</span>:      <span class="tn">0.65rem</span>;
+    <span class="tk">font-weight</span>:    <span class="tn">600</span>;
+    <span class="tk">letter-spacing</span>: <span class="tn">0.06em</span>;           <span class="tc">/* separa letras un 6% */</span>
+    <span class="tk">text-transform</span>: <span class="tv">uppercase</span>;
+    <span class="tk">padding</span>:        <span class="tn">2px 8px</span>;          <span class="tc">/* 2px arriba/abajo, 8px izq/dcha */</span>
+    <span class="tk">border-radius</span>:  <span class="tv">var(--radius-full)</span>;<span class="tc">/* píldora — radio máximo */</span>
+    <span class="tk">border</span>:         <span class="tn">1px</span> solid;         <span class="tc">/* el color lo pone la variante */</span>
+    <span class="tk">margin-right</span>:   <span class="tv">var(--space-2)</span>;   <span class="tc">/* 8px entre badges */</span>
+  }
+
+  <span class="ts">.card__alergen--pescado</span> {
+    <span class="tk">color</span>:        <span class="tv">hsl(210 70% 40%)</span>;  <span class="tc">/* azul oscuro */</span>
+    <span class="tk">border-color</span>: <span class="tv">hsl(210 70% 70%)</span>;  <span class="tc">/* azul medio */</span>
+    <span class="tk">background</span>:   <span class="tv">hsl(210 70% 96%)</span>;  <span class="tc">/* azul muy claro */</span>
+  }
+
+  <span class="ts">.card__alergen--sesamo</span> {
+    <span class="tk">color</span>:        <span class="tv">hsl(30 70% 40%)</span>;   <span class="tc">/* naranja oscuro */</span>
+    <span class="tk">border-color</span>: <span class="tv">hsl(30 70% 70%)</span>;   <span class="tc">/* naranja medio */</span>
+    <span class="tk">background</span>:   <span class="tv">hsl(30 70% 96%)</span>;   <span class="tc">/* naranja muy claro */</span>
+  }
+
+  <span class="ts">.card__pie</span> {
+    <span class="tk">display</span>:     <span class="tv">flex</span>;
+    <span class="tc">/* ← TÚ: propiedad que empuja precio y botón a los extremos */</span>
+    <span class="tk">align-items</span>: <span class="tv">center</span>;             <span class="tc">/* alinea precio y botón en el centro vertical */</span>
+    <span class="tk">padding-top</span>: <span class="tv">var(--space-3)</span>;     <span class="tc">/* 12px sobre el separador */</span>
+    <span class="tk">border-top</span>:  <span class="tn">1px</span> solid <span class="tv">var(--color-border)</span>; <span class="tc">/* línea separadora sin HTML extra */</span>
+  }
+
+  <span class="ts">.card__precio</span> {
+    <span class="tk">font-family</span>: <span class="tv">var(--font-display)</span>; <span class="tc">/* Playfair — mismo que el título */</span>
+    <span class="tk">font-size</span>:   <span class="tv">var(--text-2xl)</span>;    <span class="tc">/* 24px — destaca sobre el resto */</span>
+    <span class="tk">font-weight</span>: <span class="tn">700</span>;
+    <span class="tk">color</span>:       <span class="tv">var(--color-brand)</span>;
+  }
+
+  <span class="ts">.card__boton</span> {
+    <span class="tc">/* ← TÚ: copia aquí las propiedades de btn-primary (tamaño base)
+            de la sección «Botones» de la guía de estilos de HANA */</span>
+
+    <span class="ts">&</span><span class="tps">:hover</span> {
+      <span class="tk">background</span>:   <span class="tv">var(--color-brand-dark)</span>;  <span class="tc">/* oscurece al pasar el cursor */</span>
+      <span class="tk">border-color</span>: <span class="tv">var(--color-brand-dark)</span>;
+    }
+
+    <span class="ts">&</span><span class="tps">:focus-visible</span> {
+      <span class="tk">outline</span>:        <span class="tn">3px</span> solid <span class="tv">var(--color-brand)</span>; <span class="tc">/* anillo de foco para teclado */</span>
+      <span class="tk">outline-offset</span>: <span class="tn">3px</span>;                          <span class="tc">/* separación del borde del botón */</span>
+    }
+  }
+}</code></div>
+      </li>
+
+      <li>
+        <strong>Añade el hover de elevación a la card</strong>
+        <p>
+          Cuando el cursor pasa sobre la card, tiene que parecer que se eleva:
+          la sombra crece y la card sube visualmente unos píxeles.
+          Para el movimiento hacia arriba no uses <code>margin-top</code>:
+          cambiar márgenes obliga al navegador a recalcular el flujo de toda la página
+          y provoca saltos bruscos. <code>transform: translateY()</code> con un valor negativo
+          mueve visualmente el elemento sin tocar el flujo, lo que permite una animación fluida.
+          La transición debe declararse en el estado normal de la card, no en el <code>:hover</code>,
+          para que también sea suave al salir del hover.
+        </p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea</span>
+          <ol>
+            <li>En el bloque <code>.card { }</code>, añade <code>transition</code> para animar <code>transform</code> y <code>box-shadow</code> usando <code>var(--transition-base)</code>.</li>
+            <li>Justo debajo, anida <code>&amp;:hover { }</code> con <code>transform: translateY(-2px)</code> y <code>box-shadow: var(--shadow-lg)</code>.</li>
+            <li>Comprueba: al pasar el cursor la elevación y la sombra deben cambiar de forma suave, no de golpe.</li>
+          </ol>
+        </div>
+        <div class="code-block"><code><span class="ts">.card</span> {
+  <span class="tc">/* propiedades anteriores... */</span>
+  <span class="tk">transition</span>: <span class="tv">transform var(--transition-base),
+               box-shadow var(--transition-base)</span>;
+
+  <span class="ts">&</span><span class="tps">:hover</span> {
+    <span class="tk">transform</span>:  <span class="tv">translateY(-2px)</span>;
+    <span class="tk">box-shadow</span>: <span class="tv">var(--shadow-lg)</span>;
+  }
+}</code></div>
+      </li>
+
+      <li>
+        <strong>Verifica el resultado con DevTools</strong>
+        <p>
+          Haz clic derecho sobre cualquier parte de la card → <em>Inspeccionar</em>.
+          Antes de dar la práctica por terminada, comprueba uno a uno estos puntos.
+          Si algo no cuadra, el panel de estilos y el diagrama de caja de DevTools
+          te dicen exactamente qué regla está aplicando el navegador y por qué.
+        </p>
+        <div class="tarea">
+          <span class="tarea-titulo">Lista de verificación</span>
+          <ul>
+            <li>El padding de <code>.card__cuerpo</code> es <strong>20px por los cuatro lados</strong> — no solo arriba. Compruébalo en el diagrama de caja de DevTools.</li>
+            <li>La imagen mide exactamente <strong>180px de alto</strong> y no desborda las esquinas de la card.</li>
+            <li>Al inspeccionar el badge, el panel de estilos muestra <strong><code>position: absolute</code></strong> y las coordenadas <code>top</code> y <code>right</code>.</li>
+            <li>Ningún elemento hijo tiene un <strong><code>width</code> fijo innecesario</strong>. El ancho de cada elemento debe venir de su contenedor, no de un valor explícito.</li>
+            <li>Navega con la tecla <strong>Tab</strong> hasta el botón «Añadir» — debe aparecer un anillo de foco visible sin usar el ratón.</li>
+            <li>Pasa el cursor sobre la card — la <strong>sombra y la elevación cambian de forma suave</strong>, no instantáneamente.</li>
+            <li>Compara tu resultado con la maqueta de referencia al principio de la práctica. Las proporciones, colores y tipografía deben coincidir.</li>
+          </ul>
+        </div>
+      </li>
+
+    </ol>
+  </section>
+
+  <hr class="div">
+
+  <!-- RÚBRICA -->
+  <section class="seccion">
+    <p class="seccion-titulo">Rúbrica de evaluación</p>
+    <div class="rubrica">
+      <div class="rubrica-fila rubrica-head">
+        <div>Criterio</div><div>Peso</div><div>Indicadores</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>Tokens del sistema <span class="badge">b</span> <span class="badge">c</span></div>
+        <div>15 %</div>
+        <div>El bloque <code>:root</code> está completo y es idéntico al design system. No hay valores de color, tamaño o espacio fuera de las variables.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>Modelo de caja correcto <span class="badge">f</span></div>
+        <div>25 %</div>
+        <div><code>box-sizing: border-box</code> global. Sin <code>width</code> redundantes en hijos. Imagen con <code>object-fit: cover</code>. <code>display: block</code> en img.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>Posicionamiento del badge <span class="badge">f</span></div>
+        <div>15 %</div>
+        <div><code>position: relative</code> en el padre, <code>position: absolute</code> en el badge. <code>overflow: hidden</code> en la card y en la imagen. Las esquinas respetan el radio.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>Tipografía y tokens <span class="badge">f</span></div>
+        <div>15 %</div>
+        <div>Playfair Display en título y precio. DM Sans en el resto. Cada elemento usa el tamaño de la escala que le corresponde según el design system.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>CSS nesting y organización <span class="badge">g</span></div>
+        <div>15 %</div>
+        <div>Todo el componente está bajo un único bloque <code>.card { }</code> con nesting. Los estados <code>:hover</code> y <code>:focus-visible</code> están anidados.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>Accesibilidad y hover <span class="badge">f</span></div>
+        <div>15 %</div>
+        <div><code>:focus-visible</code> visible en el botón. <code>transition</code> suave en hover. <code>transform</code> para la elevación (no margin).</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ENTREGA -->
+  <section class="seccion">
+    <p class="seccion-titulo">Entrega</p>
+    <div class="entrega">
+      Sube una carpeta <code>HANA-P1-tunombre/</code> con:
+      <ul>
+        <li><code>index.html</code> — sin modificaciones en el marcado</li>
+        <li><code>css/style.css</code> — con tokens, reset, componente y nesting</li>
+        <li><code>img/atun-rojo.jpg</code> — cualquier fotografía de prueba</li>
+        <li>
+          <code>notas.txt</code> — respuestas a las cuatro preguntas de los pasos
+          2, 3 y 6, y una frase explicando por qué
+          <code>overflow: hidden</code> es necesario en la card
+        </li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>
