@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HANA · P2C — Consolidación navegación</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #F7F6F3;
+      --surface:  #FFFFFF;
+      --ink:      #1A1A1A;
+      --ink-muted:#6B6B6B;
+      --brand:    hsl(0 70% 35%);
+      --brand-dk: hsl(0 70% 25%);
+      --brand-lt: hsl(0 70% 96%);
+      --accent:   hsl(35 90% 52%);
+      --border:   #E2E2DC;
+      --ok-lt:    #F0FDF4;
+      --warn-lt:  #FEF2F2;
+      --info-lt:  #EFF4FF;
+      --radius:   6px;
+      --mono:     'DM Sans', monospace;
+      --sans:     'DM Sans', system-ui, sans-serif;
+    }
+
+    body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.6; }
+    .ficha { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+    .ficha-header {
+      border-bottom: 2px solid var(--ink); padding-bottom: 1.25rem;
+      margin-bottom: 2rem; display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+    }
+    .ficha-codigo {
+      font-family: var(--mono); font-size: 0.75rem; font-weight: 500;
+      color: var(--brand); background: var(--brand-lt);
+      padding: 0.2rem 0.6rem; border-radius: 3px; letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .ficha-titulo { font-size: 1.5rem; font-weight: 600; font-family: 'Playfair Display', serif; }
+    .ficha-meta { margin-left: auto; text-align: right; font-size: 0.8rem; color: var(--ink-muted); line-height: 1.8; }
+
+    hr.div { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    .seccion { margin-bottom: 2rem; }
+    .seccion-titulo {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-muted); margin-bottom: 0.6rem;
+    }
+    .seccion p { font-size: 0.95rem; max-width: 68ch; }
+
+    /* Maqueta */
+    .maqueta-wrap {
+      background: hsl(35 20% 97%); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin-top: 0.75rem;
+      display: flex; flex-direction: column; gap: 1.5rem;
+    }
+    .maqueta-label {
+      font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem;
+    }
+
+    /* Nav demo */
+    .demo-nav {
+      background: white; padding: 0 2rem; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 1px 3px hsl(220 15% 12% / 0.08);
+      border-radius: var(--radius); border: 1px solid var(--border);
+      font-family: 'DM Sans', sans-serif;
+    }
+    .demo-nav__logo {
+      font-family: 'Playfair Display', serif; font-size: 1.375rem; font-weight: 700;
+      color: hsl(0 70% 35%); letter-spacing: 0.08em; text-decoration: none;
+    }
+    .demo-nav__logo:hover { color: hsl(0 70% 25%); }
+    .demo-nav__logo:focus-visible { outline: 3px solid hsl(0 70% 35%); outline-offset: 4px; border-radius: 2px; }
+    .demo-nav__lista {
+      list-style: none; display: flex; align-items: center; gap: 2rem;
+    }
+    .demo-nav__enlace {
+      font-size: 0.875rem; font-weight: 500; color: hsl(220 8% 48%);
+      text-decoration: none; letter-spacing: 0.03em;
+      transition: color 150ms ease; position: relative; padding-bottom: 2px;
+    }
+    .demo-nav__enlace.activo { color: hsl(0 70% 35%); font-weight: 600; }
+    .demo-nav__enlace.activo::after {
+      content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+      height: 2px; background: hsl(0 70% 35%); border-radius: 9999px;
+    }
+    .demo-nav__enlace:not(.activo):hover { color: hsl(0 70% 35%); }
+    .demo-nav__enlace:focus-visible { outline: 3px solid hsl(0 70% 35%); outline-offset: 4px; border-radius: 2px; }
+    .demo-nav__boton {
+      background: hsl(0 70% 35%); color: white; font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem; font-weight: 600; letter-spacing: 0.04em;
+      padding: 10px 20px; border-radius: 4px; border: 2px solid hsl(0 70% 35%);
+      text-decoration: none; cursor: pointer; transition: background 250ms ease, border-color 250ms ease;
+    }
+    .demo-nav__boton:hover { background: hsl(0 70% 25%); border-color: hsl(0 70% 25%); }
+    .demo-nav__boton:focus-visible { outline: 3px solid hsl(0 70% 35%); outline-offset: 3px; }
+
+    /* Código */
+    .code-block {
+      background: #1E1E2E; border-radius: var(--radius);
+      padding: 1.25rem 1.5rem; overflow-x: auto; margin-top: 0.75rem;
+    }
+    .code-block code {
+      font-family: var(--mono); font-size: 0.82rem; line-height: 1.85;
+      color: #CDD6F4; white-space: pre; display: block;
+    }
+    .tk  { color: #89B4FA; } .tv  { color: #A6E3A1; }
+    .tc  { color: #6C7086; font-style: italic; }
+    .ts  { color: #F38BA8; } .tst { color: #FAB387; }
+    .tn  { color: #CBA6F7; } .tps { color: #94E2D5; }
+    .tpe { color: #F9E2AF; }
+    .th  { color: #F9E2AF; font-weight: 600;
+           background: hsl(35 90% 52% / 0.12); border-radius: 2px; padding: 0 2px; }
+
+    /* Zonas */
+    .zona {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; margin-bottom: 1.25rem;
+    }
+    .zona-header {
+      background: var(--ink); color: white;
+      padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.75rem;
+    }
+    .zona-selector { font-family: var(--mono); font-size: 0.8rem; font-weight: 600; color: #F38BA8; }
+    .zona-desc { font-size: 0.78rem; color: #BAC2DE; }
+    .zona-body { padding: 1rem 1.25rem; }
+    .zona-body p { font-size: 0.88rem; color: var(--ink-muted); margin-bottom: 0.5rem; line-height: 1.55; }
+
+    /* Huecos */
+    .huecos { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .hueco { display: flex; gap: 0.75rem; align-items: flex-start; font-size: 0.875rem; line-height: 1.5; }
+    .hueco-num {
+      flex-shrink: 0; width: 1.4rem; height: 1.4rem;
+      background: var(--brand); color: white; border-radius: 50%;
+      font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; margin-top: 0.1rem;
+    }
+
+    /* Callouts */
+    .callout {
+      border-radius: var(--radius); padding: 0.75rem 1rem;
+      font-size: 0.85rem; display: flex; gap: 0.6rem;
+      align-items: flex-start; margin-top: 0.75rem;
+    }
+    .callout-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .callout-body { line-height: 1.5; }
+    .callout.ok   { background: var(--ok-lt);   color: #14532D; }
+    .callout.warn { background: var(--warn-lt);  color: #991B1B; }
+    .callout.info { background: var(--info-lt);  color: #1E3A8A; }
+
+    /* Rúbrica */
+    .rubrica { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; font-size: 0.875rem; }
+    .rubrica-fila { display: grid; grid-template-columns: 2.5fr 1fr 2fr; border-bottom: 1px solid var(--border); }
+    .rubrica-fila:last-child { border-bottom: none; }
+    .rubrica-head { background: var(--ink); color: #fff; }
+    .rubrica-fila > div { padding: 0.6rem 0.9rem; border-right: 1px solid var(--border); font-size: 0.85rem; }
+    .rubrica-fila > div:last-child { border-right: none; }
+    .rubrica-head > div { font-family: var(--mono); font-size: 0.75rem; font-weight: 500; }
+
+    /* Entrega */
+    .entrega { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; font-size: 0.9rem; }
+    .entrega ul { margin-top: 0.6rem; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.3rem; color: var(--ink-muted); }
+    .entrega ul li::marker { color: var(--brand); }
+  </style>
+</head>
+<body>
+<main class="ficha">
+
+  <!-- CABECERA -->
+  <header class="ficha-header">
+    <span class="ficha-codigo">HANA · P2C</span>
+    <h1 class="ficha-titulo">Consolidación — Barra de navegación</h1>
+    <div class="ficha-meta">
+      Sesión 2 de 12 · cierre<br>
+      Tiempo estimado: 25 min<br>
+      Modalidad: individual sin apuntes
+    </div>
+  </header>
+
+  <!-- INSTRUCCIONES -->
+  <section class="seccion">
+    <p class="seccion-titulo">Qué tienes que hacer</p>
+    <p>
+      Tienes el HTML completo y un CSS con huecos marcados con
+      <code style="background:hsl(35 90% 52%/0.15);padding:1px 4px;border-radius:3px;font-family:monospace;">/* ← ? */</code>.
+      Sin mirar la práctica guiada, completa cada hueco para que el resultado
+      coincida con la maqueta. La maqueta y el diagrama de anatomía son tu única referencia.
+    </p>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <strong>Sin apuntes.</strong>
+        Razona a partir de lo que ves en la maqueta — qué tiene que conseguir cada propiedad visualmente.
+        Si no recuerdas el nombre exacto, describe lo que quieres que pase y búscalo.
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- MAQUETA -->
+  <section class="seccion">
+    <p class="seccion-titulo">Maqueta de referencia y anatomía</p>
+
+    <div class="maqueta-wrap">
+      <div>
+        <p class="maqueta-label">Resultado esperado — pasa el cursor y usa Tab</p>
+        <nav class="demo-nav" aria-label="Navegación principal">
+          <a href="#" class="demo-nav__logo" onclick="return false">HANA</a>
+          <ul class="demo-nav__lista" role="list">
+            <li><a href="#" class="demo-nav__enlace activo" aria-current="page" onclick="return false">Inicio</a></li>
+            <li><a href="#" class="demo-nav__enlace" onclick="return false">Menú</a></li>
+            <li><a href="#" class="demo-nav__enlace" onclick="return false">Nosotros</a></li>
+            <li><a href="#" class="demo-nav__enlace" onclick="return false">Contacto</a></li>
+          </ul>
+          <a href="#" class="demo-nav__boton" onclick="return false">Reservar</a>
+        </nav>
+      </div>
+
+      <!-- SVG anatomía -->
+      <svg width="100%" viewBox="0 0 740 220" xmlns="http://www.w3.org/2000/svg"
+           role="img" aria-label="Anatomía de la nav con zonas numeradas">
+
+        <!-- Fondo -->
+        <rect width="740" height="220" fill="hsl(35 20% 97%)" rx="6"/>
+        <text x="12" y="16" font-size="8" fill="#6B6B6B" font-family="monospace" font-weight="600" letter-spacing="0.5">ANATOMÍA — ZONAS DE TRABAJO</text>
+
+        <!-- ZONA 1: header.site-header -->
+        <rect x="8" y="22" width="724" height="80" rx="6"
+              fill="none" stroke="hsl(220 15% 12%)" stroke-width="1.5"/>
+        <rect x="8" y="22" width="50" height="14" rx="3" fill="hsl(220 15% 12%)"/>
+        <text x="33" y="32" font-size="7.5" fill="white" text-anchor="middle" font-family="monospace" font-weight="600">ZONA 1</text>
+        <text x="64" y="32" font-size="7" fill="hsl(220 15% 12%)" font-family="monospace">header.site-header · position: fixed · top:0 · left:0 · right:0 · z-index:100</text>
+
+        <!-- ZONA 2: nav.nav (contenedor flex) -->
+        <rect x="16" y="36" width="708" height="58" rx="4"
+              fill="hsl(210 40% 97%)" stroke="hsl(210 70% 55%)" stroke-width="1.5" stroke-dasharray="5 3"/>
+        <rect x="16" y="36" width="50" height="14" rx="3" fill="hsl(210 70% 45%)"/>
+        <text x="41" y="46" font-size="7.5" fill="white" text-anchor="middle" font-family="monospace" font-weight="600">ZONA 2</text>
+        <text x="72" y="46" font-size="7" fill="hsl(210 70% 35%)" font-family="monospace">nav.nav · display:flex · justify-content:? · align-items:? · height:64px</text>
+
+        <!-- Logo -->
+        <rect x="28" y="50" width="50" height="22" rx="3" fill="hsl(0 70% 35% / 0.15)" stroke="hsl(0 70% 35%)" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="53" y="63" font-size="10" fill="hsl(0 70% 35%)" text-anchor="middle" font-family="'Playfair Display', serif" font-weight="700">HANA</text>
+        <rect x="28" y="36" width="50" height="14" rx="3" fill="hsl(0 70% 35%)"/>
+        <text x="53" y="46" font-size="7.5" fill="white" text-anchor="middle" font-family="monospace" font-weight="600">ZONA 3</text>
+
+        <!-- Lista -->
+        <rect x="240" y="46" width="290" height="34" rx="3"
+              fill="hsl(35 90% 52% / 0.1)" stroke="hsl(35 60% 40%)" stroke-width="1" stroke-dasharray="3 2"/>
+        <rect x="240" y="36" width="50" height="14" rx="3" fill="hsl(35 60% 40%)"/>
+        <text x="265" y="46" font-size="7.5" fill="white" text-anchor="middle" font-family="monospace" font-weight="600">ZONA 4</text>
+        <text x="340" y="46" font-size="7" fill="hsl(35 60% 40%)" font-family="monospace" text-anchor="middle">ul.nav__lista · display:flex · gap:? · align-items:center</text>
+        <!-- Enlace activo con línea -->
+        <text x="278" y="66" font-size="9" fill="hsl(0 70% 35%)" text-anchor="middle" font-family="'DM Sans',sans-serif" font-weight="600">Inicio</text>
+        <line x1="258" y1="72" x2="298" y2="72" stroke="hsl(0 70% 35%)" stroke-width="2" stroke-linecap="round"/>
+        <text x="278" y="82" font-size="6.5" fill="hsl(0 70% 35%)" text-anchor="middle" font-family="monospace">::after</text>
+        <text x="340" y="66" font-size="9" fill="hsl(220 8% 48%)" text-anchor="middle" font-family="'DM Sans',sans-serif">Menú</text>
+        <text x="410" y="66" font-size="9" fill="hsl(220 8% 48%)" text-anchor="middle" font-family="'DM Sans',sans-serif">Nosotros</text>
+        <text x="490" y="66" font-size="9" fill="hsl(220 8% 48%)" text-anchor="middle" font-family="'DM Sans',sans-serif">Contacto</text>
+
+        <!-- Botón -->
+        <rect x="608" y="48" width="104" height="26" rx="4" fill="hsl(0 70% 35%)"/>
+        <text x="660" y="64" font-size="9" fill="white" text-anchor="middle" font-family="'DM Sans',sans-serif" font-weight="600">Reservar</text>
+        <rect x="608" y="36" width="50" height="14" rx="3" fill="hsl(0 70% 35%)"/>
+        <text x="633" y="46" font-size="7.5" fill="white" text-anchor="middle" font-family="monospace" font-weight="600">ZONA 5</text>
+
+        <!-- Eje flex -->
+        <line x1="16" y1="108" x2="724" y2="108" stroke="hsl(210 70% 55%)" stroke-width="1" stroke-dasharray="5 3" marker-end="url(#arr2)"/>
+        <defs>
+          <marker id="arr2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="hsl(210 70% 55%)"/>
+          </marker>
+        </defs>
+        <text x="370" y="120" font-size="7.5" fill="hsl(210 70% 40%)" text-anchor="middle" font-family="monospace">eje principal → flex-direction: row (por defecto)</text>
+
+        <!-- Leyenda -->
+        <line x1="8" y1="132" x2="732" y2="132" stroke="#E2E2DC" stroke-width="1"/>
+        <text x="12" y="146" font-size="7.5" fill="hsl(210 70% 40%)" font-family="monospace">ZONA 2: justify-content separa logo ←→ botón</text>
+        <text x="12" y="158" font-size="7.5" fill="hsl(210 70% 40%)" font-family="monospace">ZONA 2: align-items centra los 3 hijos verticalmente</text>
+        <text x="12" y="170" font-size="7.5" fill="hsl(35 60% 40%)" font-family="monospace">ZONA 4: display:flex + gap pone los li en fila con espacio uniforme</text>
+        <text x="12" y="182" font-size="7.5" fill="hsl(0 70% 35%)" font-family="monospace">ZONA 3: a.nav__enlace.activo → color y peso distintos + ::after para la línea</text>
+        <text x="12" y="194" font-size="7.5" fill="hsl(0 70% 35%)" font-family="monospace">ZONA 3: a.nav__enlace:not(.activo):hover → hover solo en los no activos</text>
+        <text x="12" y="206" font-size="7.5" fill="#555" font-family="monospace">ZONA 1: position:fixed + z-index:100 fija la nav · body necesita padding-top:64px</text>
+      </svg>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ZONAS -->
+  <section class="seccion">
+    <p class="seccion-titulo">Zonas de trabajo</p>
+
+    <!-- ZONA 1 -->
+    <div class="zona">
+      <div class="zona-header">
+        <span class="zona-selector">header.site-header</span>
+        <span class="zona-desc">Zona 1 — fija la nav en la parte superior</span>
+      </div>
+      <div class="zona-body">
+        <p>La nav debe quedarse fija en la parte superior al hacer scroll.
+          El contenido de debajo no debe quedar tapado por ella.</p>
+        <ul class="huecos">
+          <li class="hueco">
+            <span class="hueco-num">1</span>
+            La nav se queda fija en la ventana aunque se haga scroll — no en el flujo del documento.
+          </li>
+          <li class="hueco">
+            <span class="hueco-num">2</span>
+            La nav ocupa todo el ancho horizontal de la ventana.
+          </li>
+          <li class="hueco">
+            <span class="hueco-num">3</span>
+            La nav queda por encima de cualquier otro contenido que pueda solaparse con ella.
+          </li>
+          <li class="hueco">
+            <span class="hueco-num">4</span>
+            El contenido de la página empieza justo debajo de la nav, sin quedar tapado.
+            Esta propiedad va en <code>body</code>.
+          </li>
+        </ul>
+        <div class="code-block"><code><span class="ts">.site-header</span> {
+  <span class="th">/* 1 — fija respecto a la ventana */</span>
+  <span class="tk">top</span>:  <span class="tn">0</span>;
+  <span class="th">/* 2a — desde el borde izquierdo */</span>
+  <span class="th">/* 2b — hasta el borde derecho */</span>
+  <span class="th">/* 3 — por encima de todo */</span>
+}
+
+<span class="ts">body</span> {
+  <span class="th">/* 4 — espacio superior igual a la altura de la nav */</span>
+}</code></div>
+      </div>
+    </div>
+
+    <!-- ZONA 2 -->
+    <div class="zona">
+      <div class="zona-header">
+        <span class="zona-selector">nav.nav</span>
+        <span class="zona-desc">Zona 2 — el contenedor flex</span>
+      </div>
+      <div class="zona-body">
+        <p>El contenedor flex tiene tres hijos directos: logo, lista y botón.
+          Al activar Flexbox, los tres pasan a fila automáticamente.
+          Luego hay que distribuirlos y alinearlos.</p>
+        <ul class="huecos">
+          <li class="hueco">
+            <span class="hueco-num">5</span>
+            Los tres hijos directos pasan a comportarse en fila.
+          </li>
+          <li class="hueco">
+            <span class="hueco-num">6</span>
+            El logo queda pegado a la izquierda y el botón a la derecha,
+            con la lista en el espacio intermedio.
+          </li>
+          <li class="hueco">
+            <span class="hueco-num">7</span>
+            Los tres hijos quedan centrados verticalmente dentro de los 64px de la nav.
+          </li>
+        </ul>
+        <div class="code-block"><code><span class="ts">.nav</span> {
+  <span class="tk">background</span>: <span class="tv">var(--color-surface)</span>;
+  <span class="tk">box-shadow</span>: <span class="tv">var(--shadow-sm)</span>;
+  <span class="tk">padding</span>:    <span class="tn">0</span> <span class="tv">var(--space-8)</span>;
+  <span class="tk">height</span>:     <span class="tn">64px</span>;
+
+  <span class="th">/* 5 — activa el modo flex */</span>
+  <span class="th">/* 6 — distribuye a los extremos */</span>
+  <span class="th">/* 7 — centra en el eje vertical */</span>
+}</code></div>
+      </div>
+    </div>
+
+    <!-- ZONA 3 -->
+    <div class="zona">
+      <div class="zona-header">
+        <span class="zona-selector">ul.nav__lista y sus enlaces</span>
+        <span class="zona-desc">Zona 3 — la lista de enlaces</span>
+      </div>
+      <div class="zona-body">
+        <p>La lista pone sus ítems en fila con espacio uniforme entre ellos.
+          El enlace activo tiene color y peso distintos y una línea debajo generada con CSS.
+          El hover solo funciona en los enlaces que no son el activo.</p>
+        <ul class="huecos">
+          <li class="hueco">
+            <span class="hueco-num">8</span>
+            Los <code>li</code> aparecen en fila — la lista activa Flexbox igual que la nav.
+          </li>
+          <li class="hueco">
+            <span class="hueco-num">9</span>
+            Hay espacio uniforme entre los ítems sin usar <code>margin</code> en cada uno.
+            Usa <code>var(--space-8)</code>.
+          </li>
+          <li class="hueco">
+            <span class="hueco-num">10</span>
+            El enlace activo (<code>.nav__enlace.activo</code>) tiene color de marca y peso 600.
+          </li>
+          <li class="hueco">
+            <span class="hueco-num">11</span>
+            El enlace activo tiene una línea de 2px bajo el texto, generada con <code>::after</code>,
+            sin ocupar espacio en el flujo. Necesita que el enlace sea el contexto de posicionamiento.
+          </li>
+          <li class="hueco">
+            <span class="hueco-num">12</span>
+            Al pasar el cursor, solo cambian de color los enlaces que no son el activo.
+          </li>
+          <li class="hueco">
+            <span class="hueco-num">13</span>
+            Al navegar con Tab, todos los enlaces muestran un anillo de foco visible.
+          </li>
+        </ul>
+        <div class="code-block"><code><span class="ts">.nav__lista</span> {
+  <span class="tk">list-style</span>: <span class="tv">none</span>;
+  <span class="tk">align-items</span>: <span class="tv">center</span>;
+  <span class="th">/* 8 — ítems en fila */</span>
+  <span class="th">/* 9 — espacio entre ítems */</span>
+}
+
+<span class="ts">.nav__enlace</span> {
+  <span class="tk">font-size</span>:       <span class="tv">var(--text-sm)</span>;
+  <span class="tk">font-weight</span>:     <span class="tn">500</span>;
+  <span class="tk">color</span>:           <span class="tv">var(--color-muted)</span>;
+  <span class="tk">text-decoration</span>: <span class="tv">none</span>;
+  <span class="tk">letter-spacing</span>:  <span class="tn">0.03em</span>;
+  <span class="tk">transition</span>:      <span class="tv">color var(--transition-fast)</span>;
+  <span class="th">/* 11a — necesario para anclar ::after */</span>
+  <span class="tk">padding-bottom</span>:  <span class="tn">2px</span>;
+
+  <span class="th">/* 10 — selector: enlace que además tiene clase activo */</span>
+  <span class="ts">&amp;.activo</span> {
+
+    <span class="th">/* 11b — línea bajo el texto, fuera del flujo */</span>
+    <span class="ts">&amp;</span><span class="tpe">::after</span> {
+      <span class="tk">content</span>:       <span class="tst">''</span>;
+      <span class="th">/* 11c — coordenadas: justo bajo el texto */</span>
+      <span class="tk">left</span>:          <span class="tn">0</span>;
+      <span class="tk">right</span>:         <span class="tn">0</span>;
+      <span class="tk">height</span>:        <span class="tn">2px</span>;
+      <span class="tk">background</span>:    <span class="tv">var(--color-brand)</span>;
+      <span class="tk">border-radius</span>: <span class="tv">var(--radius-full)</span>;
+    }
+  }
+
+  <span class="th">/* 12 — hover solo en los que no son el activo */</span>
+
+  <span class="ts">&amp;</span><span class="tps">:focus-visible</span> {
+    <span class="th">/* 13 — anillo de foco visible */</span>
+    <span class="tk">outline-offset</span>: <span class="tn">4px</span>;
+    <span class="tk">border-radius</span>:  <span class="tv">var(--radius-sm)</span>;
+  }
+}</code></div>
+      </div>
+    </div>
+
+    <!-- ZONA 4 -->
+    <div class="zona">
+      <div class="zona-header">
+        <span class="zona-selector">a.nav__logo y a.nav__boton</span>
+        <span class="zona-desc">Zona 4 — logo y botón de reserva</span>
+      </div>
+      <div class="zona-body">
+        <p>El logo usa Playfair Display y responde al hover y al foco.
+          El botón es <code>btn-primary</code> del design system.</p>
+        <ul class="huecos">
+          <li class="hueco">
+            <span class="hueco-num">14</span>
+            El logo tiene Playfair Display, tamaño <code>1.375rem</code>, peso 700,
+            color de marca, <code>letter-spacing: 0.08em</code> y sin subrayado.
+            En hover oscurece ligeramente.
+          </li>
+          <li class="hueco">
+            <span class="hueco-num">15</span>
+            El botón «Reservar» tiene el estilo completo de <code>btn-primary</code>
+            del design system (tamaño base). Consúltalo en la guía de estilos.
+          </li>
+        </ul>
+        <div class="code-block"><code><span class="ts">.nav__logo</span> {
+  <span class="th">/* 14 — todas las propiedades del logo */</span>
+
+  <span class="ts">&amp;</span><span class="tps">:hover</span>        { <span class="th">/* color más oscuro */</span> }
+  <span class="ts">&amp;</span><span class="tps">:focus-visible</span> {
+    <span class="tk">outline</span>:        <span class="tn">3px</span> solid <span class="tv">var(--color-brand)</span>;
+    <span class="tk">outline-offset</span>: <span class="tn">4px</span>;
+    <span class="tk">border-radius</span>:  <span class="tv">var(--radius-sm)</span>;
+  }
+}
+
+<span class="ts">.nav__boton</span> {
+  <span class="th">/* 15 — propiedades de btn-primary (guía de estilos HANA) */</span>
+
+  <span class="ts">&amp;</span><span class="tps">:hover</span>        { <span class="tk">background</span>: <span class="tv">var(--color-brand-dark)</span>; <span class="tk">border-color</span>: <span class="tv">var(--color-brand-dark)</span>; }
+  <span class="ts">&amp;</span><span class="tps">:focus-visible</span> { <span class="tk">outline</span>: <span class="tn">3px</span> solid <span class="tv">var(--color-brand)</span>; <span class="tk">outline-offset</span>: <span class="tn">3px</span>; }
+}</code></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- VERIFICACIÓN -->
+  <section class="seccion">
+    <p class="seccion-titulo">Verificación</p>
+    <div class="callout ok">
+      <span class="callout-icon">✓</span>
+      <div class="callout-body" style="display:flex; flex-direction:column; gap:0.3rem;">
+        <span>Logo a la izquierda, botón a la derecha — sin floats ni márgenes manuales.</span>
+        <span>Los cuatro enlaces de la lista están en fila con espacio uniforme usando solo <code>gap</code>.</span>
+        <span>«Inicio» tiene color y peso distintos. Al hacer hover sobre él, no cambia.</span>
+        <span>Hay una línea roja de 2px bajo «Inicio» generada con <code>::after</code>, no con <code>border-bottom</code>.</span>
+        <span>Al pasar el cursor por «Menú», «Nosotros» y «Contacto», cambian de color suavemente.</span>
+        <span>Al navegar con Tab, cada elemento interactivo muestra un anillo de foco visible.</span>
+        <span>Al hacer scroll, la nav permanece fija y el contenido pasa por debajo sin quedar tapado.</span>
+        <span>En DevTools → Computed: la nav muestra <code>display: flex</code> y <code>justify-content: space-between</code>.</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- RÚBRICA -->
+  <section class="seccion">
+    <p class="seccion-titulo">Rúbrica</p>
+    <div class="rubrica">
+      <div class="rubrica-fila rubrica-head">
+        <div>Hueco</div><div>Peso</div><div>Qué se comprueba</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>1–4 · nav fija</div>
+        <div>15 %</div>
+        <div><code>position: fixed</code>, <code>left: 0</code>, <code>right: 0</code>, <code>z-index</code>. El contenido no queda tapado.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>5–7 · Flexbox en nav</div>
+        <div>25 %</div>
+        <div><code>display: flex</code> + <code>justify-content: space-between</code> + <code>align-items: center</code>. Los tres hijos en fila sin margin ni float.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>8–9 · Flexbox en lista</div>
+        <div>15 %</div>
+        <div>Lista en fila con <code>gap</code>. Sin <code>margin</code> en los <code>li</code>.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>10–11 · Enlace activo y ::after</div>
+        <div>20 %</div>
+        <div>Selector <code>&amp;.activo</code> correcto. Línea con <code>::after</code> + <code>position: absolute</code>, no con <code>border-bottom</code>.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>12 · Hover selectivo</div>
+        <div>10 %</div>
+        <div><code>:not(.activo):hover</code> — el activo no cambia al hacer hover.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>13–15 · Foco, logo y botón</div>
+        <div>15 %</div>
+        <div><code>:focus-visible</code> visible en todos los interactivos. Logo y botón con propiedades correctas del design system.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ENTREGA -->
+  <section class="seccion">
+    <p class="seccion-titulo">Entrega</p>
+    <div class="entrega">
+      Sube <code>HANA-P2C-tunombre/</code> con:
+      <ul>
+        <li><code>index.html</code> — sin modificaciones en el marcado</li>
+        <li><code>css/style.css</code> — con todos los huecos completados</li>
+        <li><code>img/atun-rojo.jpg</code> — imagen de prueba de la P1</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>
