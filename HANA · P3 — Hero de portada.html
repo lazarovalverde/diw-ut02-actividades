@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HANA · P3 — Hero de portada</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #F7F6F3;
+      --surface:   #FFFFFF;
+      --ink:       #1A1A1A;
+      --ink-muted: #6B6B6B;
+      --brand:     hsl(0 70% 35%);
+      --brand-dk:  hsl(0 70% 25%);
+      --brand-lt:  hsl(0 70% 96%);
+      --accent:    hsl(35 90% 52%);
+      --border:    #E2E2DC;
+      --ok-lt:     #F0FDF4;
+      --warn-lt:   #FEF2F2;
+      --amber-lt:  #FFFBEB;
+      --info-lt:   #EFF4FF;
+      --purple-lt: #F5F3FF;
+      --radius:    6px;
+      --mono:      'DM Sans', monospace;
+      --sans:      'DM Sans', system-ui, sans-serif;
+    }
+
+    body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.6; }
+    .ficha { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+    .ficha-header {
+      border-bottom: 2px solid var(--ink); padding-bottom: 1.25rem;
+      margin-bottom: 2rem; display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+    }
+    .ficha-codigo {
+      font-family: var(--mono); font-size: 0.75rem; font-weight: 500;
+      color: var(--brand); background: var(--brand-lt);
+      padding: 0.2rem 0.6rem; border-radius: 3px; letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .ficha-titulo { font-size: 1.5rem; font-weight: 600; font-family: 'Playfair Display', serif; line-height: 1.25; }
+    .ficha-meta { margin-left: auto; text-align: right; font-size: 0.8rem; color: var(--ink-muted); line-height: 1.8; }
+
+    .seccion { margin-bottom: 2.25rem; }
+    .seccion-titulo {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-muted); margin-bottom: 0.6rem;
+    }
+    .seccion p { font-size: 0.95rem; max-width: 68ch; }
+    .seccion p + p { margin-top: 0.6rem; }
+
+    .contexto {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 4px solid var(--brand); border-radius: var(--radius);
+      padding: 1.1rem 1.25rem; font-size: 0.92rem; line-height: 1.65; max-width: 72ch;
+    }
+    .contexto strong { color: var(--brand); }
+
+    .callout {
+      border-radius: var(--radius); padding: 0.85rem 1.1rem;
+      font-size: 0.88rem; display: flex; gap: 0.7rem;
+      align-items: flex-start; margin-top: 0.75rem; max-width: 72ch;
+    }
+    .callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
+    .callout-body { line-height: 1.55; }
+    .callout-body strong { display: block; margin-bottom: 0.15rem; }
+    .callout.info   { background: var(--info-lt);   color: #1E3A8A; }
+    .callout.warn   { background: var(--warn-lt);   color: #991B1B; }
+    .callout.ok     { background: var(--ok-lt);     color: #14532D; }
+    .callout.amber  { background: var(--amber-lt);  color: #78350F; }
+    .callout.purple { background: var(--purple-lt); color: #4C1D95; }
+
+    hr.div { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+    .code-block {
+      background: #1E1E2E; border-radius: var(--radius);
+      padding: 1.25rem 1.5rem; overflow-x: auto; margin-top: 0.75rem;
+    }
+    .code-block code {
+      font-family: var(--mono); font-size: 0.82rem; line-height: 1.85;
+      color: #CDD6F4; white-space: pre; display: block;
+    }
+    .tk  { color: #89B4FA; } .tv  { color: #A6E3A1; }
+    .tc  { color: #6C7086; font-style: italic; }
+    .ts  { color: #F38BA8; } .tst { color: #FAB387; }
+    .tn  { color: #CBA6F7; } .tps { color: #94E2D5; }
+    .tpe { color: #F9E2AF; }
+
+    /* Pasos */
+    .pasos { counter-reset: paso; list-style: none; display: flex; flex-direction: column; gap: 1.25rem; }
+    .pasos > li {
+      counter-increment: paso; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.1rem 1.25rem 1.1rem 3.5rem; position: relative; font-size: 0.92rem;
+    }
+    .pasos > li::before {
+      content: counter(paso); position: absolute; left: 1rem; top: 1.1rem;
+      width: 1.6rem; height: 1.6rem; background: var(--brand);
+      color: #fff; border-radius: 50%; font-family: var(--mono);
+      font-size: 0.75rem; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pasos > li strong { color: var(--brand); }
+    .pasos > li p { margin-top: 0.35rem; color: var(--ink-muted); font-size: 0.88rem; }
+
+    /* Tarea */
+    .tarea {
+      background: hsl(0 70% 35% / 0.06);
+      border: 1.5px solid hsl(0 70% 35% / 0.25);
+      border-radius: var(--radius);
+      padding: 0.85rem 1.1rem; margin-top: 0.85rem; font-size: 0.9rem;
+    }
+    .tarea-titulo {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--brand); margin-bottom: 0.5rem; display: block;
+    }
+    .tarea ol, .tarea ul { padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.35rem; }
+    .tarea li { line-height: 1.55; }
+
+    /* Rúbrica */
+    .rubrica { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; font-size: 0.875rem; }
+    .rubrica-fila { display: grid; grid-template-columns: 2fr 1fr 2fr; border-bottom: 1px solid var(--border); }
+    .rubrica-fila:last-child { border-bottom: none; }
+    .rubrica-head { background: var(--ink); color: #fff; }
+    .rubrica-fila > div { padding: 0.6rem 0.9rem; border-right: 1px solid var(--border); }
+    .rubrica-fila > div:last-child { border-right: none; }
+    .rubrica-head > div { font-family: var(--mono); font-size: 0.76rem; font-weight: 500; }
+    .badge { display: inline-block; font-family: var(--mono); font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 3px; background: var(--brand-lt); color: var(--brand); }
+
+    .entrega { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; font-size: 0.9rem; }
+    .entrega ul { margin-top: 0.6rem; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.3rem; color: var(--ink-muted); }
+    .entrega ul li::marker { color: var(--brand); }
+
+    /* ── Hero demo en vivo ── */
+    .hero-demo {
+      min-height: 480px;
+      background:
+        linear-gradient(to bottom,
+          hsl(0 0% 0% / 0.20) 0%,
+          hsl(0 0% 0% / 0.55) 50%,
+          hsl(0 0% 0% / 0.72) 100%),
+        linear-gradient(135deg,
+          hsl(0 40% 12%) 0%,
+          hsl(15 50% 18%) 40%,
+          hsl(35 45% 22%) 100%);
+      background-size: cover;
+      background-position: center;
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 5rem 2rem;
+      gap: 1.25rem;
+      margin-top: 0.75rem;
+      position: relative;
+    }
+    .hero-demo__etiqueta {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: hsl(35 90% 70%);
+    }
+    .hero-demo__titulo {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      color: white;
+      line-height: 1.15;
+      max-width: 14ch;
+    }
+    .hero-demo__titulo em {
+      font-style: italic;
+      color: hsl(35 90% 72%);
+    }
+    .hero-demo__subtitulo {
+      font-family: 'DM Sans', sans-serif;
+      font-size: clamp(1rem, 2vw, 1.125rem);
+      color: hsl(0 0% 100% / 0.78);
+      max-width: 44ch;
+      line-height: 1.65;
+    }
+    .hero-demo__botones {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 0.5rem;
+    }
+    .hero-demo__btn-primary {
+      background: hsl(35 90% 52%);
+      color: hsl(220 15% 12%);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 14px 28px;
+      border-radius: 4px;
+      border: 2px solid hsl(35 90% 52%);
+      text-decoration: none;
+      transition: background 250ms ease, border-color 250ms ease;
+      cursor: pointer;
+    }
+    .hero-demo__btn-primary:hover { background: hsl(35 90% 44%); border-color: hsl(35 90% 44%); }
+    .hero-demo__btn-primary:focus-visible { outline: 3px solid white; outline-offset: 3px; }
+    .hero-demo__btn-ghost {
+      background: transparent;
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 14px 28px;
+      border-radius: 4px;
+      border: 2px solid hsl(0 0% 100% / 0.45);
+      text-decoration: none;
+      transition: border-color 250ms ease, background 250ms ease;
+      cursor: pointer;
+    }
+    .hero-demo__btn-ghost:hover { border-color: white; background: hsl(0 0% 100% / 0.08); }
+    .hero-demo__btn-ghost:focus-visible { outline: 3px solid white; outline-offset: 3px; }
+
+    /* Flecha scroll */
+    .hero-demo__scroll {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: hsl(0 0% 100% / 0.5);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-family: 'DM Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .hero-demo__scroll::after {
+      content: '';
+      width: 1px;
+      height: 36px;
+      background: hsl(0 0% 100% / 0.35);
+      display: block;
+    }
+
+    /* Tabla de unidades */
+    .unidades-tabla {
+      width: 100%; border-collapse: collapse; font-size: 0.86rem; margin-top: 0.75rem;
+    }
+    .unidades-tabla th {
+      background: var(--ink); color: white; padding: 0.5rem 0.75rem;
+      text-align: left; font-family: var(--mono); font-size: 0.76rem;
+    }
+    .unidades-tabla td {
+      padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border);
+      vertical-align: top; line-height: 1.5;
+    }
+    .unidades-tabla tr:nth-child(even) td { background: hsl(35 20% 97%); }
+    .unidades-tabla td:first-child { font-family: var(--mono); font-size: 0.82rem; color: var(--brand); font-weight: 500; white-space: nowrap; }
+    .unidades-tabla td:nth-child(2) { font-size: 0.82rem; color: var(--ink-muted); }
+
+    /* Diagrama capas overlay */
+    .capas-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; margin-top: 0.75rem;
+    }
+    .capas-header {
+      background: var(--ink); color: white; padding: 0.45rem 1rem;
+      font-family: var(--mono); font-size: 0.76rem;
+    }
+    .capas-body { padding: 1.25rem; }
+  </style>
+</head>
+<body>
+<main class="ficha">
+
+  <!-- CABECERA -->
+  <header class="ficha-header">
+    <span class="ficha-codigo">HANA · P3</span>
+    <h1 class="ficha-titulo">Hero de portada</h1>
+    <div class="ficha-meta">
+      Sesión 3 de 12<br>
+      Tiempo estimado: 55 min<br>
+      Modalidad: guiada
+    </div>
+  </header>
+
+  <!-- OBJETIVOS -->
+  <section class="seccion">
+    <p class="seccion-titulo">Qué vas a aprender</p>
+    <p>
+      El hero es la primera impresión del restaurante: ocupa toda la pantalla,
+      tiene una imagen de fondo con un overlay oscuro para que el texto sea legible,
+      y el contenido queda perfectamente centrado con Flexbox.
+      En esta práctica aprenderás a combinar capas de fondo con gradientes,
+      a usar <code>min-height</code> con unidades de viewport para secciones
+      de pantalla completa, y a escribir tipografía fluida con <code>clamp()</code>
+      para que el titular se adapte a cualquier tamaño sin media queries.
+    </p>
+  </section>
+
+  <!-- SITUACIÓN -->
+  <section class="seccion">
+    <p class="seccion-titulo">Situación</p>
+    <div class="contexto">
+      El cliente quiere que al abrir la web de HANA lo primero que vea el visitante
+      sea una <strong>imagen de ambiente del restaurante</strong> ocupando toda la pantalla,
+      con el <strong>nombre del restaurante en grande</strong>, un subtítulo
+      y dos botones: uno para reservar y otro para ver el menú.
+      El texto debe ser perfectamente legible sobre la foto aunque sea oscura.
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- MAQUETA -->
+  <section class="seccion">
+    <p class="seccion-titulo">Maqueta de referencia</p>
+    <p>Este es el hero que vas a construir. El fondo es un gradiente que simula la fotografía
+      — en tu proyecto usarás una imagen real.</p>
+
+    <div class="hero-demo" role="banner">
+      <p class="hero-demo__etiqueta">Cocina japonesa contemporánea · Madrid</p>
+      <h1 class="hero-demo__titulo">
+        Donde la tradición<br>
+        <em>florece</em> en cada plato
+      </h1>
+      <p class="hero-demo__subtitulo">
+        Sushi de temporada elaborado con producto de mercado
+        y técnicas japonesas. Cada pieza, una experiencia.
+      </p>
+      <div class="hero-demo__botones">
+        <a href="#" class="hero-demo__btn-primary" onclick="return false">Reservar mesa</a>
+        <a href="#" class="hero-demo__btn-ghost"   onclick="return false">Ver el menú</a>
+      </div>
+      <div class="hero-demo__scroll" aria-hidden="true">Scroll</div>
+    </div>
+
+    <!-- SVG anatomía -->
+    <svg width="100%" viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg"
+         style="margin-top:1rem; border:1px solid var(--border); border-radius:var(--radius); background:hsl(35 20% 97%);"
+         role="img" aria-label="Anatomía del hero con capas y zonas anotadas">
+
+      <!-- Capa 1: imagen de fondo -->
+      <rect x="8" y="14" width="744" height="220" rx="6"
+            fill="hsl(0 35% 14%)" stroke="hsl(0 35% 30%)" stroke-width="1" stroke-dasharray="5 3"/>
+      <text x="20" y="30" font-size="8" fill="hsl(0 35% 60%)" font-family="monospace" font-weight="600">CAPA 1 · background-image: url(foto.jpg)</text>
+      <text x="20" y="42" font-size="7.5" fill="hsl(0 35% 45%)" font-family="monospace">background-size: cover · background-position: center</text>
+
+      <!-- Capa 2: overlay gradiente -->
+      <rect x="8" y="56" width="744" height="178" rx="4"
+            fill="hsl(0 0% 0% / 0.45)" stroke="hsl(210 60% 50%)" stroke-width="1" stroke-dasharray="4 2"/>
+      <text x="20" y="72" font-size="8" fill="hsl(210 70% 70%)" font-family="monospace" font-weight="600">CAPA 2 · overlay — gradiente semitransparente encima de la imagen</text>
+      <text x="20" y="84" font-size="7.5" fill="hsl(210 50% 55%)" font-family="monospace">linear-gradient(to bottom, hsl(0 0%0%/0.2), hsl(0 0%0%/0.7))</text>
+
+      <!-- Capa 3: contenido -->
+      <rect x="200" y="96" width="360" height="128" rx="4"
+            fill="hsl(0 0% 100% / 0.04)" stroke="hsl(35 90% 52%)" stroke-width="1" stroke-dasharray="4 2"/>
+      <text x="380" y="112" font-size="8" fill="hsl(35 80% 65%)" text-anchor="middle" font-family="monospace" font-weight="600">ZONA CONTENIDO · Flexbox centra esto</text>
+
+      <!-- Etiqueta -->
+      <rect x="280" y="118" width="200" height="10" rx="2" fill="hsl(35 90% 52% / 0.4)"/>
+      <text x="380" y="126" font-size="7" fill="hsl(35 90% 80%)" text-anchor="middle" font-family="monospace">etiqueta · text-xs · uppercase · color accent</text>
+
+      <!-- Título -->
+      <rect x="240" y="134" width="280" height="26" rx="2" fill="hsl(0 0% 100% / 0.2)"/>
+      <text x="380" y="151" font-size="12" fill="white" text-anchor="middle" font-family="'Playfair Display', serif" font-weight="700">Donde la tradición florece</text>
+      <text x="620" y="148" font-size="7.5" fill="#aaa" font-family="monospace">clamp(2rem, 5vw, 3.5rem)</text>
+
+      <!-- Subtítulo -->
+      <rect x="260" y="166" width="240" height="8" rx="2" fill="hsl(0 0% 100% / 0.25)"/>
+      <rect x="270" y="178" width="220" height="8" rx="2" fill="hsl(0 0% 100% / 0.25)"/>
+      <text x="130" y="172" font-size="7.5" fill="#aaa" font-family="monospace" text-anchor="end">max-width: 44ch</text>
+
+      <!-- Botones -->
+      <rect x="270" y="192" width="90" height="20" rx="4" fill="hsl(35 90% 52%)"/>
+      <text x="315" y="205" font-size="8" fill="hsl(220 15% 12%)" text-anchor="middle" font-family="monospace" font-weight="600">Reservar mesa</text>
+      <rect x="370" y="192" width="80" height="20" rx="4" fill="none" stroke="hsl(0 0%100%/0.5)" stroke-width="1.5"/>
+      <text x="410" y="205" font-size="8" fill="white" text-anchor="middle" font-family="monospace">Ver el menú</text>
+
+      <!-- Cotas -->
+      <!-- min-height -->
+      <line x1="748" y1="14" x2="755" y2="14" stroke="#555" stroke-width="1"/>
+      <line x1="748" y1="234" x2="755" y2="234" stroke="#555" stroke-width="1"/>
+      <line x1="752" y1="14" x2="752" y2="234" stroke="#555" stroke-width="1"/>
+      <line x1="748" y1="14" x2="756" y2="14" stroke="#555" stroke-width="1"/>
+      <line x1="748" y1="234" x2="756" y2="234" stroke="#555" stroke-width="1"/>
+      <text x="758" y="128" font-size="8" fill="#777" font-family="monospace">min-height</text>
+      <text x="758" y="139" font-size="8" fill="#777" font-family="monospace">100vh</text>
+
+      <!-- Eje flex vertical -->
+      <line x1="380" y1="96" x2="380" y2="220" stroke="hsl(210 70% 55%)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#fv)"/>
+      <defs>
+        <marker id="fv" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="hsl(210 70% 55%)"/>
+        </marker>
+      </defs>
+      <text x="128" y="160" font-size="7.5" fill="hsl(210 60% 50%)" font-family="monospace" text-anchor="end">flex-direction: column</text>
+      <text x="128" y="170" font-size="7.5" fill="hsl(210 60% 50%)" font-family="monospace" text-anchor="end">justify-content: center</text>
+      <text x="128" y="180" font-size="7.5" fill="hsl(210 60% 50%)" font-family="monospace" text-anchor="end">align-items: center</text>
+    </svg>
+
+    <div class="callout info">
+      <span class="callout-icon">🧠</span>
+      <div class="callout-body">
+        <strong>Lee las capas antes de escribir CSS</strong>
+        El hero tiene tres capas superpuestas: la fotografía de fondo, un gradiente oscuro encima
+        (el overlay que hace legible el texto), y el contenido centrado con Flexbox.
+        Cada capa se declara de una forma distinta en CSS. Identifícalas en la maqueta antes de abrir el editor.
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- UNIDADES DE VIEWPORT -->
+  <section class="seccion">
+    <p class="seccion-titulo">Unidades de viewport y <code>clamp()</code></p>
+    <p>
+      En el hero vas a usar por primera vez unidades relativas al tamaño de la ventana
+      del navegador. Son imprescindibles para secciones de pantalla completa.
+    </p>
+
+    <table class="unidades-tabla">
+      <thead>
+        <tr><th>Unidad / función</th><th>Relativa a…</th><th>Cuándo usarla</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>vh</td>
+          <td>1% de la altura de la ventana visible</td>
+          <td>Secciones de pantalla completa. <code>min-height: 100vh</code> = al menos toda la pantalla, crece si el contenido lo necesita.</td>
+        </tr>
+        <tr>
+          <td>vw</td>
+          <td>1% del ancho de la ventana visible</td>
+          <td>Tipografía fluida (con cuidado), elementos que deben escalar con el ancho de pantalla.</td>
+        </tr>
+        <tr>
+          <td>svh</td>
+          <td>1% de la altura del viewport pequeño (mobile)</td>
+          <td>En móvil, la barra del navegador reduce el viewport. <code>svh</code> es la alternativa segura a <code>vh</code> en móvil.</td>
+        </tr>
+        <tr>
+          <td>clamp(mín, preferido, máx)</td>
+          <td>Tres valores: mínimo, valor fluido y máximo</td>
+          <td>Tipografía que escala suavemente entre dos tamaños sin media queries. <code>clamp(2rem, 5vw, 3.5rem)</code> nunca será menor de 2rem ni mayor de 3.5rem.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout amber">
+      <span class="callout-icon">🧠</span>
+      <div class="callout-body">
+        <strong><code>height: 100vh</code> vs <code>min-height: 100vh</code></strong>
+        <code>height: 100vh</code> fija la altura exacta — si el contenido crece más, desborda.
+        <code>min-height: 100vh</code> garantiza al menos esa altura pero deja que crezca.
+        Para un hero con contenido variable, <code>min-height</code> es siempre la opción correcta.
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- CÓMO FUNCIONA EL OVERLAY -->
+  <section class="seccion">
+    <p class="seccion-titulo">El overlay: cómo se apilan las capas de fondo</p>
+    <p>
+      En CSS, <code>background</code> acepta varias capas separadas por comas.
+      El navegador las apila de delante hacia atrás: la primera capa va encima,
+      la última va detrás. El overlay es simplemente un gradiente semitransparente
+      puesto <em>delante</em> de la imagen.
+    </p>
+
+    <div class="capas-wrap">
+      <div class="capas-header">Cómo se lee el background con múltiples capas</div>
+      <div class="capas-body">
+        <div class="code-block" style="margin-top:0;"><code><span class="ts">.hero</span> {
+  <span class="tk">background</span>:
+    <span class="tc">/* Capa 1 — va DELANTE — el overlay oscuro */</span>
+    <span class="tv">linear-gradient</span>(
+      to bottom,
+      <span class="tv">hsl(0 0% 0% / 0.20)</span>,   <span class="tc">/* arriba: 20% opaco */</span>
+      <span class="tv">hsl(0 0% 0% / 0.70)</span>    <span class="tc">/* abajo:  70% opaco — más oscuro para el texto */</span>
+    ),
+    <span class="tc">/* Capa 2 — va DETRÁS — la fotografía */</span>
+    <span class="tv">url</span>(<span class="tst">'img/hero-restaurante.jpg'</span>);
+
+  <span class="tk">background-size</span>:     <span class="tv">cover</span>;   <span class="tc">/* la foto rellena sin dejar huecos */</span>
+  <span class="tk">background-position</span>: <span class="tv">center</span>;  <span class="tc">/* centrada — la parte más importante queda visible */</span>
+}</code></div>
+
+        <div class="callout info" style="margin-top:0.75rem;">
+          <span class="callout-icon">💡</span>
+          <div class="callout-body">
+            <strong>El gradiente no es un elemento HTML — es parte del fondo</strong>
+            No hay ningún <code>&lt;div&gt;</code> de overlay en el HTML.
+            El gradiente y la imagen se declaran juntos en la propiedad <code>background</code>,
+            separados por una coma. El navegador los compone automáticamente.
+            Menos HTML, mismo resultado visual.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- CÓDIGO DE PARTIDA -->
+  <section class="seccion">
+    <p class="seccion-titulo">Código de partida</p>
+    <p>Añade esta sección en tu <code>index.html</code> justo después del
+      <code>&lt;header&gt;</code> con la nav. <strong>No modifiques el marcado.</strong></p>
+
+    <div class="code-block"><code><span class="tc">&lt;!-- Añade después del &lt;header&gt; con la nav --&gt;</span>
+
+<span class="tk">&lt;section</span> <span class="tv">class</span>=<span class="tst">"hero"</span> <span class="tv">aria-label</span>=<span class="tst">"Portada"</span><span class="tk">&gt;</span>
+  <span class="tk">&lt;div</span> <span class="tv">class</span>=<span class="tst">"hero__contenido"</span><span class="tk">&gt;</span>
+
+    <span class="tk">&lt;p</span> <span class="tv">class</span>=<span class="tst">"hero__etiqueta"</span><span class="tk">&gt;</span>
+      Cocina japonesa contemporánea · Madrid
+    <span class="tk">&lt;/p&gt;</span>
+
+    <span class="tk">&lt;h1</span> <span class="tv">class</span>=<span class="tst">"hero__titulo"</span><span class="tk">&gt;</span>
+      Donde la tradición<br>
+      <span class="tk">&lt;em&gt;</span>florece<span class="tk">&lt;/em&gt;</span> en cada plato
+    <span class="tk">&lt;/h1&gt;</span>
+
+    <span class="tk">&lt;p</span> <span class="tv">class</span>=<span class="tst">"hero__subtitulo"</span><span class="tk">&gt;</span>
+      Sushi de temporada elaborado con producto de mercado
+      y técnicas japonesas. Cada pieza, una experiencia.
+    <span class="tk">&lt;/p&gt;</span>
+
+    <span class="tk">&lt;div</span> <span class="tv">class</span>=<span class="tst">"hero__botones"</span><span class="tk">&gt;</span>
+      <span class="tk">&lt;a</span> <span class="tv">href</span>=<span class="tst">"reservas.html"</span> <span class="tv">class</span>=<span class="tst">"hero__btn-primario"</span><span class="tk">&gt;</span>
+        Reservar mesa
+      <span class="tk">&lt;/a&gt;</span>
+      <span class="tk">&lt;a</span> <span class="tv">href</span>=<span class="tst">"menu.html"</span> <span class="tv">class</span>=<span class="tst">"hero__btn-secundario"</span><span class="tk">&gt;</span>
+        Ver el menú
+      <span class="tk">&lt;/a&gt;</span>
+    <span class="tk">&lt;/div&gt;</span>
+
+  <span class="tk">&lt;/div&gt;</span>
+<span class="tk">&lt;/section&gt;</span></code></div>
+
+    <div class="callout warn">
+      <span class="callout-icon">♿</span>
+      <div class="callout-body">
+        <strong>Accesibilidad en el hero</strong>
+        <code>aria-label="Portada"</code> en el <code>&lt;section&gt;</code>
+        lo identifica como región de la página para lectores de pantalla.
+        El <code>&lt;h1&gt;</code> es el titular principal de la página — solo debe haber uno.
+        El texto del botón «Reservar mesa» es descriptivo: un usuario con lector de pantalla
+        sabe exactamente qué hace sin necesitar el contexto visual.
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- PASOS -->
+  <section class="seccion">
+    <p class="seccion-titulo">Pasos</p>
+    <ol class="pasos">
+
+      <li>
+        <strong>Construye el fondo: imagen + overlay en una sola propiedad</strong>
+        <p>
+          El hero necesita una fotografía de fondo que lo cubra completamente
+          y un gradiente oscuro encima para que el texto blanco sea legible.
+          Ambas cosas van en la misma declaración <code>background</code>, separadas por una coma.
+          La foto debe cubrir toda la zona sin dejar huecos y estar centrada.
+        </p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea</span>
+          <ol>
+            <li>Descarga o usa cualquier fotografía de ambiente de restaurante y guárdala en <code>img/hero-restaurante.jpg</code>.</li>
+            <li>En <code>.hero</code>, declara el <code>background</code> con dos capas: primero el gradiente de overlay (de <code>hsl(0 0% 0% / 0.20)</code> a <code>hsl(0 0% 0% / 0.70)</code>), luego la imagen.</li>
+            <li>Añade <code>background-size: cover</code> y <code>background-position: center</code>.</li>
+            <li>Comprueba: la foto debe cubrir toda la sección sin deformarse ni dejar bordes blancos.</li>
+          </ol>
+        </div>
+        <div class="code-block"><code><span class="ts">.hero</span> {
+  <span class="tk">background</span>:
+    <span class="tc">/* ← TÚ: gradiente overlay — de 20% a 70% opaco */</span>
+    <span class="tc">/* ← TÚ: imagen de fondo */</span>
+  ;
+  <span class="tc">/* ← TÚ: la foto cubre toda la sección sin dejar huecos */</span>
+  <span class="tc">/* ← TÚ: la parte más importante de la foto queda visible */</span>
+}</code></div>
+      </li>
+
+      <li>
+        <strong>Da altura a la sección y centra el contenido con Flexbox</strong>
+        <p>
+          El hero debe ocupar como mínimo toda la altura de la pantalla.
+          El contenido interior (<code>.hero__contenido</code>) tiene que quedar
+          centrado horizontal y verticalmente, con los elementos en columna.
+          Este es el mismo Flexbox de la nav, pero con el eje principal vertical.
+        </p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea</span>
+          <ol>
+            <li>En <code>.hero</code>: usa la unidad de viewport que garantiza al menos toda la pantalla de alto, pero que permite que la sección crezca si el contenido lo necesita.</li>
+            <li>Activa Flexbox en <code>.hero</code> para centrar <code>.hero__contenido</code>. Los ítems deben quedar centrados en los dos ejes. En la nav los ítems iban en fila — aquí van en columna.</li>
+            <li>Añade <code>padding: var(--space-20) var(--space-8)</code> para que el contenido no toque los bordes en pantallas pequeñas.</li>
+          </ol>
+        </div>
+        <div class="code-block"><code><span class="ts">.hero</span> {
+  <span class="tc">/* fondo del paso anterior... */</span>
+  <span class="tc">/* ← TÚ: al menos toda la pantalla de alto, pero puede crecer */</span>
+
+  <span class="tk">display</span>:          <span class="tv">flex</span>;
+  <span class="tc">/* ← TÚ: eje vertical — los ítems van en columna */</span>
+  <span class="tc">/* ← TÚ: centra en el eje principal (vertical) */</span>
+  <span class="tc">/* ← TÚ: centra en el eje cruzado (horizontal) */</span>
+
+  <span class="tk">padding</span>:           <span class="tv">var(--space-20)</span> <span class="tv">var(--space-8)</span>;
+  <span class="tk">text-align</span>:        <span class="tv">center</span>;
+}</code></div>
+
+        <div class="callout info">
+          <span class="callout-icon">💡</span>
+          <div class="callout-body">
+            <strong>El eje cambia con <code>flex-direction</code></strong>
+            Cuando <code>flex-direction: row</code> (por defecto),
+            <code>justify-content</code> distribuye horizontalmente y <code>align-items</code> alinea verticalmente.<br>
+            Cuando <code>flex-direction: column</code>,
+            los ejes se invierten: <code>justify-content</code> distribuye verticalmente
+            y <code>align-items</code> alinea horizontalmente.
+            Para centrar en los dos ejes, necesitas <code>center</code> en ambas propiedades.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <strong>Estiliza la tipografía del hero</strong>
+        <p>
+          El titular es el elemento más importante visualmente.
+          Debe ser grande y adaptarse al tamaño de la pantalla sin necesitar media queries.
+          Para eso existe <code>clamp()</code>: define un mínimo, un valor fluido y un máximo.
+          El <code>&lt;em&gt;</code> dentro del titular tiene un color dorado que añade
+          elegancia — se estiliza con el selector de elemento dentro del titular.
+        </p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea</span>
+          <ol>
+            <li>En <code>.hero__etiqueta</code>: <code>text-xs</code>, peso 600, <code>uppercase</code>, <code>letter-spacing: 0.2em</code>, color dorado (<code>hsl(35 90% 70%)</code>).</li>
+            <li>En <code>.hero__titulo</code>: Playfair Display, <code>clamp(2rem, 5vw, 3.5rem)</code> como <code>font-size</code>, peso 700, color blanco, <code>line-height: 1.15</code>, <code>max-width: 14ch</code>. Dentro, <code>em</code> en color dorado (<code>hsl(35 90% 72%)</code>) e itálica.</li>
+            <li>En <code>.hero__subtitulo</code>: <code>clamp(1rem, 2vw, 1.125rem)</code>, color <code>hsl(0 0% 100% / 0.78)</code>, <code>max-width: 44ch</code>, <code>line-height: 1.65</code>.</li>
+          </ol>
+        </div>
+        <div class="code-block"><code><span class="ts">.hero__contenido</span> {
+  <span class="tk">display</span>:         <span class="tv">flex</span>;
+  <span class="tk">flex-direction</span>:  <span class="tv">column</span>;
+  <span class="tk">align-items</span>:     <span class="tv">center</span>;
+  <span class="tk">gap</span>:             <span class="tv">var(--space-5)</span>; <span class="tc">/* espacio entre etiqueta, título, subtítulo y botones */</span>
+}
+
+<span class="ts">.hero__etiqueta</span> {
+  <span class="tk">font-size</span>:      <span class="tv">var(--text-xs)</span>;
+  <span class="tk">font-weight</span>:    <span class="tn">600</span>;
+  <span class="tk">letter-spacing</span>: <span class="tn">0.2em</span>;           <span class="tc">/* apertura amplia — típico de etiquetas de lujo */</span>
+  <span class="tk">text-transform</span>: <span class="tv">uppercase</span>;
+  <span class="tk">color</span>:          <span class="tv">hsl(35 90% 70%)</span>; <span class="tc">/* dorado suave */</span>
+}
+
+<span class="ts">.hero__titulo</span> {
+  <span class="tk">font-family</span>: <span class="tv">var(--font-display)</span>;
+  <span class="tc">/* ← TÚ: font-size fluido con clamp(mínimo, fluido, máximo) */</span>
+  <span class="tk">font-weight</span>: <span class="tn">700</span>;
+  <span class="tk">color</span>:       <span class="tv">white</span>;
+  <span class="tk">line-height</span>: <span class="tn">1.15</span>;                <span class="tc">/* compacto — titulares grandes se leen mejor así */</span>
+  <span class="tk">max-width</span>:   <span class="tn">14ch</span>;               <span class="tc">/* limita a ~14 caracteres — controla el salto de línea */</span>
+
+  <span class="ts">em</span> {
+    <span class="tc">/* ← TÚ: color dorado e itálica para el énfasis */</span>
+  }
+}
+
+<span class="ts">.hero__subtitulo</span> {
+  <span class="tc">/* ← TÚ: font-size fluido, color semitransparente, max-width y line-height */</span>
+}</code></div>
+
+        <div class="callout info">
+          <span class="callout-icon">💡</span>
+          <div class="callout-body">
+            <strong><code>max-width: 14ch</code> — la unidad de longitud de línea</strong>
+            <code>ch</code> equivale al ancho del carácter «0» de la fuente actual.
+            Es la unidad más natural para controlar cuántos caracteres caben en una línea.
+            En tipografía, los titulares grandes suelen leerse mejor entre 10 y 20 caracteres por línea.
+            <code>14ch</code> fuerza el salto en el punto correcto sin necesitar un <code>&lt;br&gt;</code>
+            en HTML para cada tamaño de pantalla.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <strong>Estiliza los botones del hero</strong>
+        <p>
+          El hero tiene dos botones: uno primario en dorado (el color de acento de HANA,
+          que contrasta bien sobre fondo oscuro) y uno secundario tipo «ghost»
+          (fondo transparente, solo borde blanco semitransparente).
+          El botón ghost es habitual en heroes: es legible sobre fondos oscuros
+          sin competir visualmente con el botón principal.
+        </p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea</span>
+          <ol>
+            <li>En <code>.hero__botones</code>: Flexbox con <code>gap: var(--space-4)</code> y <code>flex-wrap: wrap</code> para que los botones pasen a columna en pantallas muy estrechas.</li>
+            <li>En <code>.hero__btn-primario</code>: fondo <code>var(--color-accent)</code>, color <code>var(--color-ink)</code>, peso 600, <code>text-lg</code>, <code>padding: 14px 28px</code>, <code>border-radius: var(--radius-sm)</code>, borde de 2px del mismo color accent. Anida <code>:hover</code> con fondo más oscuro y <code>:focus-visible</code> con <code>outline: 3px solid white</code>.</li>
+            <li>En <code>.hero__btn-secundario</code>: fondo transparente, color blanco, borde <code>2px solid hsl(0 0% 100% / 0.45)</code>. En hover: borde blanco sólido y fondo <code>hsl(0 0% 100% / 0.08)</code>.</li>
+          </ol>
+        </div>
+        <div class="code-block"><code><span class="ts">.hero__botones</span> {
+  <span class="tk">display</span>:   <span class="tv">flex</span>;
+  <span class="tk">gap</span>:       <span class="tv">var(--space-4)</span>;
+  <span class="tk">flex-wrap</span>: <span class="tv">wrap</span>;               <span class="tc">/* si no caben en fila, se apilan */</span>
+}
+
+<span class="ts">.hero__btn-primario</span> {
+  <span class="tc">/* ← TÚ: botón dorado — todas las propiedades */</span>
+
+  <span class="ts">&amp;</span><span class="tps">:hover</span>        { <span class="tc">/* ← TÚ: oscurece el dorado */</span> }
+  <span class="ts">&amp;</span><span class="tps">:focus-visible</span> { <span class="tk">outline</span>: <span class="tn">3px</span> solid <span class="tv">white</span>; <span class="tk">outline-offset</span>: <span class="tn">3px</span>; }
+}
+
+<span class="ts">.hero__btn-secundario</span> {
+  <span class="tc">/* ← TÚ: botón ghost — transparente con borde blanco */</span>
+  <span class="tc">/* Hereda font-size, font-weight, padding y border-radius del primario */</span>
+  <span class="tc">/* (o copia las mismas propiedades de base) */</span>
+
+  <span class="ts">&amp;</span><span class="tps">:hover</span>        { <span class="tc">/* ← TÚ: borde sólido + fondo muy sutil */</span> }
+  <span class="ts">&amp;</span><span class="tps">:focus-visible</span> { <span class="tk">outline</span>: <span class="tn">3px</span> solid <span class="tv">white</span>; <span class="tk">outline-offset</span>: <span class="tn">3px</span>; }
+}</code></div>
+      </li>
+
+      <li>
+        <strong>Verifica el resultado</strong>
+        <div class="tarea">
+          <span class="tarea-titulo">Lista de verificación</span>
+          <ul>
+            <li>La fotografía cubre toda la sección sin dejar bordes blancos ni deformarse.</li>
+            <li>El texto es legible sobre la foto — el overlay es suficientemente oscuro en la zona del texto.</li>
+            <li>El contenido está centrado horizontal y verticalmente dentro del hero.</li>
+            <li>El titular cambia de tamaño al redimensionar la ventana — nunca por debajo de 2rem ni por encima de 3.5rem. Compruébalo estrechando y ensanchando la ventana.</li>
+            <li>El subtítulo nunca supera los ~44 caracteres por línea — <code>max-width: 44ch</code> lo garantiza.</li>
+            <li>El botón dorado y el ghost son claramente diferentes. Ambos responden al hover y muestran foco con Tab.</li>
+            <li>La nav fija del paso anterior sigue visible encima del hero.</li>
+          </ul>
+        </div>
+      </li>
+
+    </ol>
+  </section>
+
+  <hr class="div">
+
+  <!-- RÚBRICA -->
+  <section class="seccion">
+    <p class="seccion-titulo">Rúbrica de evaluación</p>
+    <div class="rubrica">
+      <div class="rubrica-fila rubrica-head">
+        <div>Criterio</div><div>Peso</div><div>Indicadores</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>Fondo con overlay <span class="badge">f</span></div>
+        <div>25 %</div>
+        <div>Gradiente y foto en la misma declaración <code>background</code>, separados por coma. <code>cover</code> y <code>center</code> correctos. Sin <code>&lt;div&gt;</code> de overlay en el HTML.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>Altura y Flexbox <span class="badge">f</span></div>
+        <div>20 %</div>
+        <div><code>min-height</code> con unidad de viewport (no <code>height</code>). <code>flex-direction: column</code>. Contenido centrado en ambos ejes.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>Tipografía fluida <span class="badge">f</span></div>
+        <div>25 %</div>
+        <div><code>clamp()</code> en titular y subtítulo. El tamaño cambia al redimensionar. <code>max-width</code> en <code>ch</code> en ambos textos.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>Botones <span class="badge">f</span></div>
+        <div>20 %</div>
+        <div>Botón primario en dorado con hover. Ghost transparente con borde semitransparente. Ambos con <code>:focus-visible</code>.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>Integración con la nav <span class="badge">f</span></div>
+        <div>10 %</div>
+        <div>La nav fija aparece encima del hero. El hero no queda tapado por la nav (el padding superior del body compensa).</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- ENTREGA -->
+  <section class="seccion">
+    <p class="seccion-titulo">Entrega</p>
+    <div class="entrega">
+      Sube <code>HANA-P3-tunombre/</code> con:
+      <ul>
+        <li><code>index.html</code> — con nav + hero añadidos</li>
+        <li><code>css/style.css</code> — con los estilos de las tres prácticas acumulados</li>
+        <li><code>img/hero-restaurante.jpg</code> — fotografía de ambiente</li>
+        <li><code>notas.txt</code> — responde: ¿qué diferencia hay entre <code>height: 100vh</code> y <code>min-height: 100vh</code>? ¿Cuándo usarías cada uno?</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>
