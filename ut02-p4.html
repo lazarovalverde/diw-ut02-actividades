@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HANA · P4 — Sección del menú</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #F7F6F3;
+      --surface:   #FFFFFF;
+      --ink:       hsl(220 15% 12%);
+      --ink-muted: hsl(220 8% 48%);
+      --brand:     hsl(0 70% 35%);
+      --brand-dk:  hsl(0 70% 25%);
+      --brand-lt:  hsl(0 70% 96%);
+      --accent:    hsl(35 90% 52%);
+      --border:    hsl(35 15% 88%);
+      --ok-lt:     #F0FDF4;
+      --warn-lt:   #FEF2F2;
+      --amber-lt:  #FFFBEB;
+      --info-lt:   #EFF4FF;
+      --radius:    6px;
+      --mono:      'DM Sans', monospace;
+      --sans:      'DM Sans', system-ui, sans-serif;
+    }
+
+    body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.6; }
+    .ficha { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+    .ficha-header {
+      border-bottom: 2px solid var(--ink); padding-bottom: 1.25rem;
+      margin-bottom: 2rem; display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+    }
+    .ficha-codigo {
+      font-family: var(--mono); font-size: 0.75rem; font-weight: 500;
+      color: var(--brand); background: var(--brand-lt);
+      padding: 0.2rem 0.6rem; border-radius: 3px; letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .ficha-titulo { font-size: 1.5rem; font-weight: 600; font-family: 'Playfair Display', serif; line-height: 1.25; }
+    .ficha-meta { margin-left: auto; text-align: right; font-size: 0.8rem; color: var(--ink-muted); line-height: 1.8; }
+
+    .seccion { margin-bottom: 2.25rem; }
+    .seccion-titulo {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-muted); margin-bottom: 0.6rem;
+    }
+    .seccion p { font-size: 0.95rem; max-width: 68ch; }
+    .seccion p + p { margin-top: 0.6rem; }
+
+    .contexto {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 4px solid var(--brand); border-radius: var(--radius);
+      padding: 1.1rem 1.25rem; font-size: 0.92rem; line-height: 1.65; max-width: 72ch;
+    }
+    .contexto strong { color: var(--brand); }
+
+    .callout {
+      border-radius: var(--radius); padding: 0.85rem 1.1rem;
+      font-size: 0.88rem; display: flex; gap: 0.7rem;
+      align-items: flex-start; margin-top: 0.75rem; max-width: 72ch;
+    }
+    .callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
+    .callout-body { line-height: 1.55; }
+    .callout-body strong { display: block; margin-bottom: 0.15rem; }
+    .callout.info   { background: var(--info-lt);  color: #1E3A8A; }
+    .callout.warn   { background: var(--warn-lt);  color: #991B1B; }
+    .callout.ok     { background: var(--ok-lt);    color: #14532D; }
+    .callout.amber  { background: var(--amber-lt); color: #78350F; }
+
+    hr.div { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+    .code-block {
+      background: #1E1E2E; border-radius: var(--radius);
+      padding: 1.25rem 1.5rem; overflow-x: auto; margin-top: 0.75rem;
+    }
+    .code-block code {
+      font-family: var(--mono); font-size: 0.82rem; line-height: 1.85;
+      color: #CDD6F4; white-space: pre; display: block;
+    }
+    .tk { color: #89B4FA; } .tv { color: #A6E3A1; }
+    .tc { color: #6C7086; font-style: italic; }
+    .ts { color: #F38BA8; } .tst{ color: #FAB387; }
+    .tn { color: #CBA6F7; } .tps{ color: #94E2D5; }
+
+    .pasos { counter-reset: paso; list-style: none; display: flex; flex-direction: column; gap: 1.25rem; }
+    .pasos > li {
+      counter-increment: paso; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.1rem 1.25rem 1.1rem 3.5rem; position: relative; font-size: 0.92rem;
+    }
+    .pasos > li::before {
+      content: counter(paso); position: absolute; left: 1rem; top: 1.1rem;
+      width: 1.6rem; height: 1.6rem; background: var(--brand);
+      color: #fff; border-radius: 50%; font-family: var(--mono);
+      font-size: 0.75rem; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pasos > li strong { color: var(--brand); }
+    .pasos > li p { margin-top: 0.35rem; color: var(--ink-muted); font-size: 0.88rem; }
+
+    .tarea {
+      background: hsl(0 70% 35% / 0.06);
+      border: 1.5px solid hsl(0 70% 35% / 0.25);
+      border-radius: var(--radius);
+      padding: 0.85rem 1.1rem; margin-top: 0.85rem; font-size: 0.9rem;
+    }
+    .tarea-titulo {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--brand); margin-bottom: 0.5rem; display: block;
+    }
+    .tarea ol, .tarea ul { padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.35rem; }
+    .tarea li { line-height: 1.55; }
+
+    .rubrica { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .rubrica-fila { display: grid; grid-template-columns: 2fr 1fr 2fr; border-bottom: 1px solid var(--border); }
+    .rubrica-fila:last-child { border-bottom: none; }
+    .rubrica-head { background: var(--ink); color: #fff; }
+    .rubrica-fila > div { padding: 0.6rem 0.9rem; border-right: 1px solid var(--border); font-size: 0.85rem; }
+    .rubrica-fila > div:last-child { border-right: none; }
+    .rubrica-head > div { font-family: var(--mono); font-size: 0.76rem; font-weight: 500; }
+    .badge { display: inline-block; font-family: var(--mono); font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 3px; background: var(--brand-lt); color: var(--brand); }
+
+    .entrega { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; font-size: 0.9rem; }
+    .entrega ul { margin-top: 0.6rem; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.3rem; color: var(--ink-muted); }
+    .entrega ul li::marker { color: var(--brand); }
+
+    /* Demo */
+    .maqueta-wrap {
+      background: hsl(35 20% 97%); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin-top: 0.75rem;
+    }
+    .maqueta-label {
+      font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem;
+    }
+    .demo-menu-seccion { background: hsl(35 20% 97%); padding: 2.5rem 1.5rem; border-radius: var(--radius); }
+    .demo-menu-cabecera { text-align: center; margin-bottom: 2rem; }
+    .demo-menu-etiqueta { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: hsl(35 90% 52%); margin-bottom: 0.5rem; }
+    .demo-menu-titulo { font-family: 'Playfair Display', serif; font-size: 1.75rem; font-weight: 700; color: hsl(220 15% 12%); margin-bottom: 0.5rem; }
+    .demo-menu-desc { font-size: 0.9rem; color: hsl(220 8% 48%); max-width: 48ch; margin: 0 auto; }
+    .demo-filtros { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; justify-content: center; }
+    .demo-filtro { font-size: 0.8rem; font-weight: 500; padding: 6px 16px; border-radius: 9999px; border: 1.5px solid hsl(35 15% 85%); background: white; color: hsl(220 8% 48%); cursor: pointer; transition: all 150ms; }
+    .demo-filtro.activo { background: hsl(0 70% 35%); color: white; border-color: hsl(0 70% 35%); }
+    .demo-filtro:hover:not(.activo) { border-color: hsl(0 70% 35%); color: hsl(0 70% 35%); }
+    .demo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; }
+    .demo-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px hsl(220 15% 12% / 0.08); font-family: 'DM Sans', sans-serif; transition: transform 250ms, box-shadow 250ms; position: relative; }
+    .demo-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px hsl(220 15% 12% / 0.12); }
+    .demo-card__img { width: 100%; height: 130px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+    .demo-card__img.c1 { background: linear-gradient(135deg, hsl(0 35% 16%), hsl(15 40% 22%)); }
+    .demo-card__img.c2 { background: linear-gradient(135deg, hsl(35 55% 25%), hsl(25 45% 30%)); }
+    .demo-card__img.c3 { background: linear-gradient(135deg, hsl(15 50% 20%), hsl(35 50% 28%)); }
+    .demo-card__img.c4 { background: linear-gradient(135deg, hsl(280 30% 28%), hsl(310 25% 35%)); }
+    .demo-card__badge { position: absolute; top: 8px; right: 8px; background: hsl(35 90% 52%); color: hsl(220 15% 12%); font-size: 0.6rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px; }
+    .demo-card__body { padding: 0.9rem 1rem; }
+    .demo-card__cat { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: hsl(0 70% 35%); margin-bottom: 3px; }
+    .demo-card__titulo { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 600; color: hsl(220 15% 12%); margin-bottom: 3px; }
+    .demo-card__desc { font-size: 0.75rem; color: hsl(220 8% 48%); line-height: 1.5; margin-bottom: 8px; }
+    .demo-card__pie { display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid hsl(35 15% 88%); }
+    .demo-card__precio { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: hsl(0 70% 35%); }
+    .demo-card__btn { font-size: 0.72rem; font-weight: 600; color: white; background: hsl(0 70% 35%); padding: 5px 12px; border-radius: 4px; border: none; cursor: pointer; transition: background 250ms; text-decoration: none; }
+    .demo-card__btn:hover { background: hsl(0 70% 25%); }
+  </style>
+</head>
+<body>
+<main class="ficha">
+
+  <header class="ficha-header">
+    <span class="ficha-codigo">HANA · P4</span>
+    <h1 class="ficha-titulo">Sección del menú</h1>
+    <div class="ficha-meta">
+      Sesión 4 de 12<br>
+      Tiempo estimado: 55 min<br>
+      Modalidad: guiada
+    </div>
+  </header>
+
+  <section class="seccion">
+    <p class="seccion-titulo">Qué vas a aprender</p>
+    <p>
+      La sección del menú muestra las cards en una rejilla.
+      Flexbox resuelve una dimensión — aquí necesitas dos: filas y columnas.
+      Para eso existe <strong>CSS Grid</strong>.
+      Aprenderás a definir columnas con la unidad <code>fr</code>,
+      a usar <code>repeat()</code> para no repetir código,
+      y a crear una rejilla que se adapta sola al ancho disponible
+      con <code>auto-fit</code> y <code>minmax()</code> — sin una sola media query.
+    </p>
+  </section>
+
+  <section class="seccion">
+    <p class="seccion-titulo">Situación</p>
+    <div class="contexto">
+      El cliente quiere una página de menú donde las cards se organicen en
+      <strong>tres columnas en pantalla grande</strong>,
+      pasen a <strong>dos en tablet</strong>
+      y a <strong>una en móvil</strong> — automáticamente,
+      sin media queries.
+      Encima de la rejilla, una cabecera con título y botones de filtro por categoría.
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <section class="seccion">
+    <p class="seccion-titulo">Maqueta de referencia</p>
+    <p>Reduce el ancho de la ventana para ver cómo la rejilla se reorganiza sola.</p>
+
+    <div class="maqueta-wrap">
+      <p class="maqueta-label">Resultado esperado — redimensiona para ver la rejilla adaptarse</p>
+      <div class="demo-menu-seccion">
+        <header class="demo-menu-cabecera">
+          <p class="demo-menu-etiqueta">Nuestra carta</p>
+          <h2 class="demo-menu-titulo">El menú de HANA</h2>
+          <p class="demo-menu-desc">Producto de temporada, técnica japonesa. Carta actualizada cada semana.</p>
+        </header>
+        <div class="demo-filtros">
+          <button class="demo-filtro activo">Todos</button>
+          <button class="demo-filtro">Nigiris</button>
+          <button class="demo-filtro">Rolls</button>
+          <button class="demo-filtro">Tempura</button>
+          <button class="demo-filtro">Postres</button>
+        </div>
+        <div class="demo-grid">
+          <article class="demo-card">
+            <div class="demo-card__img c1">🍣</div>
+            <span class="demo-card__badge">Nuevo</span>
+            <div class="demo-card__body">
+              <p class="demo-card__cat">Nigiris</p>
+              <h3 class="demo-card__titulo">Nigiri de atún rojo</h3>
+              <p class="demo-card__desc">Atún rojo de almadraba sobre arroz de sushi.</p>
+              <div class="demo-card__pie">
+                <span class="demo-card__precio">3,80 €</span>
+                <a href="#" class="demo-card__btn" onclick="return false">Añadir</a>
+              </div>
+            </div>
+          </article>
+          <article class="demo-card">
+            <div class="demo-card__img c2">🍤</div>
+            <div class="demo-card__body">
+              <p class="demo-card__cat">Tempura</p>
+              <h3 class="demo-card__titulo">Tempura de gambas</h3>
+              <p class="demo-card__desc">Gamba roja en tempura ligera con salsa ponzu.</p>
+              <div class="demo-card__pie">
+                <span class="demo-card__precio">8,50 €</span>
+                <a href="#" class="demo-card__btn" onclick="return false">Añadir</a>
+              </div>
+            </div>
+          </article>
+          <article class="demo-card">
+            <div class="demo-card__img c3">🍜</div>
+            <span class="demo-card__badge">Popular</span>
+            <div class="demo-card__body">
+              <p class="demo-card__cat">Ramen</p>
+              <h3 class="demo-card__titulo">Ramen de cerdo</h3>
+              <p class="demo-card__desc">Caldo de hueso 12h, chashu y huevo nitamago.</p>
+              <div class="demo-card__pie">
+                <span class="demo-card__precio">14,00 €</span>
+                <a href="#" class="demo-card__btn" onclick="return false">Añadir</a>
+              </div>
+            </div>
+          </article>
+          <article class="demo-card">
+            <div class="demo-card__img c4">🍡</div>
+            <div class="demo-card__body">
+              <p class="demo-card__cat">Postres</p>
+              <h3 class="demo-card__titulo">Mochi de matcha</h3>
+              <p class="demo-card__desc">Mochi artesanal relleno de helado de matcha.</p>
+              <div class="demo-card__pie">
+                <span class="demo-card__precio">4,50 €</span>
+                <a href="#" class="demo-card__btn" onclick="return false">Añadir</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <svg width="100%" viewBox="0 0 760 230" xmlns="http://www.w3.org/2000/svg"
+         style="margin-top:1rem;border:1px solid var(--border);border-radius:var(--radius);background:hsl(35 20%97%);"
+         role="img" aria-label="Anatomía de la sección menú">
+      <rect width="760" height="230" fill="hsl(35 20% 97%)" rx="6"/>
+      <text x="12" y="16" font-size="8" fill="#6B6B6B" font-family="monospace" font-weight="600" letter-spacing="0.5">ANATOMÍA — SECCIÓN MENÚ</text>
+      <rect x="8" y="22" width="744" height="200" rx="6" fill="none" stroke="hsl(220 15% 12%)" stroke-width="1.5"/>
+      <text x="14" y="34" font-size="7.5" fill="hsl(220 15% 12%)" font-family="monospace" font-weight="600">section.menu · max-width: 1200px · padding: 5rem 2rem</text>
+      <rect x="220" y="40" width="320" height="30" rx="4" fill="hsl(35 90% 52%/0.1)" stroke="hsl(35 60% 40%)" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="380" y="58" font-size="8" fill="hsl(35 60% 35%)" text-anchor="middle" font-family="monospace" font-weight="600">header.menu__cabecera · text-align: center</text>
+      <rect x="140" y="78" width="480" height="18" rx="4" fill="hsl(210 70% 50%/0.1)" stroke="hsl(210 60% 50%)" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="380" y="90" font-size="7.5" fill="hsl(210 60% 35%)" text-anchor="middle" font-family="monospace">div.menu__filtros · display:flex · gap · flex-wrap:wrap · justify-content:center</text>
+      <rect x="16" y="104" width="728" height="110" rx="4" fill="hsl(0 70% 35%/0.05)" stroke="hsl(0 70% 35%)" stroke-width="1.5" stroke-dasharray="5 3"/>
+      <text x="24" y="116" font-size="8" fill="hsl(0 70% 30%)" font-family="monospace" font-weight="600">div.menu__grid · display: grid</text>
+      <text x="24" y="127" font-size="7.5" fill="hsl(0 70% 40%)" font-family="monospace">grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) · gap: 1.5rem</text>
+      <rect x="24"  y="134" width="165" height="72" rx="4" fill="hsl(0 70% 35%/0.12)" stroke="hsl(0 70% 50%)" stroke-width="1"/>
+      <text x="107" y="174" font-size="8" fill="hsl(0 70% 30%)" text-anchor="middle" font-family="monospace">article.card</text>
+      <rect x="199" y="134" width="165" height="72" rx="4" fill="hsl(0 70% 35%/0.12)" stroke="hsl(0 70% 50%)" stroke-width="1"/>
+      <text x="282" y="174" font-size="8" fill="hsl(0 70% 30%)" text-anchor="middle" font-family="monospace">article.card</text>
+      <rect x="374" y="134" width="165" height="72" rx="4" fill="hsl(0 70% 35%/0.12)" stroke="hsl(0 70% 50%)" stroke-width="1"/>
+      <text x="457" y="174" font-size="8" fill="hsl(0 70% 30%)" text-anchor="middle" font-family="monospace">article.card</text>
+      <rect x="549" y="134" width="187" height="72" rx="4" fill="hsl(0 70% 35%/0.06)" stroke="hsl(0 70% 50%)" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="643" y="174" font-size="8" fill="hsl(0 70% 40%)" text-anchor="middle" font-family="monospace">siguiente fila</text>
+      <text x="192" y="180" font-size="7" fill="hsl(210 60% 40%)" text-anchor="middle" font-family="monospace">gap</text>
+      <text x="367" y="180" font-size="7" fill="hsl(210 60% 40%)" text-anchor="middle" font-family="monospace">gap</text>
+      <text x="542" y="180" font-size="7" fill="hsl(210 60% 40%)" text-anchor="middle" font-family="monospace">gap</text>
+      <text x="380" y="222" font-size="7.5" fill="hsl(0 70% 30%)" text-anchor="middle" font-family="monospace">auto-fit crea las columnas que quepan · minmax(260px, 1fr): mínimo 260px, crece hasta llenar</text>
+    </svg>
+  </section>
+
+  <hr class="div">
+
+  <section class="seccion">
+    <p class="seccion-titulo">Grid vs Flexbox — cuándo usar cada uno</p>
+    <p>Flexbox y Grid no son rivales — son herramientas para problemas distintos.</p>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:0.75rem;">
+      <div style="background:var(--ink);color:white;padding:0.45rem 1rem;font-family:var(--mono);font-size:0.76rem;">Flexbox vs Grid</div>
+      <div style="padding:1.25rem;">
+        <svg width="100%" viewBox="0 0 660 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Comparación Flexbox vs Grid">
+          <rect x="10" y="10" width="300" height="160" rx="6" fill="hsl(210 30% 97%)" stroke="hsl(210 60% 60%)" stroke-width="1.5"/>
+          <text x="160" y="28" text-anchor="middle" font-size="9" fill="hsl(210 60% 35%)" font-family="monospace" font-weight="600">FLEXBOX — una dimensión</text>
+          <rect x="20"  y="38" width="50" height="120" rx="4" fill="hsl(210 60% 88%)" stroke="hsl(210 60% 60%)" stroke-width="1"/>
+          <rect x="78"  y="38" width="85" height="120" rx="4" fill="hsl(210 60% 88%)" stroke="hsl(210 60% 60%)" stroke-width="1"/>
+          <rect x="171" y="38" width="60" height="120" rx="4" fill="hsl(210 60% 88%)" stroke="hsl(210 60% 60%)" stroke-width="1"/>
+          <rect x="239" y="38" width="45" height="120" rx="4" fill="hsl(210 60% 88%)" stroke="hsl(210 60% 60%)" stroke-width="1"/>
+          <text x="160" y="172" text-anchor="middle" font-size="8" fill="hsl(210 60% 35%)" font-family="monospace">Los ítems dictan las columnas</text>
+          <rect x="350" y="10" width="300" height="160" rx="6" fill="hsl(0 30% 97%)" stroke="hsl(0 60% 55%)" stroke-width="1.5"/>
+          <text x="500" y="28" text-anchor="middle" font-size="9" fill="hsl(0 60% 30%)" font-family="monospace" font-weight="600">GRID — dos dimensiones</text>
+          <rect x="360" y="38" width="82" height="54" rx="4" fill="hsl(0 60% 88%)" stroke="hsl(0 60% 55%)" stroke-width="1"/>
+          <rect x="450" y="38" width="82" height="54" rx="4" fill="hsl(0 60% 88%)" stroke="hsl(0 60% 55%)" stroke-width="1"/>
+          <rect x="540" y="38" width="82" height="54" rx="4" fill="hsl(0 60% 88%)" stroke="hsl(0 60% 55%)" stroke-width="1"/>
+          <rect x="360" y="100" width="82" height="54" rx="4" fill="hsl(0 60% 88%)" stroke="hsl(0 60% 55%)" stroke-width="1"/>
+          <rect x="450" y="100" width="82" height="54" rx="4" fill="hsl(0 60% 88%)" stroke="hsl(0 60% 55%)" stroke-width="1"/>
+          <rect x="540" y="100" width="82" height="54" rx="4" fill="hsl(0 60% 88%)" stroke="hsl(0 60% 55%)" stroke-width="1"/>
+          <text x="500" y="172" text-anchor="middle" font-size="8" fill="hsl(0 60% 30%)" font-family="monospace">Las columnas dictan a los ítems</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="callout amber">
+      <span class="callout-icon">🧠</span>
+      <div class="callout-body">
+        <strong>La regla en una frase</strong>
+        ¿El layout viene del contenido (ítems con tamaños distintos que fluyen)?
+        → <strong>Flexbox</strong>.<br>
+        ¿El layout es una estructura definida y el contenido se adapta a ella?
+        → <strong>Grid</strong>.<br>
+        En la práctica: nav, botones, pie de card → Flexbox. Rejillas de cards, páginas → Grid.
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <section class="seccion">
+    <p class="seccion-titulo">La unidad <code>fr</code> y la función <code>repeat()</code></p>
+    <p><code>fr</code> (fracción) representa una parte del espacio disponible en el contenedor. Es la unidad específica de Grid.</p>
+
+    <div class="code-block"><code><span class="tc">/* Sin fr — tienes que calcular los porcentajes tú */</span>
+<span class="tk">grid-template-columns</span>: <span class="tn">33.33%</span> <span class="tn">33.33%</span> <span class="tn">33.33%</span>; <span class="tc">/* incómodo, error de redondeo */</span>
+
+<span class="tc">/* Con fr — el navegador calcula */</span>
+<span class="tk">grid-template-columns</span>: <span class="tn">1fr</span> <span class="tn">1fr</span> <span class="tn">1fr</span>;   <span class="tc">/* tres columnas iguales */</span>
+<span class="tk">grid-template-columns</span>: <span class="tn">1fr</span> <span class="tn">2fr</span> <span class="tn">1fr</span>;   <span class="tc">/* la del medio mide el doble */</span>
+
+<span class="tc">/* Con repeat() — evitar repetición */</span>
+<span class="tk">grid-template-columns</span>: <span class="tv">repeat</span>(<span class="tn">3</span>, <span class="tn">1fr</span>);  <span class="tc">/* equivale a 1fr 1fr 1fr */</span>
+
+<span class="tc">/* La rejilla adaptable — el patrón más usado */</span>
+<span class="tk">grid-template-columns</span>: <span class="tv">repeat</span>(<span class="tv">auto-fit</span>, <span class="tv">minmax</span>(<span class="tn">260px</span>, <span class="tn">1fr</span>));
+<span class="tc">/*                               ↑               ↑        ↑
+                             crea las       mínimo    crece hasta
+                           que quepan       260px    llenar (1fr) */</span></code></div>
+
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <strong><code>auto-fit</code> vs <code>auto-fill</code></strong>
+        <code>auto-fill</code> crea columnas vacías para llenar el espacio si faltan ítems.<br>
+        <code>auto-fit</code> colapsa las columnas vacías y deja que las ocupadas crezcan.<br>
+        Para cards: siempre <code>auto-fit</code> — si solo hay una card, ocupa todo el ancho.
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <section class="seccion">
+    <p class="seccion-titulo">Código de partida</p>
+    <p>Añade una nueva página <code>menu.html</code>. Reutiliza la nav copiando el <code>&lt;header&gt;</code> del <code>index.html</code>.</p>
+
+    <div class="code-block"><code><span class="tc">&lt;!-- menu.html --&gt;</span>
+
+<span class="ts">&lt;section</span> <span class="tv">class</span>=<span class="tst">"menu"</span> <span class="tv">aria-labelledby</span>=<span class="tst">"menu-titulo"</span><span class="ts">&gt;</span>
+  <span class="ts">&lt;div</span> <span class="tv">class</span>=<span class="tst">"menu__contenedor"</span><span class="ts">&gt;</span>
+
+    <span class="ts">&lt;header</span> <span class="tv">class</span>=<span class="tst">"menu__cabecera"</span><span class="ts">&gt;</span>
+      <span class="ts">&lt;p</span> <span class="tv">class</span>=<span class="tst">"menu__etiqueta"</span><span class="ts">&gt;</span>Nuestra carta<span class="ts">&lt;/p&gt;</span>
+      <span class="ts">&lt;h2</span> <span class="tv">class</span>=<span class="tst">"menu__titulo"</span> <span class="tv">id</span>=<span class="tst">"menu-titulo"</span><span class="ts">&gt;</span>El menú de HANA<span class="ts">&lt;/h2&gt;</span>
+      <span class="ts">&lt;p</span> <span class="tv">class</span>=<span class="tst">"menu__desc"</span><span class="ts">&gt;</span>Producto de temporada, técnica japonesa.<span class="ts">&lt;/p&gt;</span>
+    <span class="ts">&lt;/header&gt;</span>
+
+    <span class="ts">&lt;div</span> <span class="tv">class</span>=<span class="tst">"menu__filtros"</span> <span class="tv">role</span>=<span class="tst">"group"</span> <span class="tv">aria-label</span>=<span class="tst">"Filtrar por categoría"</span><span class="ts">&gt;</span>
+      <span class="ts">&lt;button</span> <span class="tv">class</span>=<span class="tst">"menu__filtro menu__filtro--activo"</span><span class="ts">&gt;</span>Todos<span class="ts">&lt;/button&gt;</span>
+      <span class="ts">&lt;button</span> <span class="tv">class</span>=<span class="tst">"menu__filtro"</span><span class="ts">&gt;</span>Nigiris<span class="ts">&lt;/button&gt;</span>
+      <span class="ts">&lt;button</span> <span class="tv">class</span>=<span class="tst">"menu__filtro"</span><span class="ts">&gt;</span>Rolls<span class="ts">&lt;/button&gt;</span>
+      <span class="ts">&lt;button</span> <span class="tv">class</span>=<span class="tst">"menu__filtro"</span><span class="ts">&gt;</span>Tempura<span class="ts">&lt;/button&gt;</span>
+      <span class="ts">&lt;button</span> <span class="tv">class</span>=<span class="tst">"menu__filtro"</span><span class="ts">&gt;</span>Postres<span class="ts">&lt;/button&gt;</span>
+    <span class="ts">&lt;/div&gt;</span>
+
+    <span class="ts">&lt;div</span> <span class="tv">class</span>=<span class="tst">"menu__grid"</span><span class="ts">&gt;</span>
+      <span class="tc">&lt;!-- Copia aquí los article.card de la P1, al menos 6 --&gt;</span>
+    <span class="ts">&lt;/div&gt;</span>
+
+  <span class="ts">&lt;/div&gt;</span>
+<span class="ts">&lt;/section&gt;</span></code></div>
+  </section>
+
+  <hr class="div">
+
+  <section class="seccion">
+    <p class="seccion-titulo">Pasos</p>
+    <ol class="pasos">
+
+      <li>
+        <strong>Observa la rejilla sin CSS Grid</strong>
+        <p>Abre el archivo sin CSS — las cards se apilan en una columna. Ese es el comportamiento por defecto que vas a cambiar.</p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea</span>
+          <ol>
+            <li>Añade el HTML con al menos seis cards copiadas de la P1.</li>
+            <li>Ábrelo sin CSS de rejilla. Observa que las cards ocupan todo el ancho.</li>
+          </ol>
+        </div>
+      </li>
+
+      <li>
+        <strong>Crea la rejilla adaptable</strong>
+        <p>
+          Con una sola línea de <code>grid-template-columns</code> usando <code>auto-fit</code> y <code>minmax()</code>,
+          la rejilla se adapta a cualquier ancho sin media queries.
+        </p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea</span>
+          <ol>
+            <li>En <code>.menu__grid</code>: activa Grid y crea columnas que se adapten automáticamente. Mínimo 260px por columna, crecen hasta llenar el espacio.</li>
+            <li>Añade <code>gap: var(--space-6)</code>.</li>
+            <li>Redimensiona la ventana. Observa cómo las columnas aparecen y desaparecen solas.</li>
+          </ol>
+        </div>
+        <div class="code-block"><code><span class="ts">.menu__grid</span> {
+  <span class="tc">/* ← TÚ: activa Grid */</span>
+  <span class="tc">/* ← TÚ: columnas adaptables — mínimo 260px, máximo 1fr */</span>
+  <span class="tc">/* ← TÚ: espacio entre celdas */</span>
+}</code></div>
+
+        <div class="callout info">
+          <span class="callout-icon">💡</span>
+          <div class="callout-body">
+            <strong>Por qué <code>minmax(260px, 1fr)</code> y no solo <code>260px</code></strong>
+            Con solo <code>260px</code>, las columnas siempre miden exactamente 260px y dejan espacio vacío a la derecha.
+            Con <code>minmax(260px, 1fr)</code>: mínimo 260px, pero si sobra espacio, se reparte. Sin huecos, sin media queries.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <strong>Estiliza la cabecera de la sección</strong>
+        <p>Etiqueta, título y descripción centrados con jerarquía visual clara.</p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea</span>
+          <ol>
+            <li><code>.menu</code>: fondo <code>var(--color-bg)</code>, <code>padding: var(--space-20) var(--space-8)</code>.</li>
+            <li><code>.menu__contenedor</code>: <code>max-width: 1200px</code>, <code>margin: 0 auto</code>.</li>
+            <li><code>.menu__cabecera</code>: <code>text-align: center</code>, <code>margin-bottom: var(--space-10)</code>.</li>
+            <li><code>.menu__etiqueta</code>: igual que <code>.hero__etiqueta</code> — text-xs, uppercase, letter-spacing 0.2em, color accent.</li>
+            <li><code>.menu__titulo</code>: Playfair Display, text-4xl, peso 700.</li>
+            <li><code>.menu__desc</code>: text-base, color muted, <code>max-width: 48ch</code>, <code>margin: 0 auto</code>.</li>
+          </ol>
+        </div>
+        <div class="code-block"><code><span class="ts">.menu</span> {
+  <span class="tk">background</span>: <span class="tv">var(--color-bg)</span>;
+  <span class="tk">padding</span>:    <span class="tv">var(--space-20)</span> <span class="tv">var(--space-8)</span>;
+}
+<span class="ts">.menu__contenedor</span> {
+  <span class="tk">max-width</span>: <span class="tn">1200px</span>;
+  <span class="tk">margin</span>:    <span class="tn">0</span> <span class="tv">auto</span>;
+}
+<span class="ts">.menu__cabecera</span> {
+  <span class="tk">text-align</span>:    <span class="tv">center</span>;
+  <span class="tk">margin-bottom</span>: <span class="tv">var(--space-10)</span>;
+}
+<span class="ts">.menu__etiqueta</span> {
+  <span class="tk">font-size</span>:      <span class="tv">var(--text-xs)</span>;
+  <span class="tk">font-weight</span>:    <span class="tn">600</span>;
+  <span class="tk">letter-spacing</span>: <span class="tn">0.2em</span>;
+  <span class="tk">text-transform</span>: <span class="tv">uppercase</span>;
+  <span class="tk">color</span>:          <span class="tv">var(--color-accent)</span>;
+  <span class="tk">margin-bottom</span>:  <span class="tv">var(--space-2)</span>;
+}
+<span class="ts">.menu__titulo</span> {
+  <span class="tk">font-family</span>:   <span class="tv">var(--font-display)</span>;
+  <span class="tk">font-size</span>:     <span class="tv">var(--text-4xl)</span>;
+  <span class="tk">font-weight</span>:   <span class="tn">700</span>;
+  <span class="tk">color</span>:         <span class="tv">var(--color-ink)</span>;
+  <span class="tk">margin-bottom</span>: <span class="tv">var(--space-3)</span>;
+}
+<span class="ts">.menu__desc</span> {
+  <span class="tk">font-size</span>: <span class="tv">var(--text-base)</span>;
+  <span class="tk">color</span>:     <span class="tv">var(--color-muted)</span>;
+  <span class="tk">max-width</span>: <span class="tn">48ch</span>;
+  <span class="tk">margin</span>:    <span class="tn">0</span> <span class="tv">auto</span>;
+}</code></div>
+      </li>
+
+      <li>
+        <strong>Estiliza los botones de filtro</strong>
+        <p>
+          Píldoras en fila centradas. Activo con fondo de marca.
+          Hover solo en los no activos — el mismo patrón <code>:not()</code> de la nav, ahora lo aplicas tú solo.
+        </p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea</span>
+          <ol>
+            <li><code>.menu__filtros</code>: Flexbox centrado, <code>gap: var(--space-2)</code>, <code>flex-wrap: wrap</code>, <code>margin-bottom: var(--space-8)</code>.</li>
+            <li><code>.menu__filtro</code>: fondo blanco, color muted, borde <code>var(--color-border)</code>, <code>border-radius: var(--radius-full)</code>, <code>padding: var(--space-2) var(--space-5)</code>, text-sm, peso 500, cursor pointer, <code>transition: all var(--transition-fast)</code>.</li>
+            <li><code>&amp;--activo</code>: fondo brand, color blanco, borde brand.</li>
+            <li>Hover solo en los no activos con <code>:not(.menu__filtro--activo)</code>: borde y color brand.</li>
+          </ol>
+        </div>
+        <div class="code-block"><code><span class="ts">.menu__filtros</span> {
+  <span class="tk">display</span>:         <span class="tv">flex</span>;
+  <span class="tk">gap</span>:             <span class="tv">var(--space-2)</span>;
+  <span class="tk">flex-wrap</span>:       <span class="tv">wrap</span>;
+  <span class="tk">justify-content</span>: <span class="tv">center</span>;
+  <span class="tk">margin-bottom</span>:   <span class="tv">var(--space-8)</span>;
+}
+<span class="ts">.menu__filtro</span> {
+  <span class="tk">background</span>:    <span class="tv">var(--color-surface)</span>;
+  <span class="tk">color</span>:         <span class="tv">var(--color-muted)</span>;
+  <span class="tk">border</span>:        <span class="tn">1.5px</span> solid <span class="tv">var(--color-border)</span>;
+  <span class="tk">border-radius</span>: <span class="tv">var(--radius-full)</span>;
+  <span class="tk">padding</span>:       <span class="tv">var(--space-2)</span> <span class="tv">var(--space-5)</span>;
+  <span class="tk">font-size</span>:     <span class="tv">var(--text-sm)</span>;
+  <span class="tk">font-weight</span>:   <span class="tn">500</span>;
+  <span class="tk">font-family</span>:   <span class="tv">var(--font-body)</span>;
+  <span class="tk">cursor</span>:        <span class="tv">pointer</span>;
+  <span class="tk">transition</span>:    <span class="tv">all var(--transition-fast)</span>;
+
+  <span class="ts">&amp;--activo</span> {
+    <span class="tk">background</span>:   <span class="tv">var(--color-brand)</span>;
+    <span class="tk">color</span>:        <span class="tv">white</span>;
+    <span class="tk">border-color</span>: <span class="tv">var(--color-brand)</span>;
+  }
+
+  <span class="tc">/* ← TÚ: hover solo en los que no son --activo */</span>
+
+  <span class="ts">&amp;</span><span class="tps">:focus-visible</span> {
+    <span class="tk">outline</span>:        <span class="tn">3px</span> solid <span class="tv">var(--color-brand)</span>;
+    <span class="tk">outline-offset</span>: <span class="tn">2px</span>;
+  }
+}</code></div>
+
+        <div class="callout amber">
+          <span class="callout-icon">🧠</span>
+          <div class="callout-body">
+            <strong>BEM con modificadores — <code>&amp;--activo</code> dentro del bloque</strong>
+            El modificador <code>menu__filtro--activo</code> se anida con <code>&amp;--activo</code>.
+            El CSS de ese estado queda junto al estado normal — más fácil de leer y mantener.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <strong>Reutiliza las cards de la P1</strong>
+        <p>
+          Las cards ya están definidas. En el grid actúan como ítems — el grid les da
+          el ancho de la columna y las estira a la misma altura por fila gracias a
+          <code>align-items: stretch</code> (valor por defecto de Grid).
+        </p>
+        <div class="tarea">
+          <span class="tarea-titulo">Tu tarea</span>
+          <ol>
+            <li>Copia al menos 6 <code>article.card</code> dentro de <code>.menu__grid</code>.</li>
+            <li>Verifica que todas las cards de la misma fila tienen la misma altura.</li>
+            <li>Comprueba el overlay de Grid en DevTools: Inspector → haz clic en el icono de rejilla junto a <code>.menu__grid</code>.</li>
+          </ol>
+        </div>
+
+        <div class="callout info">
+          <span class="callout-icon">💡</span>
+          <div class="callout-body">
+            <strong>Grid iguala alturas automáticamente — Flexbox no</strong>
+            Grid estira todos los ítems de una fila para que midan lo mismo (<code>align-items: stretch</code>).
+            Con Flexbox en varias filas (<code>flex-wrap: wrap</code>) esto no ocurre —
+            cada fila es independiente y las alturas no se alinean.
+            Para rejillas de cards, Grid siempre da mejor resultado.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <strong>Verifica con DevTools</strong>
+        <div class="tarea">
+          <span class="tarea-titulo">Lista de verificación</span>
+          <ul>
+            <li>Pantalla ancha: 3 o 4 columnas. Al estrechar: 2, luego 1 — sin media queries.</li>
+            <li>Cards de la misma fila con la misma altura.</li>
+            <li>Espacio uniforme entre celdas usando solo <code>gap</code> — sin margin en las cards.</li>
+            <li>Filtro activo con fondo rojo. Los demás cambian al hacer hover.</li>
+            <li>Overlay de Grid visible en DevTools.</li>
+          </ul>
+        </div>
+      </li>
+
+    </ol>
+  </section>
+
+  <hr class="div">
+
+  <section class="seccion">
+    <p class="seccion-titulo">Rúbrica de evaluación</p>
+    <div class="rubrica">
+      <div class="rubrica-fila rubrica-head">
+        <div>Criterio</div><div>Peso</div><div>Indicadores</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>Grid adaptable <span class="badge">f</span></div>
+        <div>35 %</div>
+        <div><code>auto-fit</code> + <code>minmax()</code> correctos. La rejilla pasa de 3 a 2 a 1 columnas sin media queries.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>Cabecera <span class="badge">f</span></div>
+        <div>20 %</div>
+        <div>Etiqueta, título y descripción centrados. <code>max-width</code> en <code>ch</code> en la descripción.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>Filtros <span class="badge">f</span></div>
+        <div>25 %</div>
+        <div>Flexbox centrado. BEM <code>--activo</code>. Hover solo en los no activos. <code>:focus-visible</code>.</div>
+      </div>
+      <div class="rubrica-fila">
+        <div>Cards reutilizadas <span class="badge">f</span></div>
+        <div>20 %</div>
+        <div>Al menos 6 cards. Misma altura por fila. Sin duplicar el CSS de la P1.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <section class="seccion">
+    <p class="seccion-titulo">Entrega</p>
+    <div class="entrega">
+      Sube <code>HANA-P4-tunombre/</code> con:
+      <ul>
+        <li><code>menu.html</code> — página del menú con nav + sección</li>
+        <li><code>css/style.css</code> — estilos acumulados de P1 a P4</li>
+        <li><code>notas.txt</code> — ¿qué diferencia hay entre <code>repeat(3, 1fr)</code> y <code>repeat(auto-fit, minmax(260px, 1fr))</code>? ¿Cuándo usarías cada uno?</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

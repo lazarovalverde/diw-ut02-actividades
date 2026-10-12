@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HANA · P4C — Consolidación menú (Grid)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #F7F6F3;
+      --surface:  #FFFFFF;
+      --ink:      #1A1A1A;
+      --ink-muted:#6B6B6B;
+      --brand:    hsl(0 70% 35%);
+      --brand-dk: hsl(0 70% 25%);
+      --brand-lt: hsl(0 70% 96%);
+      --accent:   hsl(35 90% 52%);
+      --border:   #E2E2DC;
+      --ok-lt:    #F0FDF4;
+      --ok:       #16a34a;
+      --radius:   6px;
+      --mono:     'DM Sans', monospace;
+      --sans:     'DM Sans', system-ui, sans-serif;
+    }
+
+    body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.6; }
+    .ficha { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+    /* ─── cabecera ─── */
+    .ficha-header {
+      border-bottom: 2px solid var(--ink); padding-bottom: 1.25rem;
+      margin-bottom: 2rem; display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+    }
+    .ficha-codigo {
+      font-family: var(--mono); font-size: 0.75rem; font-weight: 500;
+      color: var(--brand); background: var(--brand-lt);
+      padding: 0.2rem 0.6rem; border-radius: 3px; letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .ficha-titulo { font-size: 1.5rem; font-weight: 600; font-family: 'Playfair Display', serif; }
+    .ficha-meta { margin-left: auto; text-align: right; font-size: 0.8rem; color: var(--ink-muted); line-height: 1.8; }
+    .badge-consolid {
+      display: inline-block; font-size: 0.7rem; font-weight: 600;
+      background: var(--ok-lt); color: var(--ok); border: 1px solid #bbf7d0;
+      padding: 0.15rem 0.55rem; border-radius: 3px; letter-spacing: 0.06em;
+      text-transform: uppercase; vertical-align: middle;
+    }
+
+    hr.div { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    .seccion { margin-bottom: 2rem; }
+    .seccion-titulo {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-muted); margin-bottom: 0.6rem;
+    }
+    .seccion p { font-size: 0.95rem; max-width: 68ch; }
+
+    /* ─── aviso sin apuntes ─── */
+    .aviso-notas {
+      background: #fffbeb; border: 1px solid #fde68a;
+      border-left: 4px solid #f59e0b;
+      border-radius: var(--radius); padding: 0.85rem 1rem;
+      font-size: 0.875rem; color: #78350f; margin-bottom: 2rem;
+    }
+
+    /* ─── maqueta demo ─── */
+    .maqueta-wrap {
+      background: hsl(35 20% 97%); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin-top: 0.75rem;
+    }
+    .maqueta-label {
+      font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem;
+    }
+
+    /* demo del resultado esperado */
+    .demo-menu { font-family: 'DM Sans', sans-serif; }
+    .demo-menu__cabecera {
+      text-align: center; margin-bottom: 1.5rem;
+    }
+    .demo-menu__cabecera h2 {
+      font-family: 'Playfair Display', serif; font-size: 1.75rem;
+      font-weight: 700; color: var(--ink); margin-bottom: 0.25rem;
+    }
+    .demo-menu__cabecera p {
+      font-size: 0.9rem; color: var(--ink-muted);
+    }
+    .demo-menu__filtros {
+      display: flex; gap: 0.5rem; justify-content: center;
+      flex-wrap: wrap; margin-bottom: 1.5rem;
+    }
+    .demo-menu__filtro {
+      padding: 0.4rem 1.1rem; border: 1px solid var(--border);
+      border-radius: 100px; font-size: 0.85rem; cursor: pointer;
+      background: white; color: var(--ink); transition: all 0.15s;
+      font-family: inherit;
+    }
+    .demo-menu__filtro:hover { background: var(--brand-lt); border-color: var(--brand); color: var(--brand); }
+    .demo-menu__filtro--activo { background: var(--brand); color: white; border-color: var(--brand); }
+    .demo-menu__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .demo-card {
+      background: white; border-radius: var(--radius); overflow: hidden;
+      box-shadow: 0 1px 4px hsl(0 0% 0% / 0.08);
+      border: 1px solid var(--border);
+    }
+    .demo-card__img {
+      width: 100%; aspect-ratio: 4/3; object-fit: cover;
+      background: hsl(35 30% 88%); display: flex; align-items: center;
+      justify-content: center; font-size: 2rem;
+    }
+    .demo-card__cuerpo { padding: 0.75rem; }
+    .demo-card__nombre {
+      font-weight: 600; font-size: 0.9rem; margin-bottom: 0.2rem;
+    }
+    .demo-card__desc { font-size: 0.78rem; color: var(--ink-muted); margin-bottom: 0.6rem; }
+    .demo-card__pie {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .demo-card__precio { font-weight: 700; color: var(--brand); font-size: 0.95rem; }
+    .demo-card__badge {
+      font-size: 0.65rem; font-weight: 600; padding: 0.15rem 0.45rem;
+      border-radius: 3px; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .demo-card__badge--nuevo { background: #fef9c3; color: #713f12; }
+    .demo-card__badge--chef  { background: var(--brand-lt); color: var(--brand); }
+
+    /* ─── anatomía SVG ─── */
+    .anatomia-wrap { margin-top: 1.5rem; }
+    .anatomia-label {
+      font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.75rem;
+    }
+
+    /* ─── código dado ─── */
+    .code-block {
+      background: #1e1e2e; color: #cdd6f4; border-radius: var(--radius);
+      padding: 1.25rem 1.5rem; font-family: 'Courier New', monospace;
+      font-size: 0.8rem; line-height: 1.7; overflow-x: auto;
+      margin-top: 0.75rem; tab-size: 2;
+    }
+    .t-selector  { color: #89b4fa; }
+    .t-prop      { color: #cba6f7; }
+    .t-val       { color: #a6e3a1; }
+    .t-comment   { color: #6c7086; font-style: italic; }
+    .t-gap       { color: #f38ba8; font-weight: 700; }
+    .t-str       { color: #f9e2af; }
+
+    /* ─── tabla de huecos ─── */
+    .huecos-tabla {
+      width: 100%; border-collapse: collapse; font-size: 0.875rem;
+      margin-top: 0.75rem;
+    }
+    .huecos-tabla th {
+      background: var(--ink); color: white; text-align: left;
+      padding: 0.5rem 0.75rem; font-weight: 500; font-size: 0.75rem;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .huecos-tabla td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .huecos-tabla tr:last-child td { border-bottom: none; }
+    .huecos-tabla tr:nth-child(even) td { background: hsl(0 0% 99%); }
+    .num-hueco {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--brand); color: white; font-size: 0.7rem; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .zona-chip {
+      display: inline-block; font-size: 0.68rem; font-weight: 600;
+      padding: 0.1rem 0.45rem; border-radius: 3px;
+      background: hsl(35 90% 95%); color: hsl(35 90% 30%);
+      letter-spacing: 0.04em;
+    }
+    .zona-chip.z2 { background: hsl(220 90% 95%); color: hsl(220 70% 30%); }
+    .zona-chip.z3 { background: hsl(150 60% 93%); color: hsl(150 60% 22%); }
+    .zona-chip.z4 { background: hsl(280 60% 94%); color: hsl(280 60% 28%); }
+    .hueco-desc { font-size: 0.85rem; color: var(--ink); }
+    .hueco-hint { font-size: 0.75rem; color: var(--ink-muted); margin-top: 0.15rem; }
+
+    /* ─── instrucciones ─── */
+    .instrucciones-list {
+      list-style: none; display: flex; flex-direction: column; gap: 0.5rem;
+      font-size: 0.9rem; margin-top: 0.5rem;
+    }
+    .instrucciones-list li { padding-left: 1.4em; position: relative; }
+    .instrucciones-list li::before {
+      content: '→'; position: absolute; left: 0;
+      color: var(--brand); font-weight: 700;
+    }
+
+    /* ─── rúbrica ─── */
+    .rubrica-tabla {
+      width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.75rem;
+    }
+    .rubrica-tabla th {
+      background: var(--ink); color: white; padding: 0.5rem 0.75rem;
+      font-weight: 500; font-size: 0.75rem; text-align: left;
+    }
+    .rubrica-tabla td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border); }
+    .rubrica-tabla tr:last-child td { border-bottom: none; }
+    .pts { font-weight: 700; color: var(--brand); }
+
+    @media print {
+      .ficha { padding: 1rem; }
+      .aviso-notas { display: none; }
+      .demo-menu__filtro:hover { background: white; border-color: var(--border); color: var(--ink); }
+    }
+  </style>
+</head>
+<body>
+<main class="ficha">
+
+  <!-- cabecera -->
+  <header class="ficha-header">
+    <span class="ficha-codigo">UT02 · P4C</span>
+    <h1 class="ficha-titulo">Consolidación — Menú con CSS Grid <span class="badge-consolid">Libre</span></h1>
+    <div class="ficha-meta">
+      HANA Japanese Restaurant<br>
+      Diseño de Interfaces Web · DAW
+    </div>
+  </header>
+
+  <!-- aviso sin apuntes -->
+  <div class="aviso-notas">
+    📵 <strong>Sin apuntes.</strong> Dispones únicamente de esta hoja: la maqueta de referencia, el diagrama de anatomía y el código HTML dado. No se permite consultar la práctica guiada ni ninguna otra fuente.
+  </div>
+
+  <!-- objetivo -->
+  <section class="seccion">
+    <p class="seccion-titulo">Qué vas a conseguir</p>
+    <p>Recrearás la sección de menú de HANA: una cuadrícula adaptable de platos que reorganiza sus columnas según el espacio disponible, con botones de filtro que cambian de aspecto al estar activos.</p>
+  </section>
+
+  <hr class="div">
+
+  <!-- maqueta en vivo -->
+  <section class="seccion">
+    <p class="seccion-titulo">Maqueta de referencia</p>
+    <div class="maqueta-wrap">
+      <p class="maqueta-label">Resultado esperado</p>
+      <div class="demo-menu">
+        <div class="demo-menu__cabecera">
+          <h2>Nuestro Menú</h2>
+          <p>Una selección cuidadosa de sabores auténticos</p>
+        </div>
+        <div class="demo-menu__filtros">
+          <button class="demo-menu__filtro demo-menu__filtro--activo">Todo</button>
+          <button class="demo-menu__filtro">Nigiris</button>
+          <button class="demo-menu__filtro">Makis</button>
+          <button class="demo-menu__filtro">Temakis</button>
+        </div>
+        <div class="demo-menu__grid">
+          <article class="demo-card">
+            <div class="demo-card__img">🍣</div>
+            <div class="demo-card__cuerpo">
+              <p class="demo-card__nombre">Nigiri Salmón</p>
+              <p class="demo-card__desc">Salmón fresco sobre arroz avinagrado</p>
+              <div class="demo-card__pie">
+                <span class="demo-card__precio">3,80 €</span>
+                <span class="demo-card__badge demo-card__badge--chef">Chef</span>
+              </div>
+            </div>
+          </article>
+          <article class="demo-card">
+            <div class="demo-card__img">🌊</div>
+            <div class="demo-card__cuerpo">
+              <p class="demo-card__nombre">Maki Atún</p>
+              <p class="demo-card__desc">Rulo de arroz y atún con alga nori</p>
+              <div class="demo-card__pie">
+                <span class="demo-card__precio">4,20 €</span>
+                <span class="demo-card__badge demo-card__badge--nuevo">Nuevo</span>
+              </div>
+            </div>
+          </article>
+          <article class="demo-card">
+            <div class="demo-card__img">🥑</div>
+            <div class="demo-card__cuerpo">
+              <p class="demo-card__nombre">Temaki Aguacate</p>
+              <p class="demo-card__desc">Cono de alga con arroz y aguacate</p>
+              <div class="demo-card__pie">
+                <span class="demo-card__precio">5,50 €</span>
+              </div>
+            </div>
+          </article>
+          <article class="demo-card">
+            <div class="demo-card__img">🦐</div>
+            <div class="demo-card__cuerpo">
+              <p class="demo-card__nombre">Nigiri Gamba</p>
+              <p class="demo-card__desc">Gamba tigre sobre arroz de sushi</p>
+              <div class="demo-card__pie">
+                <span class="demo-card__precio">4,50 €</span>
+                <span class="demo-card__badge demo-card__badge--chef">Chef</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- anatomía SVG -->
+  <section class="seccion">
+    <p class="seccion-titulo">Anatomía del componente</p>
+    <div class="anatomia-wrap">
+      <p class="anatomia-label">Zonas numeradas — identifica dónde va cada hueco</p>
+      <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg"
+           style="width:100%;max-width:700px;display:block;border:1px solid #E2E2DC;border-radius:6px;background:#fff;font-family:'DM Sans',sans-serif">
+
+        <!-- fondo zona 1 section.menu -->
+        <rect x="10" y="10" width="680" height="400" rx="6" fill="hsl(0 70% 97%)" stroke="hsl(0 70% 60%)" stroke-width="1.5" stroke-dasharray="6 3"/>
+        <text x="18" y="28" font-size="11" fill="hsl(0 70% 35%)" font-weight="600">① section.menu__contenedor</text>
+
+        <!-- zona 2: cabecera -->
+        <rect x="30" y="38" width="640" height="60" rx="4" fill="hsl(220 80% 96%)" stroke="hsl(220 80% 50%)" stroke-width="1.2"/>
+        <text x="38" y="56" font-size="11" fill="hsl(220 70% 35%)" font-weight="600">② header.menu__cabecera</text>
+        <text x="38" y="73" font-size="10" fill="hsl(220 70% 40%)">h2.menu__titulo  ·  p.menu__subtitulo</text>
+        <text x="580" y="65" font-size="10" fill="hsl(220 70% 40%)" text-anchor="middle">text-align → center</text>
+
+        <!-- zona 3: filtros -->
+        <rect x="30" y="108" width="640" height="46" rx="4" fill="hsl(35 90% 96%)" stroke="hsl(35 90% 52%)" stroke-width="1.2"/>
+        <text x="38" y="126" font-size="11" fill="hsl(35 60% 28%)" font-weight="600">③ div.menu__filtros</text>
+        <!-- pill buttons -->
+        <rect x="140" y="118" width="48" height="24" rx="12" fill="hsl(0 70% 35%)" />
+        <text x="164" y="134" font-size="10" fill="white" text-anchor="middle">Todo</text>
+        <rect x="196" y="118" width="58" height="24" rx="12" fill="white" stroke="#E2E2DC"/>
+        <text x="225" y="134" font-size="10" fill="#1A1A1A" text-anchor="middle">Nigiris</text>
+        <rect x="262" y="118" width="50" height="24" rx="12" fill="white" stroke="#E2E2DC"/>
+        <text x="287" y="134" font-size="10" fill="#1A1A1A" text-anchor="middle">Makis</text>
+        <text x="38" y="148" font-size="9.5" fill="hsl(35 60% 35%)">display:flex · justify-content · flex-wrap</text>
+
+        <!-- zona 4: grid -->
+        <rect x="30" y="164" width="640" height="230" rx="4" fill="hsl(150 50% 95%)" stroke="hsl(150 50% 40%)" stroke-width="1.2"/>
+        <text x="38" y="182" font-size="11" fill="hsl(150 50% 22%)" font-weight="600">④ div.menu__grid</text>
+        <text x="38" y="197" font-size="10" fill="hsl(150 50% 28%)">display:grid · grid-template-columns · gap</text>
+
+        <!-- 4 cards en grid -->
+        <rect x="42"  y="207" width="146" height="178" rx="4" fill="white" stroke="#E2E2DC"/>
+        <rect x="42"  y="207" width="146" height="80" rx="4" fill="hsl(35 30% 88%)"/>
+        <text x="115" y="255" font-size="22" text-anchor="middle">🍣</text>
+        <text x="50"  y="303" font-size="9" fill="#1A1A1A" font-weight="600">Nigiri Salmón</text>
+        <text x="50"  y="316" font-size="8.5" fill="#6B6B6B">Salmón fresco…</text>
+        <rect x="50"  y="326" width="36" height="14" rx="7" fill="hsl(0 70% 96%)" stroke="hsl(0 70% 60%)"/>
+        <text x="68"  y="336" font-size="8" fill="hsl(0 70% 35%)" text-anchor="middle">Chef</text>
+
+        <rect x="198" y="207" width="146" height="178" rx="4" fill="white" stroke="#E2E2DC"/>
+        <rect x="198" y="207" width="146" height="80" rx="4" fill="hsl(210 40% 88%)"/>
+        <text x="271" y="255" font-size="22" text-anchor="middle">🌊</text>
+        <text x="206" y="303" font-size="9" fill="#1A1A1A" font-weight="600">Maki Atún</text>
+        <text x="206" y="316" font-size="8.5" fill="#6B6B6B">Rulo de arroz…</text>
+        <rect x="206" y="326" width="36" height="14" rx="7" fill="#fef9c3"/>
+        <text x="224" y="336" font-size="8" fill="#713f12" text-anchor="middle">Nuevo</text>
+
+        <rect x="354" y="207" width="146" height="178" rx="4" fill="white" stroke="#E2E2DC"/>
+        <rect x="354" y="207" width="146" height="80" rx="4" fill="hsl(130 30% 88%)"/>
+        <text x="427" y="255" font-size="22" text-anchor="middle">🥑</text>
+        <text x="362" y="303" font-size="9" fill="#1A1A1A" font-weight="600">Temaki Aguacate</text>
+        <text x="362" y="316" font-size="8.5" fill="#6B6B6B">Cono de alga…</text>
+
+        <rect x="510" y="207" width="146" height="178" rx="4" fill="white" stroke="#E2E2DC"/>
+        <rect x="510" y="207" width="146" height="80" rx="4" fill="hsl(15 40% 88%)"/>
+        <text x="583" y="255" font-size="22" text-anchor="middle">🦐</text>
+        <text x="518" y="303" font-size="9" fill="#1A1A1A" font-weight="600">Nigiri Gamba</text>
+        <text x="518" y="316" font-size="8.5" fill="#6B6B6B">Gamba tigre…</text>
+        <rect x="518" y="326" width="36" height="14" rx="7" fill="hsl(0 70% 96%)" stroke="hsl(0 70% 60%)"/>
+        <text x="536" y="336" font-size="8" fill="hsl(0 70% 35%)" text-anchor="middle">Chef</text>
+
+        <!-- etiquetas columnas del grid -->
+        <line x1="42" y1="395" x2="188" y2="395" stroke="hsl(150 50% 40%)" stroke-width="1" marker-end="url(#arr)"/>
+        <line x1="188" y1="395" x2="42"  y2="395" stroke="hsl(150 50% 40%)" stroke-width="1"/>
+        <text x="115" y="410" font-size="9" fill="hsl(150 50% 22%)" text-anchor="middle">minmax(260px, 1fr)</text>
+        <line x1="354" y1="395" x2="500" y2="395" stroke="hsl(150 50% 40%)" stroke-width="1"/>
+        <text x="427" y="410" font-size="9" fill="hsl(150 50% 22%)" text-anchor="middle">minmax(260px, 1fr)</text>
+
+        <!-- leyenda -->
+        <rect x="10" y="375" width="12" height="12" fill="hsl(0 70% 97%)" stroke="hsl(0 70% 60%)" stroke-width="1.5"/>
+        <text x="26" y="385" font-size="9" fill="#6B6B6B">① section / contenedor</text>
+        <rect x="155" y="375" width="12" height="12" fill="hsl(220 80% 96%)" stroke="hsl(220 80% 50%)" stroke-width="1.2"/>
+        <text x="171" y="385" font-size="9" fill="#6B6B6B">② cabecera</text>
+        <rect x="260" y="375" width="12" height="12" fill="hsl(35 90% 96%)" stroke="hsl(35 90% 52%)" stroke-width="1.2"/>
+        <text x="276" y="385" font-size="9" fill="#6B6B6B">③ filtros (flex)</text>
+        <rect x="380" y="375" width="12" height="12" fill="hsl(150 50% 95%)" stroke="hsl(150 50% 40%)" stroke-width="1.2"/>
+        <text x="396" y="385" font-size="9" fill="#6B6B6B">④ grid de cards</text>
+      </svg>
+    </div>
+  </section>
+
+  <hr class="div">
+
+  <!-- HTML dado -->
+  <section class="seccion">
+    <p class="seccion-titulo">HTML que tienes — no lo modifiques</p>
+    <div class="code-block"><span class="t-selector">&lt;section</span> <span class="t-prop">class</span>=<span class="t-str">"menu"</span><span class="t-selector">&gt;</span>
+  <span class="t-selector">&lt;div</span> <span class="t-prop">class</span>=<span class="t-str">"menu__contenedor"</span><span class="t-selector">&gt;</span>
+
+    <span class="t-selector">&lt;header</span> <span class="t-prop">class</span>=<span class="t-str">"menu__cabecera"</span><span class="t-selector">&gt;</span>
+      <span class="t-selector">&lt;h2</span> <span class="t-prop">class</span>=<span class="t-str">"menu__titulo"</span><span class="t-selector">&gt;</span>Nuestro Menú<span class="t-selector">&lt;/h2&gt;</span>
+      <span class="t-selector">&lt;p</span> <span class="t-prop">class</span>=<span class="t-str">"menu__subtitulo"</span><span class="t-selector">&gt;</span>Una selección cuidadosa de sabores auténticos<span class="t-selector">&lt;/p&gt;</span>
+    <span class="t-selector">&lt;/header&gt;</span>
+
+    <span class="t-selector">&lt;div</span> <span class="t-prop">class</span>=<span class="t-str">"menu__filtros"</span><span class="t-selector">&gt;</span>
+      <span class="t-selector">&lt;button</span> <span class="t-prop">class</span>=<span class="t-str">"menu__filtro menu__filtro--activo"</span><span class="t-selector">&gt;</span>Todo<span class="t-selector">&lt;/button&gt;</span>
+      <span class="t-selector">&lt;button</span> <span class="t-prop">class</span>=<span class="t-str">"menu__filtro"</span><span class="t-selector">&gt;</span>Nigiris<span class="t-selector">&lt;/button&gt;</span>
+      <span class="t-selector">&lt;button</span> <span class="t-prop">class</span>=<span class="t-str">"menu__filtro"</span><span class="t-selector">&gt;</span>Makis<span class="t-selector">&lt;/button&gt;</span>
+      <span class="t-selector">&lt;button</span> <span class="t-prop">class</span>=<span class="t-str">"menu__filtro"</span><span class="t-selector">&gt;</span>Temakis<span class="t-selector">&lt;/button&gt;</span>
+    <span class="t-selector">&lt;/div&gt;</span>
+
+    <span class="t-selector">&lt;div</span> <span class="t-prop">class</span>=<span class="t-str">"menu__grid"</span><span class="t-selector">&gt;</span>
+      <span class="t-selector">&lt;article</span> <span class="t-prop">class</span>=<span class="t-str">"card"</span><span class="t-selector">&gt;</span>
+        <span class="t-selector">&lt;img</span> <span class="t-prop">class</span>=<span class="t-str">"card__imagen"</span> <span class="t-prop">src</span>=<span class="t-str">"img/salmon.jpg"</span> <span class="t-prop">alt</span>=<span class="t-str">"Nigiri Salmón"</span><span class="t-selector">&gt;</span>
+        <span class="t-selector">&lt;div</span> <span class="t-prop">class</span>=<span class="t-str">"card__cuerpo"</span><span class="t-selector">&gt;</span>
+          <span class="t-selector">&lt;span</span> <span class="t-prop">class</span>=<span class="t-str">"card__badge card__badge--chef"</span><span class="t-selector">&gt;</span>Chef<span class="t-selector">&lt;/span&gt;</span>
+          <span class="t-selector">&lt;h3</span> <span class="t-prop">class</span>=<span class="t-str">"card__nombre"</span><span class="t-selector">&gt;</span>Nigiri Salmón<span class="t-selector">&lt;/h3&gt;</span>
+          <span class="t-selector">&lt;p</span> <span class="t-prop">class</span>=<span class="t-str">"card__descripcion"</span><span class="t-selector">&gt;</span>Salmón fresco sobre arroz avinagrado<span class="t-selector">&lt;/p&gt;</span>
+          <span class="t-selector">&lt;div</span> <span class="t-prop">class</span>=<span class="t-str">"card__pie"</span><span class="t-selector">&gt;</span>
+            <span class="t-selector">&lt;span</span> <span class="t-prop">class</span>=<span class="t-str">"card__precio"</span><span class="t-selector">&gt;</span>3,80 €<span class="t-selector">&lt;/span&gt;</span>
+            <span class="t-selector">&lt;a</span> <span class="t-prop">href</span>=<span class="t-str">"#"</span> <span class="t-prop">class</span>=<span class="t-str">"btn-primary"</span><span class="t-selector">&gt;</span>Pedir<span class="t-selector">&lt;/a&gt;</span>
+          <span class="t-selector">&lt;/div&gt;</span>
+        <span class="t-selector">&lt;/div&gt;</span>
+      <span class="t-selector">&lt;/article&gt;</span>
+      <span class="t-comment">/* … más &lt;article class="card"&gt; */</span>
+    <span class="t-selector">&lt;/div&gt;</span>
+
+  <span class="t-selector">&lt;/div&gt;</span>
+<span class="t-selector">&lt;/section&gt;</span></div>
+  </section>
+
+  <hr class="div">
+
+  <!-- huecos -->
+  <section class="seccion">
+    <p class="seccion-titulo">CSS que debes completar — 16 huecos</p>
+    <div class="code-block"><span class="t-comment">/* ─── ZONA 1: section.menu ─── */</span>
+<span class="t-selector">.menu</span> {
+  <span class="t-prop">padding</span>: <span class="t-val">var(--space-10) 0</span>;  <span class="t-comment">/* espacio vertical generoso */</span>
+  <span class="t-prop">background</span>: <span class="t-val">var(--color-surface)</span>;
+}
+
+<span class="t-selector">.menu__contenedor</span> {
+  <span class="t-prop">max-width</span>: <span class="t-val">1100px</span>;
+  <span class="t-prop">margin</span>: <span class="t-gap">/* ① */</span>;  <span class="t-comment">/* centrado horizontal */</span>
+  <span class="t-prop">padding</span>: <span class="t-val">0 var(--space-6)</span>;
+}
+
+<span class="t-comment">/* ─── ZONA 2: header.menu__cabecera ─── */</span>
+<span class="t-selector">.menu__cabecera</span> {
+  <span class="t-prop">text-align</span>: <span class="t-gap">/* ② */</span>;        <span class="t-comment">/* título y subtítulo centrados */</span>
+  <span class="t-prop">margin-bottom</span>: <span class="t-val">var(--space-8)</span>;
+}
+
+<span class="t-selector">.menu__titulo</span> {
+  <span class="t-prop">font-family</span>: <span class="t-val">var(--font-display)</span>;
+  <span class="t-prop">font-size</span>: <span class="t-gap">/* ③ */</span>;           <span class="t-comment">/* grande pero no excesivo */</span>
+  <span class="t-prop">font-weight</span>: <span class="t-val">700</span>;
+  <span class="t-prop">color</span>: <span class="t-val">var(--color-ink)</span>;
+  <span class="t-prop">margin-bottom</span>: <span class="t-val">var(--space-2)</span>;
+}
+
+<span class="t-selector">.menu__subtitulo</span> {
+  <span class="t-prop">font-size</span>: <span class="t-val">var(--text-base)</span>;
+  <span class="t-prop">color</span>: <span class="t-gap">/* ④ */</span>;             <span class="t-comment">/* texto atenuado */</span>
+}
+
+<span class="t-comment">/* ─── ZONA 3: div.menu__filtros ─── */</span>
+<span class="t-selector">.menu__filtros</span> {
+  <span class="t-prop">display</span>: <span class="t-gap">/* ⑤ */</span>;
+  <span class="t-prop">gap</span>: <span class="t-val">var(--space-2)</span>;
+  <span class="t-prop">justify-content</span>: <span class="t-gap">/* ⑥ */</span>;  <span class="t-comment">/* botones centrados en fila */</span>
+  <span class="t-prop">flex-wrap</span>: <span class="t-gap">/* ⑦ */</span>;          <span class="t-comment">/* si no caben, saltan a la línea */</span>
+  <span class="t-prop">margin-bottom</span>: <span class="t-val">var(--space-8)</span>;
+}
+
+<span class="t-selector">.menu__filtro</span> {
+  <span class="t-prop">padding</span>: <span class="t-val">var(--space-2) var(--space-5)</span>;
+  <span class="t-prop">border</span>: <span class="t-val">1px solid var(--color-border)</span>;
+  <span class="t-prop">border-radius</span>: <span class="t-val">100px</span>;                 <span class="t-comment">/* píldora */</span>
+  <span class="t-prop">background</span>: <span class="t-val">transparent</span>;
+  <span class="t-prop">cursor</span>: <span class="t-val">pointer</span>;
+  <span class="t-prop">transition</span>: <span class="t-val">background 0.15s, color 0.15s, border-color 0.15s</span>;
+
+  <span class="t-comment">/* Estado activo */</span>
+  <span class="t-selector">&amp;--activo</span> {
+    <span class="t-prop">background</span>: <span class="t-gap">/* ⑧ */</span>;       <span class="t-comment">/* fondo de marca */</span>
+    <span class="t-prop">color</span>: <span class="t-val">white</span>;
+    <span class="t-prop">border-color</span>: <span class="t-gap">/* ⑨ */</span>;    <span class="t-comment">/* mismo que el fondo */</span>
+  }
+
+  <span class="t-comment">/* Hover solo en los NO activos */</span>
+  <span class="t-selector">&amp;:not(.menu__filtro--activo):hover</span> {
+    <span class="t-prop">background</span>: <span class="t-val">var(--color-brand-lt)</span>;
+    <span class="t-prop">border-color</span>: <span class="t-gap">/* ⑩ */</span>;  <span class="t-comment">/* borde de marca al pasar */</span>
+    <span class="t-prop">color</span>: <span class="t-val">var(--color-brand)</span>;
+  }
+}
+
+<span class="t-comment">/* ─── ZONA 4: div.menu__grid ─── */</span>
+<span class="t-selector">.menu__grid</span> {
+  <span class="t-prop">display</span>: <span class="t-gap">/* ⑪ */</span>;
+  <span class="t-prop">grid-template-columns</span>: <span class="t-gap">/* ⑫ */</span>;
+  <span class="t-comment">/*   ↑ columnas automáticas: mínimo 260px, máximo 1fr
+       se crean y destruyen solas al cambiar el ancho */</span>
+  <span class="t-prop">gap</span>: <span class="t-gap">/* ⑬ */</span>;               <span class="t-comment">/* espacio entre cards */</span>
+}
+
+<span class="t-comment">/* ─── ZONA 5: article.card dentro del grid ─── */</span>
+<span class="t-selector">.card</span> {
+  <span class="t-prop">background</span>: <span class="t-val">var(--color-surface)</span>;
+  <span class="t-prop">border-radius</span>: <span class="t-val">var(--radius-md)</span>;
+  <span class="t-prop">overflow</span>: <span class="t-gap">/* ⑭ */</span>;          <span class="t-comment">/* la imagen no se sale del borde redondeado */</span>
+  <span class="t-prop">box-shadow</span>: <span class="t-val">var(--shadow-sm)</span>;
+  <span class="t-prop">transition</span>: <span class="t-val">transform 0.2s, box-shadow 0.2s</span>;
+
+  <span class="t-selector">&amp;:hover</span> {
+    <span class="t-prop">transform</span>: <span class="t-gap">/* ⑮ */</span>;        <span class="t-comment">/* sube 4px al pasar el ratón */</span>
+    <span class="t-prop">box-shadow</span>: <span class="t-val">var(--shadow-md)</span>;
+  }
+}
+
+<span class="t-selector">.card__imagen</span> {
+  <span class="t-prop">width</span>: <span class="t-val">100%</span>;
+  <span class="t-prop">aspect-ratio</span>: <span class="t-val">4 / 3</span>;
+  <span class="t-prop">object-fit</span>: <span class="t-gap">/* ⑯ */</span>;       <span class="t-comment">/* recorta sin deformar */</span>
+}</div>
+  </section>
+
+  <hr class="div">
+
+  <!-- tabla de huecos -->
+  <section class="seccion">
+    <p class="seccion-titulo">Guía de huecos</p>
+    <table class="huecos-tabla">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Zona</th>
+          <th>Descripción visual</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="num-hueco">1</span></td>
+          <td><span class="zona-chip">section</span></td>
+          <td>
+            <div class="hueco-desc">El contenedor se centra solo en el ancho de página</div>
+            <div class="hueco-hint">Abreviatura que maneja los cuatro lados a la vez</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">2</span></td>
+          <td><span class="zona-chip">cabecera</span></td>
+          <td>
+            <div class="hueco-desc">Título y subtítulo quedan centrados horizontalmente</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">3</span></td>
+          <td><span class="zona-chip">cabecera</span></td>
+          <td>
+            <div class="hueco-desc">El título ocupa un tamaño grande de escala tipográfica (2xl o 3xl según token)</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">4</span></td>
+          <td><span class="zona-chip">cabecera</span></td>
+          <td>
+            <div class="hueco-desc">El subtítulo aparece en gris apagado, no negro</div>
+            <div class="hueco-hint">Token de texto atenuado del design system</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">5</span></td>
+          <td><span class="zona-chip z2">filtros</span></td>
+          <td>
+            <div class="hueco-desc">Los botones se colocan en fila horizontal</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">6</span></td>
+          <td><span class="zona-chip z2">filtros</span></td>
+          <td>
+            <div class="hueco-desc">Los botones se centran dentro de la fila</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">7</span></td>
+          <td><span class="zona-chip z2">filtros</span></td>
+          <td>
+            <div class="hueco-desc">En pantallas pequeñas los botones que no caben saltan a la siguiente línea</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">8</span></td>
+          <td><span class="zona-chip z2">filtros</span></td>
+          <td>
+            <div class="hueco-desc">El botón activo tiene fondo del color corporativo de HANA</div>
+            <div class="hueco-hint">Token --color-brand</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">9</span></td>
+          <td><span class="zona-chip z2">filtros</span></td>
+          <td>
+            <div class="hueco-desc">El borde del botón activo desaparece visualmente (mismo color que el fondo)</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">10</span></td>
+          <td><span class="zona-chip z2">filtros</span></td>
+          <td>
+            <div class="hueco-desc">Al pasar sobre un botón inactivo, el borde adopta el color de marca</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">11</span></td>
+          <td><span class="zona-chip z3">grid</span></td>
+          <td>
+            <div class="hueco-desc">Las cards se distribuyen en cuadrícula, no en fila ni en bloque</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">12</span></td>
+          <td><span class="zona-chip z3">grid</span></td>
+          <td>
+            <div class="hueco-desc">Las columnas se crean o destruyen automáticamente: cada una tiene al menos 260px y ocupa el espacio que sobre por igual</div>
+            <div class="hueco-hint">repeat( auto-fit , minmax( … , … ) )</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">13</span></td>
+          <td><span class="zona-chip z3">grid</span></td>
+          <td>
+            <div class="hueco-desc">Hay separación uniforme entre las cards, tanto en horizontal como en vertical</div>
+            <div class="hueco-hint">Token de espaciado del design system</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">14</span></td>
+          <td><span class="zona-chip z4">card</span></td>
+          <td>
+            <div class="hueco-desc">Las esquinas redondeadas de la card también recortan la imagen que hay dentro</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">15</span></td>
+          <td><span class="zona-chip z4">card</span></td>
+          <td>
+            <div class="hueco-desc">Al pasar el cursor, la card se eleva ligeramente hacia arriba (4px)</div>
+            <div class="hueco-hint">transform con función de traslación en eje Y negativo</div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="num-hueco">16</span></td>
+          <td><span class="zona-chip z4">card</span></td>
+          <td>
+            <div class="hueco-desc">La imagen rellena su espacio recortándose sin deformarse</div>
+            <div class="hueco-hint">Valor de object-fit que mantiene la proporción</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="div">
+
+  <!-- instrucciones -->
+  <section class="seccion">
+    <p class="seccion-titulo">Cómo entregar</p>
+    <ul class="instrucciones-list">
+      <li>Crea un archivo <code>ut02-p4c.css</code> y escribe únicamente los valores de los 16 huecos (una propiedad por línea, con el selector correspondiente como comentario).</li>
+      <li>No modifiques el HTML dado. No copies código de la práctica guiada.</li>
+      <li>Comprueba en el navegador que el grid realmente cambia de columnas al redimensionar la ventana.</li>
+      <li>Comprime el proyecto en <code>ut02-p4c_apellido.zip</code> y súbelo a la tarea del aula virtual.</li>
+    </ul>
+  </section>
+
+  <hr class="div">
+
+  <!-- rúbrica -->
+  <section class="seccion">
+    <p class="seccion-titulo">Rúbrica (10 puntos)</p>
+    <table class="rubrica-tabla">
+      <thead>
+        <tr><th>Criterio</th><th style="width:5rem;text-align:center">Puntos</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Grid adaptable con <code>auto-fit</code> y <code>minmax</code> funciona (⑪–⑬)</td><td class="pts" style="text-align:center">3</td></tr>
+        <tr><td>Filtros en flex centrados con wrap activo (⑤–⑦)</td><td class="pts" style="text-align:center">2</td></tr>
+        <tr><td>Estado activo y hover :not() diferenciados (⑧–⑩)</td><td class="pts" style="text-align:center">2</td></tr>
+        <tr><td>Card con overflow hidden, hover elevation y object-fit (⑭–⑯)</td><td class="pts" style="text-align:center">2</td></tr>
+        <tr><td>Cabecera centrada, subtítulo atenuado (①–④)</td><td class="pts" style="text-align:center">1</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+</body>
+</html>
