@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HANA · P7 — Tipografía</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ── tokens ── */
+:root {
+  --color-fondo:        hsl(30 15% 96%);
+  --color-superficie:   hsl(0 0% 100%);
+  --color-borde:        hsl(30 10% 85%);
+  --color-texto:        hsl(20 10% 20%);
+  --color-sutil:        hsl(20 10% 50%);
+  --color-acento:       hsl(43 74% 52%);
+  --color-acento-suave: hsl(43 74% 52% / 0.12);
+
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  1.875rem;
+  --text-4xl:  2.25rem;
+
+  --space-1:0.25rem; --space-2:0.5rem;  --space-3:0.75rem; --space-4:1rem;
+  --space-5:1.25rem; --space-6:1.5rem;  --space-8:2rem;    --space-10:2.5rem;
+  --space-12:3rem;   --space-16:4rem;
+
+  --radius-sm:4px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px;
+  --shadow-sm: 0 1px 3px hsl(0 0% 0% / 0.08);
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif:'Playfair Display', Georgia, serif;
+}
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--color-texto);
+  background: var(--color-fondo);
+  line-height: 1.6;
+}
+
+/* ── cabecera de práctica ── */
+.practica-header {
+  background: var(--color-superficie);
+  border-bottom: 1px solid var(--color-borde);
+  padding: var(--space-6) var(--space-8);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.practica-header__codigo {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-superficie);
+  background: var(--color-texto);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+}
+.practica-header__titulo {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+}
+.badge {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  border: 1.5px solid currentColor;
+}
+.badge--nuevo  { color: hsl(210 80% 45%); border-color: hsl(210 80% 45%); background: hsl(210 80% 45% / 0.08); }
+
+/* ── layout ── */
+.contenido {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+/* ── demo ── */
+.demo {
+  border: 2px dashed var(--color-borde);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  background: var(--color-fondo);
+}
+.demo__label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-sutil);
+  margin-bottom: var(--space-4);
+}
+
+/* ── sección "Nuestra historia" — resultado final ── */
+.historia {
+  background: var(--color-superficie);
+  padding: var(--space-12) var(--space-10);
+  border-radius: var(--radius-xl);
+  max-width: 680px;
+  margin: 0 auto;
+}
+.historia__etiqueta {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-acento);
+  margin-bottom: var(--space-3);
+}
+.historia__titulo {
+  font-family: var(--font-serif);
+  font-size: var(--text-4xl);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--color-texto);
+  margin-bottom: var(--space-6);
+}
+.historia__cuerpo {
+  font-size: 1.0625rem;  /* 17px — entre text-base y text-lg */
+  line-height: 1.8;
+  color: hsl(20 10% 30%);
+  max-width: 60ch;
+}
+.historia__cuerpo p {
+  margin-bottom: var(--space-5);
+}
+.historia__cuerpo p:last-child {
+  margin-bottom: 0;
+}
+/* Primera letra destacada */
+.historia__cuerpo p:first-child::first-letter {
+  font-family: var(--font-serif);
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--color-acento);
+  float: left;
+  line-height: 0.8;
+  margin-right: 0.12em;
+  margin-top: 0.08em;
+}
+/* Selección de texto personalizada */
+.historia__cuerpo ::selection {
+  background: var(--color-acento);
+  color: hsl(0 0% 100%);
+}
+.historia__firma {
+  margin-top: var(--space-8);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.historia__firma-linea {
+  width: 2.5rem;
+  height: 2px;
+  background: var(--color-acento);
+}
+.historia__firma-nombre {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: var(--text-lg);
+  color: var(--color-texto);
+}
+.historia__firma-cargo {
+  font-size: var(--text-xs);
+  color: var(--color-sutil);
+  letter-spacing: 0.05em;
+}
+
+/* ── paso ── */
+.paso {
+  background: var(--color-superficie);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-borde);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.paso__cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  background: hsl(30 15% 98%);
+  border-bottom: 1px solid var(--color-borde);
+}
+.paso__num {
+  width: 2rem; height: 2rem;
+  border-radius: 50%;
+  background: var(--color-texto);
+  color: var(--color-superficie);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.paso__titulo { font-size: var(--text-lg); font-weight: 600; }
+.paso__cuerpo {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ── concepto ── */
+.concepto {
+  background: hsl(43 74% 52% / 0.07);
+  border-left: 3px solid var(--color-acento);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: var(--space-4) var(--space-5);
+}
+.concepto__titulo {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: hsl(43 74% 38%);
+  margin-bottom: var(--space-2);
+}
+.concepto p, .concepto li { font-size: var(--text-sm); }
+.concepto ul { padding-left: var(--space-5); }
+.concepto li { margin-bottom: var(--space-1); }
+
+/* ── código ── */
+.code-block {
+  background: hsl(220 15% 14%);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  overflow-x: auto;
+}
+.code-block pre {
+  font-family: 'Cascadia Code','Fira Code','Consolas',monospace;
+  font-size: var(--text-sm);
+  line-height: 1.75;
+  color: hsl(220 15% 85%);
+  white-space: pre;
+}
+.t-sel   { color: hsl(210 80% 72%); }
+.t-prop  { color: hsl(195 70% 68%); }
+.t-val   { color: hsl(100 55% 68%); }
+.t-pseudo{ color: hsl(280 65% 75%); }
+.t-com   { color: hsl(220 15% 50%); font-style:italic; }
+.t-gap   {
+  color: hsl(38 90% 62%);
+  background: hsl(38 90% 62% / 0.12);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-style: italic;
+}
+.t-str   { color: hsl(25 80% 68%); }
+.t-at    { color: hsl(38 90% 70%); }
+
+.selector-chip {
+  display: inline-block;
+  font-family: monospace;
+  font-size: var(--text-xs);
+  background: hsl(220 15% 18%);
+  color: hsl(210 80% 72%);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid hsl(220 15% 28%);
+}
+
+.nota {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  background: hsl(210 80% 45% / 0.08);
+  border: 1px solid hsl(210 80% 45% / 0.25);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  font-size: var(--text-sm);
+  color: hsl(210 80% 30%);
+}
+.nota__icono { font-size: 1.1rem; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<header class="practica-header">
+  <span class="practica-header__codigo">UT02 · P7</span>
+  <h1 class="practica-header__titulo">Tipografía avanzada</h1>
+  <span class="badge badge--nuevo">Nuevos selectores</span>
+</header>
+
+<main class="contenido">
+
+  <!-- DEMO -->
+  <div class="demo">
+    <p class="demo__label">✦ Así quedará al terminar</p>
+    <div class="historia">
+      <p class="historia__etiqueta">Nuestra historia</p>
+      <h2 class="historia__titulo">Una cocina nacida del viaje</h2>
+      <div class="historia__cuerpo">
+        <p>En 2018, Yuki Tanaka cerró su restaurante en Kioto y viajó a Murcia con una maleta y una idea: que la cocina japonesa podía hablar también con el producto mediterráneo. Selecciona este texto para ver el color de selección personalizado.</p>
+        <p>Cada plato de HANA nace de ese diálogo entre dos culturas. El sashimi se marina con aceite de oliva virgen extra. El ramen incorpora dashi de pescado de la lonja. La tempura se reboza con harina de trigo duro de la huerta.</p>
+        <p>Hoy HANA es un lugar donde la precisión japonesa y la generosidad mediterránea comparten mesa.</p>
+      </div>
+      <div class="historia__firma">
+        <div class="historia__firma-linea"></div>
+        <div>
+          <p class="historia__firma-nombre">Yuki Tanaka</p>
+          <p class="historia__firma-cargo">Chef y fundadora</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PASO 1: rem vs em ══ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num">1</span>
+      <h2 class="paso__titulo">Unidades relativas: <code>rem</code> vs <code>em</code></h2>
+    </div>
+    <div class="paso__cuerpo">
+
+      <div class="concepto">
+        <p class="concepto__titulo">rem y em</p>
+        <ul>
+          <li><strong>rem</strong> (root em) — relativo al <code>font-size</code> del <code>&lt;html&gt;</code>. Por defecto 16 px. Predecible: <code>1.5rem = 24px</code> siempre.</li>
+          <li><strong>em</strong> — relativo al <code>font-size</code> del <strong>elemento actual</strong>. Se acumula si anidas: un <code>em</code> dentro de otro <code>em</code> multiplica.</li>
+          <li>Usa <strong>rem</strong> para tamaños de texto y espaciados globales. Usa <strong>em</strong> para ajustes proporcionales al componente (padding de un botón que crece con su texto, por ejemplo).</li>
+        </ul>
+      </div>
+
+      <p>Los tokens del design system ya usan <code>rem</code>. Aquí ves la equivalencia:</p>
+
+      <div class="code-block"><pre><span class="t-com">/* tokens — ya están definidos en :root */</span>
+<span class="t-prop">--text-xs</span>:   <span class="t-val">0.75rem</span>;    <span class="t-com">/* 12px */</span>
+<span class="t-prop">--text-sm</span>:   <span class="t-val">0.875rem</span>;   <span class="t-com">/* 14px */</span>
+<span class="t-prop">--text-base</span>: <span class="t-val">1rem</span>;       <span class="t-com">/* 16px */</span>
+<span class="t-prop">--text-lg</span>:   <span class="t-val">1.125rem</span>;   <span class="t-com">/* 18px */</span>
+<span class="t-prop">--text-xl</span>:   <span class="t-val">1.25rem</span>;    <span class="t-com">/* 20px */</span>
+<span class="t-prop">--text-2xl</span>:  <span class="t-val">1.5rem</span>;     <span class="t-com">/* 24px */</span>
+<span class="t-prop">--text-3xl</span>:  <span class="t-val">1.875rem</span>;   <span class="t-com">/* 30px */</span>
+<span class="t-prop">--text-4xl</span>:  <span class="t-val">2.25rem</span>;    <span class="t-com">/* 36px */</span></pre></div>
+
+      <p>Fíjate en que el cuerpo del texto de la sección usa <code>1.0625rem</code> (17 px) — un valor entre tokens para un tamaño de lectura cómodo:</p>
+
+      <div class="code-block"><pre><span class="t-sel">.historia__cuerpo</span> {
+  <span class="t-prop">font-size</span>: <span class="t-gap">/* ① */</span>;     <span class="t-com">/* 17px — entre text-base (16) y text-lg (18) */</span>
+  <span class="t-prop">line-height</span>: <span class="t-gap">/* ② */</span>;   <span class="t-com">/* interlineado amplio para lectura: 1.8 */</span>
+  <span class="t-prop">color</span>: <span class="t-val">hsl(20 10% 30%)</span>;
+  <span class="t-prop">max-width</span>: <span class="t-val">60ch</span>;        <span class="t-com">/* máximo 60 caracteres de ancho */</span>
+}</pre></div>
+
+      <p><strong>Tu tarea:</strong></p>
+      <ul style="padding-left:1.5rem;display:flex;flex-direction:column;gap:0.25rem;font-size:var(--text-sm)">
+        <li>① Tamaño de 17 px expresado en rem (base 16 px)</li>
+        <li>② Interlineado de 1.8 (sin unidad)</li>
+      </ul>
+
+    </div>
+  </section>
+
+  <!-- ══ PASO 2: Google Fonts ══ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num">2</span>
+      <h2 class="paso__titulo">Google Fonts y <code>@font-face</code></h2>
+    </div>
+    <div class="paso__cuerpo">
+
+      <div class="concepto">
+        <p class="concepto__titulo">Dos formas de cargar fuentes externas</p>
+        <ul>
+          <li><strong>Google Fonts (CDN)</strong> — enlace en el HTML. Rápido de usar, dependes de red externa.</li>
+          <li><strong>@font-face</strong> — descargas los archivos a tu servidor. Control total, sin dependencia externa, imprescindible en proyectos de producción.</li>
+        </ul>
+      </div>
+
+      <p>En HANA usamos Google Fonts. El enlace ya está en el <code>&lt;head&gt;</code> de la página:</p>
+
+      <div class="code-block"><pre><span class="t-com">&lt;!-- en el &lt;head&gt; del HTML --&gt;</span>
+<span class="t-sel">&lt;link</span> <span class="t-prop">rel</span>=<span class="t-str">"preconnect"</span> <span class="t-prop">href</span>=<span class="t-str">"https://fonts.googleapis.com"</span><span class="t-sel">&gt;</span>
+<span class="t-sel">&lt;link</span> <span class="t-prop">href</span>=<span class="t-str">"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700
+      &amp;family=Playfair+Display:ital,wght@0,700;1,400&amp;display=swap"</span>
+      <span class="t-prop">rel</span>=<span class="t-str">"stylesheet"</span><span class="t-sel">&gt;</span></pre></div>
+
+      <p>El equivalente con <code>@font-face</code> (archivos descargados en <code>fonts/</code>):</p>
+
+      <div class="code-block"><pre><span class="t-at">@font-face</span> {
+  <span class="t-prop">font-family</span>: <span class="t-str">'Playfair Display'</span>;
+  <span class="t-prop">src</span>: <span class="t-val">url(<span class="t-str">'fonts/PlayfairDisplay-Bold.woff2'</span>) format(<span class="t-str">'woff2'</span>)</span>;
+  <span class="t-prop">font-weight</span>: <span class="t-val">700</span>;
+  <span class="t-prop">font-style</span>: <span class="t-val">normal</span>;
+  <span class="t-prop">font-display</span>: <span class="t-val">swap</span>;  <span class="t-com">/* muestra fallback hasta que cargue */</span>
+}</pre></div>
+
+      <p>Ahora usa las fuentes en la sección. <strong>Tu tarea</strong>: rellena los dos huecos.</p>
+
+      <div class="code-block"><pre><span class="t-sel">.historia__titulo</span> {
+  <span class="t-prop">font-family</span>: <span class="t-gap">/* ③ */</span>;    <span class="t-com">/* fuente serif del design system */</span>
+  <span class="t-prop">font-size</span>: <span class="t-val">var(--text-4xl)</span>;
+  <span class="t-prop">font-weight</span>: <span class="t-val">700</span>;
+  <span class="t-prop">line-height</span>: <span class="t-val">1.15</span>;
+  <span class="t-prop">color</span>: <span class="t-val">var(--color-texto)</span>;
+  <span class="t-prop">margin-bottom</span>: <span class="t-val">var(--space-6)</span>;
+}
+
+<span class="t-sel">.historia__etiqueta</span> {
+  <span class="t-prop">font-family</span>: <span class="t-gap">/* ④ */</span>;    <span class="t-com">/* fuente sans-serif del design system */</span>
+  <span class="t-prop">font-size</span>: <span class="t-val">var(--text-xs)</span>;
+  <span class="t-prop">font-weight</span>: <span class="t-val">700</span>;
+  <span class="t-prop">letter-spacing</span>: <span class="t-val">0.15em</span>;
+  <span class="t-prop">text-transform</span>: <span class="t-val">uppercase</span>;
+  <span class="t-prop">color</span>: <span class="t-val">var(--color-acento)</span>;
+}</pre></div>
+
+      <p><strong>Tu tarea:</strong></p>
+      <ul style="padding-left:1.5rem;display:flex;flex-direction:column;gap:0.25rem;font-size:var(--text-sm)">
+        <li>③ Token de la fuente serif (mira en <code>:root</code>)</li>
+        <li>④ Token de la fuente sans-serif (mira en <code>:root</code>)</li>
+      </ul>
+
+    </div>
+  </section>
+
+  <!-- ══ PASO 3: ::first-letter ══ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num">3</span>
+      <h2 class="paso__titulo">
+        <span class="selector-chip">::first-letter</span>
+        — Capital destacada (drop cap)
+      </h2>
+    </div>
+    <div class="paso__cuerpo">
+
+      <div class="concepto">
+        <p class="concepto__titulo">::first-letter</p>
+        <p>Selecciona la <strong>primera letra</strong> del primer elemento de texto de un bloque. Solo funciona en elementos de bloque (<code>p</code>, <code>div</code>…). Permite crear la clásica capital decorada de los textos editoriales.</p>
+        <p>Para hacer <em>drop cap</em> (letra que desciende): <code>float: left</code> + ajuste de <code>line-height</code> y márgenes.</p>
+      </div>
+
+      <p><strong>Tu tarea</strong>: rellena los cuatro huecos para conseguir la capital dorada.</p>
+
+      <div class="code-block"><pre><span class="t-sel">.historia__cuerpo p:<span class="t-pseudo">first-child</span>::<span class="t-pseudo">first-letter</span></span> {
+  <span class="t-prop">font-family</span>: <span class="t-gap">/* ⑤ */</span>;     <span class="t-com">/* serif para la capital */</span>
+  <span class="t-prop">font-size</span>: <span class="t-gap">/* ⑥ */</span>;        <span class="t-com">/* tamaño grande: 4rem */</span>
+  <span class="t-prop">font-weight</span>: <span class="t-val">700</span>;
+  <span class="t-prop">color</span>: <span class="t-gap">/* ⑦ */</span>;           <span class="t-com">/* token color acento dorado */</span>
+  <span class="t-prop">float</span>: <span class="t-gap">/* ⑧ */</span>;           <span class="t-com">/* el texto fluye a su derecha */</span>
+  <span class="t-prop">line-height</span>: <span class="t-val">0.8</span>;
+  <span class="t-prop">margin-right</span>: <span class="t-val">0.12em</span>;
+  <span class="t-prop">margin-top</span>: <span class="t-val">0.08em</span>;
+}</pre></div>
+
+      <p><strong>Tu tarea:</strong></p>
+      <ul style="padding-left:1.5rem;display:flex;flex-direction:column;gap:0.25rem;font-size:var(--text-sm)">
+        <li>⑤ Token de la fuente serif</li>
+        <li>⑥ Tamaño grande expresado en rem</li>
+        <li>⑦ Token del color dorado de acento</li>
+        <li>⑧ Valor de float que hace que el texto fluya a la derecha de la letra</li>
+      </ul>
+
+      <div class="nota">
+        <span class="nota__icono">💡</span>
+        <span><code>::first-letter</code> solo funciona sobre el primer elemento <code>&lt;p&gt;</code> del contenedor. Por eso el selector usa <code>p:first-child::first-letter</code> — apunta al primer párrafo, y de ese párrafo, a su primera letra.</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ PASO 4: ::selection ══ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num">4</span>
+      <h2 class="paso__titulo">
+        <span class="selector-chip">::selection</span>
+        — Color de selección de texto
+      </h2>
+    </div>
+    <div class="paso__cuerpo">
+
+      <div class="concepto">
+        <p class="concepto__titulo">::selection</p>
+        <p>Se aplica a la parte del texto que el usuario ha seleccionado con el ratón. Solo acepta un subconjunto de propiedades CSS: <code>color</code>, <code>background-color</code>, <code>text-shadow</code>.</p>
+        <p>Es un detalle de acabado que marca la diferencia en sitios de lectura — el azul por defecto del navegador rompe la paleta del diseño.</p>
+      </div>
+
+      <p><strong>Tu tarea</strong>: rellena los dos huecos. Luego selecciona el texto de la demo para comprobar el efecto.</p>
+
+      <div class="code-block"><pre><span class="t-sel">.historia__cuerpo ::<span class="t-pseudo">selection</span></span> {
+  <span class="t-prop">background</span>: <span class="t-gap">/* ⑨ */</span>;   <span class="t-com">/* color acento dorado */</span>
+  <span class="t-prop">color</span>: <span class="t-gap">/* ⑩ */</span>;         <span class="t-com">/* blanco puro: hsl(0 0% 100%) */</span>
+}</pre></div>
+
+      <p><strong>Tu tarea:</strong></p>
+      <ul style="padding-left:1.5rem;display:flex;flex-direction:column;gap:0.25rem;font-size:var(--text-sm)">
+        <li>⑨ Token del color de fondo al seleccionar</li>
+        <li>⑩ Color del texto seleccionado (contraste máximo sobre dorado)</li>
+      </ul>
+
+    </div>
+  </section>
+
+  <!-- ══ PASO 5: line-height, letter-spacing, max-width ch ══ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num">5</span>
+      <h2 class="paso__titulo">Legibilidad: <code>line-height</code>, <code>letter-spacing</code>, <code>max-width ch</code></h2>
+    </div>
+    <div class="paso__cuerpo">
+
+      <div class="concepto">
+        <p class="concepto__titulo">Las tres palancas de legibilidad</p>
+        <ul>
+          <li><strong>line-height</strong> — espacio entre líneas. Para cuerpo de texto: 1.6–1.8. Para títulos grandes: 1.1–1.2 (más ancho se ve pesado).</li>
+          <li><strong>letter-spacing</strong> — espacio entre letras. Texto en mayúsculas: <code>0.05–0.15em</code>. Cuerpo de texto: mejor dejarlo a 0 o valores mínimos.</li>
+          <li><strong>max-width: 60ch</strong> — limita la línea a ~60 caracteres. La unidad <code>ch</code> = ancho del carácter "0" en la fuente actual. Por encima de 75 ch la lectura se fatiga.</li>
+        </ul>
+      </div>
+
+      <p><strong>Tu tarea</strong>: completa la etiqueta "NUESTRA HISTORIA" con buen espaciado.</p>
+
+      <div class="code-block"><pre><span class="t-sel">.historia__etiqueta</span> {
+  <span class="t-com">/* … font-family, font-size, font-weight ya dados arriba … */</span>
+  <span class="t-prop">letter-spacing</span>: <span class="t-gap">/* ⑪ */</span>;   <span class="t-com">/* separación generosa para mayúsculas: 0.15em */</span>
+  <span class="t-prop">text-transform</span>: <span class="t-gap">/* ⑫ */</span>;   <span class="t-com">/* todo en mayúsculas */</span>
+}</pre></div>
+
+      <p><strong>Tu tarea:</strong></p>
+      <ul style="padding-left:1.5rem;display:flex;flex-direction:column;gap:0.25rem;font-size:var(--text-sm)">
+        <li>⑪ Espaciado entre letras expresado en em</li>
+        <li>⑫ Valor que convierte el texto a mayúsculas por CSS</li>
+      </ul>
+
+    </div>
+  </section>
+
+  <!-- ══ PASO 6: firma ══ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num">6</span>
+      <h2 class="paso__titulo">
+        <span class="selector-chip">.historia__firma</span>
+        — Firma con <code>font-style: italic</code>
+      </h2>
+    </div>
+    <div class="paso__cuerpo">
+
+      <p>La firma usa la fuente serif en cursiva — un toque editorial típico de la tipografía clásica. <strong>Tu tarea</strong>: rellena los dos huecos.</p>
+
+      <div class="code-block"><pre><span class="t-sel">.historia__firma-nombre</span> {
+  <span class="t-prop">font-family</span>: <span class="t-val">var(--font-serif)</span>;
+  <span class="t-prop">font-style</span>: <span class="t-gap">/* ⑬ */</span>;      <span class="t-com">/* cursiva */</span>
+  <span class="t-prop">font-size</span>: <span class="t-val">var(--text-lg)</span>;
+  <span class="t-prop">color</span>: <span class="t-val">var(--color-texto)</span>;
+}
+
+<span class="t-sel">.historia__firma-cargo</span> {
+  <span class="t-prop">font-size</span>: <span class="t-val">var(--text-xs)</span>;
+  <span class="t-prop">color</span>: <span class="t-val">var(--color-sutil)</span>;
+  <span class="t-prop">letter-spacing</span>: <span class="t-gap">/* ⑭ */</span>;   <span class="t-com">/* ligero espaciado: 0.05em */</span>
+}</pre></div>
+
+      <p><strong>Tu tarea:</strong></p>
+      <ul style="padding-left:1.5rem;display:flex;flex-direction:column;gap:0.25rem;font-size:var(--text-sm)">
+        <li>⑬ Valor de font-style para texto en cursiva</li>
+        <li>⑭ Espaciado sutil entre letras del cargo</li>
+      </ul>
+
+    </div>
+  </section>
+
+  <!-- ENTREGA -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num" style="background:var(--color-acento);color:#fff;">✓</span>
+      <h2 class="paso__titulo">Entrega</h2>
+    </div>
+    <div class="paso__cuerpo">
+      <ol style="padding-left:1.5rem;display:flex;flex-direction:column;gap:0.5rem;font-size:var(--text-sm)">
+        <li>Nombra el archivo <strong>ut02-p7.html</strong>.</li>
+        <li>Sube a la carpeta <code>hana/</code> del repositorio GitHub.</li>
+        <li>Selecciona texto en la sección para comprobar el color de selección.</li>
+        <li>Verifica que la capital aparece flotando a la izquierda del primer párrafo.</li>
+      </ol>
+
+      <div style="margin-top:var(--space-4);padding:var(--space-4);background:hsl(145 55% 38% / 0.08);border:1px solid hsl(145 55% 38% / 0.25);border-radius:var(--radius-md)">
+        <p style="font-size:var(--text-sm);font-weight:600;color:hsl(145 55% 30%);margin-bottom:var(--space-2)">Rúbrica (10 puntos)</p>
+        <table style="width:100%;font-size:var(--text-sm);border-collapse:collapse">
+          <tr style="background:hsl(145 55% 38% / 0.12)">
+            <th style="padding:var(--space-2) var(--space-3);text-align:left;color:hsl(145 55% 25%)">Criterio</th>
+            <th style="padding:var(--space-2) var(--space-3);text-align:right;color:hsl(145 55% 25%)">Pts</th>
+          </tr>
+          <tr><td style="padding:var(--space-2) var(--space-3)">font-size en rem correcto (cuerpo 1.0625rem, título 4xl)</td><td style="padding:var(--space-2) var(--space-3);text-align:right;font-weight:600">2</td></tr>
+          <tr style="background:hsl(145 55% 38% / 0.05)"><td style="padding:var(--space-2) var(--space-3)">var(--font-serif) y var(--font-sans) aplicados correctamente</td><td style="padding:var(--space-2) var(--space-3);text-align:right;font-weight:600">2</td></tr>
+          <tr><td style="padding:var(--space-2) var(--space-3)">::first-letter con float:left, tamaño 4rem y color acento</td><td style="padding:var(--space-2) var(--space-3);text-align:right;font-weight:600">3</td></tr>
+          <tr style="background:hsl(145 55% 38% / 0.05)"><td style="padding:var(--space-2) var(--space-3)">::selection con color acento + texto blanco</td><td style="padding:var(--space-2) var(--space-3);text-align:right;font-weight:600">2</td></tr>
+          <tr><td style="padding:var(--space-2) var(--space-3)">letter-spacing + text-transform en la etiqueta</td><td style="padding:var(--space-2) var(--space-3);text-align:right;font-weight:600">1</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

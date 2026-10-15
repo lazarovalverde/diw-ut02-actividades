@@ -1,0 +1,775 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HANA · P6C — Consolidación tabla</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ── tokens ── */
+:root {
+  --color-fondo:        hsl(30 15% 96%);
+  --color-superficie:   hsl(0 0% 100%);
+  --color-borde:        hsl(30 10% 85%);
+  --color-texto:        hsl(20 10% 20%);
+  --color-sutil:        hsl(20 10% 50%);
+  --color-acento:       hsl(43 74% 52%);
+  --color-acento-suave: hsl(43 74% 52% / 0.12);
+
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+
+  --space-1:0.25rem; --space-2:0.5rem;  --space-3:0.75rem; --space-4:1rem;
+  --space-5:1.25rem; --space-6:1.5rem;  --space-8:2rem;    --space-10:2.5rem;
+  --space-12:3rem;   --space-16:4rem;
+
+  --radius-sm:4px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px;
+  --shadow-sm: 0 1px 3px hsl(0 0% 0% / 0.08);
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif:'Playfair Display', Georgia, serif;
+}
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--color-texto);
+  background: var(--color-fondo);
+  line-height: 1.6;
+}
+
+/* ── cabecera de práctica ── */
+.practica-header {
+  background: var(--color-superficie);
+  border-bottom: 1px solid var(--color-borde);
+  padding: var(--space-6) var(--space-8);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.practica-header__codigo {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-superficie);
+  background: var(--color-texto);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+}
+.practica-header__titulo {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+}
+.badge {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  border: 1.5px solid currentColor;
+}
+.badge--libre  { color: hsl(0 65% 45%); border-color: hsl(0 65% 45%); background: hsl(0 65% 45% / 0.08); }
+
+/* ── aviso sin apuntes ── */
+.sin-apuntes {
+  background: hsl(0 65% 45% / 0.07);
+  border: 1.5px solid hsl(0 65% 45% / 0.3);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  font-size: var(--text-sm);
+}
+.sin-apuntes__icono { font-size: 1.4rem; flex-shrink: 0; }
+.sin-apuntes__titulo { font-weight: 700; color: hsl(0 65% 38%); margin-bottom: var(--space-1); }
+
+/* ── contenido ── */
+.contenido {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+/* ── demo ── */
+.demo {
+  border: 2px dashed var(--color-borde);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  background: var(--color-fondo);
+}
+.demo__label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-sutil);
+  margin-bottom: var(--space-4);
+}
+
+/* ── tabla demo ── */
+.tabla-alergenos {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+.tabla-alergenos thead tr {
+  background: var(--color-texto);
+  color: var(--color-superficie);
+}
+.tabla-alergenos thead th {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.tabla-alergenos thead th:first-child { border-radius: var(--radius-sm) 0 0 0; }
+.tabla-alergenos thead th:last-child  { border-radius: 0 var(--radius-sm) 0 0; }
+.tabla-alergenos tbody td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-borde);
+  vertical-align: top;
+}
+.tabla-alergenos tbody tr:nth-child(even) { background: hsl(30 15% 97%); }
+.tabla-alergenos tbody tr { transition: background 0.15s ease; }
+.tabla-alergenos tbody tr:hover { background: var(--color-acento-suave); }
+.tabla-alergenos tbody tr:last-child td { border-bottom: none; }
+.tabla-alergenos tfoot td {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-sutil);
+  font-style: italic;
+  border-top: 2px solid var(--color-borde);
+}
+.alergenos-lista {
+  list-style: disc;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.alergenos-lista li::marker { color: var(--color-acento); font-size: 1.1em; }
+.tag-alergeno {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-acento-suave);
+  color: hsl(43 74% 32%);
+  border: 1px solid hsl(43 74% 52% / 0.3);
+}
+.tag-alergeno--rojo {
+  background: hsl(0 65% 50% / 0.10);
+  color: hsl(0 65% 38%);
+  border-color: hsl(0 65% 50% / 0.3);
+}
+
+/* ── secciones de contenido ── */
+.seccion {
+  background: var(--color-superficie);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-borde);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.seccion__cab {
+  padding: var(--space-5) var(--space-6);
+  background: hsl(30 15% 98%);
+  border-bottom: 1px solid var(--color-borde);
+}
+.seccion__titulo {
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+.seccion__cuerpo {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ── bloques de código ── */
+.code-block {
+  background: hsl(220 15% 14%);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  overflow-x: auto;
+}
+.code-block pre {
+  font-family: 'Cascadia Code','Fira Code','Consolas',monospace;
+  font-size: var(--text-sm);
+  line-height: 1.75;
+  color: hsl(220 15% 85%);
+  white-space: pre;
+}
+.t-sel   { color: hsl(210 80% 72%); }
+.t-prop  { color: hsl(195 70% 68%); }
+.t-val   { color: hsl(100 55% 68%); }
+.t-pseudo{ color: hsl(280 65% 75%); }
+.t-com   { color: hsl(220 15% 50%); font-style:italic; }
+.t-gap   {
+  color: hsl(38 90% 62%);
+  background: hsl(38 90% 62% / 0.12);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-style: italic;
+}
+.t-str   { color: hsl(25 80% 68%); }
+.t-at    { color: hsl(38 90% 70%); }
+
+/* ── tabla de huecos ── */
+.gap-table { width:100%; border-collapse:collapse; font-size:var(--text-sm); }
+.gap-table th, .gap-table td {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-borde);
+  text-align: left;
+  vertical-align: top;
+}
+.gap-table thead th {
+  background: hsl(220 15% 14%);
+  color: hsl(220 15% 85%);
+  font-weight: 600;
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.gap-table tbody tr:nth-child(even) { background: hsl(30 15% 98%); }
+.num-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: hsl(220 15% 18%);
+  color: hsl(38 90% 62%);
+  font-family: monospace;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  border: 1px solid hsl(38 90% 62% / 0.35);
+  flex-shrink: 0;
+}
+.zona-chip {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.z1 { background: hsl(210 80% 45% / 0.12); color: hsl(210 80% 30%); border: 1px solid hsl(210 80% 45% / 0.3); }
+.z2 { background: hsl(280 60% 55% / 0.12); color: hsl(280 60% 35%); border: 1px solid hsl(280 60% 55% / 0.3); }
+.z3 { background: hsl(145 55% 38% / 0.12); color: hsl(145 55% 25%); border: 1px solid hsl(145 55% 38% / 0.3); }
+.z4 { background: hsl(25 80% 50% / 0.12);  color: hsl(25 80% 32%);  border: 1px solid hsl(25 80% 50% / 0.3); }
+.z5 { background: hsl(43 74% 52% / 0.14);  color: hsl(43 74% 28%);  border: 1px solid hsl(43 74% 52% / 0.3); }
+.z6 { background: hsl(0 60% 50% / 0.10);   color: hsl(0 60% 32%);   border: 1px solid hsl(0 60% 50% / 0.3); }
+
+/* ── rúbrica ── */
+.rubrica { width:100%; border-collapse:collapse; font-size:var(--text-sm); }
+.rubrica th, .rubrica td {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-borde);
+}
+.rubrica thead th {
+  background: hsl(145 55% 38%);
+  color: #fff;
+  font-weight: 600;
+  text-align: left;
+}
+.rubrica tbody tr:nth-child(even) { background: hsl(145 55% 38% / 0.05); }
+.rubrica tfoot td {
+  font-weight: 700;
+  background: hsl(145 55% 38% / 0.12);
+}
+.pts { text-align: right; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<header class="practica-header">
+  <span class="practica-header__codigo">UT02 · P6C</span>
+  <h1 class="practica-header__titulo">Consolidación — Tabla de alérgenos</h1>
+  <span class="badge badge--libre">Libre</span>
+</header>
+
+<main class="contenido">
+
+  <!-- aviso -->
+  <div class="sin-apuntes">
+    <span class="sin-apuntes__icono">🚫</span>
+    <div>
+      <p class="sin-apuntes__titulo">Sin apuntes ni práctica guiada</p>
+      <p>Solo tienes el resultado visual y el diagrama de anatomía. Reconstruye el CSS de memoria.</p>
+    </div>
+  </div>
+
+  <!-- ── DEMO ── -->
+  <div class="demo">
+    <p class="demo__label">✦ Resultado que debes reproducir</p>
+    <table class="tabla-alergenos">
+      <thead>
+        <tr>
+          <th>Plato</th>
+          <th>Descripción</th>
+          <th>Alérgenos</th>
+          <th>Precio</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Edamame</strong></td>
+          <td>Vainas de soja al vapor con sal marina</td>
+          <td><ul class="alergenos-lista"><li><span class="tag-alergeno">Soja</span></li></ul></td>
+          <td>5,50 €</td>
+        </tr>
+        <tr>
+          <td><strong>Gyoza de gambas</strong></td>
+          <td>Empanadillas al vapor rellenas de gambas y jengibre</td>
+          <td><ul class="alergenos-lista">
+            <li><span class="tag-alergeno tag-alergeno--rojo">Crustáceos</span></li>
+            <li><span class="tag-alergeno">Gluten</span></li>
+          </ul></td>
+          <td>9,50 €</td>
+        </tr>
+        <tr>
+          <td><strong>Ramen de pollo</strong></td>
+          <td>Caldo dashi, fideos ramen, chashu de pollo y nori</td>
+          <td><ul class="alergenos-lista">
+            <li><span class="tag-alergeno">Gluten</span></li>
+            <li><span class="tag-alergeno">Huevo</span></li>
+            <li><span class="tag-alergeno">Soja</span></li>
+          </ul></td>
+          <td>14,00 €</td>
+        </tr>
+        <tr>
+          <td><strong>Sashimi salmón</strong></td>
+          <td>Seis lonchas de salmón con wasabi y jengibre encurtido</td>
+          <td><ul class="alergenos-lista">
+            <li><span class="tag-alergeno tag-alergeno--rojo">Pescado</span></li>
+            <li><span class="tag-alergeno">Soja</span></li>
+          </ul></td>
+          <td>16,00 €</td>
+        </tr>
+        <tr>
+          <td><strong>Mochi de té verde</strong></td>
+          <td>Bolas de arroz glutinoso rellenas de helado matcha</td>
+          <td><ul class="alergenos-lista"><li><span class="tag-alergeno">Lácteos</span></li></ul></td>
+          <td>7,50 €</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4">ⓘ Lista de alérgenos según el Reglamento (UE) 1169/2011 sobre información alimentaria.</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- ── ANATOMÍA ── -->
+  <div class="seccion">
+    <div class="seccion__cab">
+      <h2 class="seccion__titulo">Diagrama de anatomía — zonas a estilizar</h2>
+    </div>
+    <div class="seccion__cuerpo">
+      <svg viewBox="0 0 760 390" xmlns="http://www.w3.org/2000/svg"
+           style="width:100%;max-width:760px;display:block;margin:0 auto;font-family:'Inter',sans-serif;font-size:12px">
+
+        <!-- fondo tabla -->
+        <rect x="20" y="20" width="720" height="350" rx="8" fill="hsl(0 0% 100%)" stroke="hsl(30 10% 85%)" stroke-width="1.5"/>
+
+        <!-- ZONA 1: tabla base -->
+        <rect x="20" y="20" width="720" height="350" rx="8" fill="none"
+              stroke="hsl(210 80% 55%)" stroke-width="2" stroke-dasharray="6 3"/>
+        <rect x="25" y="25" width="120" height="20" rx="3" fill="hsl(210 80% 45% / 0.15)"/>
+        <text x="30" y="38" fill="hsl(210 80% 35%)" font-weight="700" font-size="11">① .tabla-alergenos</text>
+
+        <!-- ZONA 2: thead -->
+        <rect x="21" y="21" width="718" height="44" rx="7" fill="hsl(20 10% 20%)" opacity="0.92"/>
+        <text x="30" y="48" fill="white" font-size="11" font-weight="600">Plato</text>
+        <text x="200" y="48" fill="white" font-size="11" font-weight="600">Descripción</text>
+        <text x="490" y="48" fill="white" font-size="11" font-weight="600">Alérgenos</text>
+        <text x="670" y="48" fill="white" font-size="11" font-weight="600">Precio</text>
+        <!-- etiqueta zona 2 -->
+        <rect x="560" y="25" width="170" height="18" rx="3" fill="hsl(280 60% 55% / 0.2)"/>
+        <text x="565" y="37" fill="hsl(280 60% 35%)" font-weight="700" font-size="11">② thead — cabecera oscura</text>
+        <!-- corchetes first/last child -->
+        <line x1="21" y1="64" x2="21" y2="68" stroke="hsl(280 60% 55%)" stroke-width="2"/>
+        <line x1="738" y1="64" x2="738" y2="68" stroke="hsl(280 60% 55%)" stroke-width="2"/>
+        <text x="25" y="77" fill="hsl(280 60% 45%)" font-size="10" font-weight="600">th:first-child</text>
+        <text x="685" y="77" fill="hsl(280 60% 45%)" font-size="10" font-weight="600">th:last-child</text>
+
+        <!-- ZONA 3: fila impar (blanca) -->
+        <rect x="21" y="65" width="718" height="50" fill="white"/>
+        <text x="30" y="95" fill="hsl(20 10% 20%)" font-size="11" font-weight="600">Edamame</text>
+        <text x="200" y="95" fill="hsl(20 10% 40%)" font-size="10">Vainas de soja…</text>
+        <rect x="490" y="80" width="48" height="16" rx="8" fill="hsl(43 74% 52% / 0.12)" stroke="hsl(43 74% 52% / 0.3)" stroke-width="1"/>
+        <text x="514" y="92" fill="hsl(43 74% 32%)" font-size="9" font-weight="600" text-anchor="middle">Soja</text>
+        <text x="680" y="95" fill="hsl(20 10% 20%)" font-size="11">5,50 €</text>
+        <line x1="21" y1="115" x2="738" y2="115" stroke="hsl(30 10% 85%)" stroke-width="1"/>
+
+        <!-- ZONA 4: fila par (zebra) -->
+        <rect x="21" y="115" width="718" height="50" fill="hsl(30 15% 97%)"/>
+        <text x="30" y="145" fill="hsl(20 10% 20%)" font-size="11" font-weight="600">Gyoza de gambas</text>
+        <text x="200" y="145" fill="hsl(20 10% 40%)" font-size="10">Empanadillas al vapor…</text>
+        <rect x="490" y="130" width="68" height="16" rx="8" fill="hsl(0 65% 50% / 0.10)" stroke="hsl(0 65% 50% / 0.3)" stroke-width="1"/>
+        <text x="524" y="142" fill="hsl(0 65% 38%)" font-size="9" font-weight="600" text-anchor="middle">Crustáceos</text>
+        <text x="680" y="145" fill="hsl(20 10% 20%)" font-size="11">9,50 €</text>
+        <line x1="21" y1="165" x2="738" y2="165" stroke="hsl(30 10% 85%)" stroke-width="1"/>
+        <!-- etiqueta zona 4 -->
+        <rect x="560" y="120" width="170" height="18" rx="3" fill="hsl(145 55% 38% / 0.15)"/>
+        <text x="565" y="132" fill="hsl(145 55% 25%)" font-weight="700" font-size="11">④ tr:nth-child(even)</text>
+
+        <!-- ZONA 5: fila hover (dorada) -->
+        <rect x="21" y="165" width="718" height="50" fill="hsl(43 74% 52% / 0.12)"/>
+        <text x="30" y="195" fill="hsl(20 10% 20%)" font-size="11" font-weight="600">Ramen de pollo</text>
+        <text x="200" y="195" fill="hsl(20 10% 40%)" font-size="10">Caldo dashi, fideos…</text>
+        <text x="680" y="195" fill="hsl(20 10% 20%)" font-size="11">14,00 €</text>
+        <!-- cursor -->
+        <polygon points="560,185 560,205 564,202 567,210 569,209 566,201 571,201" fill="hsl(20 10% 30%)" opacity="0.7"/>
+        <!-- etiqueta zona 5 -->
+        <rect x="580" y="168" width="148" height="18" rx="3" fill="hsl(43 74% 52% / 0.2)"/>
+        <text x="585" y="180" fill="hsl(43 74% 28%)" font-weight="700" font-size="11">⑤ tbody tr:hover</text>
+        <line x1="21" y1="215" x2="738" y2="215" stroke="hsl(30 10% 85%)" stroke-width="1"/>
+
+        <!-- fila 4 normal -->
+        <rect x="21" y="215" width="718" height="50" fill="white"/>
+        <text x="30" y="245" fill="hsl(20 10% 20%)" font-size="11" font-weight="600">Sashimi salmón</text>
+        <text x="680" y="245" fill="hsl(20 10% 20%)" font-size="11">16,00 €</text>
+        <line x1="21" y1="265" x2="738" y2="265" stroke="hsl(30 10% 85%)" stroke-width="1" stroke-dasharray="4 2" opacity="0.5"/>
+        <!-- etiqueta tr:last-child -->
+        <text x="25" y="278" fill="hsl(25 80% 40%)" font-size="10" font-weight="600">tr:last-child td → sin border-bottom</text>
+
+        <!-- fila 5 (última) — sin borde inferior -->
+        <rect x="21" y="265" width="718" height="50" fill="hsl(30 15% 97%)"/>
+        <text x="30" y="295" fill="hsl(20 10% 20%)" font-size="11" font-weight="600">Mochi de té verde</text>
+        <text x="680" y="295" fill="hsl(20 10% 20%)" font-size="11">7,50 €</text>
+        <!-- etiqueta zona 3 tbody -->
+        <rect x="560" y="218" width="170" height="18" rx="3" fill="hsl(25 80% 50% / 0.14)"/>
+        <text x="565" y="230" fill="hsl(25 80% 32%)" font-weight="700" font-size="11">③ tbody td — border + padding</text>
+
+        <!-- ZONA 6: tfoot -->
+        <rect x="21" y="315" width="718" height="54" rx="0 0 7 7" fill="hsl(30 15% 98%)"/>
+        <line x1="21" y1="315" x2="738" y2="315" stroke="hsl(30 10% 85%)" stroke-width="2"/>
+        <text x="30" y="345" fill="hsl(20 10% 50%)" font-size="10" font-style="italic">ⓘ Lista de alérgenos según el Reglamento (UE) 1169/2011…</text>
+        <rect x="560" y="320" width="148" height="18" rx="3" fill="hsl(0 60% 50% / 0.10)"/>
+        <text x="565" y="332" fill="hsl(0 60% 32%)" font-weight="700" font-size="11">⑥ tfoot — pie de tabla</text>
+
+        <!-- leyenda de zonas -->
+        <g transform="translate(20,375)">
+          <rect x="0" y="0" width="12" height="12" rx="2" fill="hsl(210 80% 45% / 0.25)" stroke="hsl(210 80% 45%)" stroke-width="1"/>
+          <text x="16" y="10" fill="hsl(20 10% 40%)" font-size="10">① tabla base</text>
+          <rect x="110" y="0" width="12" height="12" rx="2" fill="hsl(280 60% 55% / 0.2)"/>
+          <text x="126" y="10" fill="hsl(20 10% 40%)" font-size="10">② thead</text>
+          <rect x="200" y="0" width="12" height="12" rx="2" fill="hsl(25 80% 50% / 0.15)"/>
+          <text x="216" y="10" fill="hsl(20 10% 40%)" font-size="10">③ tbody td</text>
+          <rect x="310" y="0" width="12" height="12" rx="2" fill="hsl(145 55% 38% / 0.2)"/>
+          <text x="326" y="10" fill="hsl(20 10% 40%)" font-size="10">④ :nth-child(even)</text>
+          <rect x="450" y="0" width="12" height="12" rx="2" fill="hsl(43 74% 52% / 0.2)"/>
+          <text x="466" y="10" fill="hsl(20 10% 40%)" font-size="10">⑤ :hover</text>
+          <rect x="530" y="0" width="12" height="12" rx="2" fill="hsl(0 60% 50% / 0.12)"/>
+          <text x="546" y="10" fill="hsl(20 10% 40%)" font-size="10">⑥ tfoot</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ── HTML DADO ── -->
+  <div class="seccion">
+    <div class="seccion__cab">
+      <h2 class="seccion__titulo">HTML dado — no lo modifiques</h2>
+    </div>
+    <div class="seccion__cuerpo">
+      <div class="code-block"><pre><span class="t-sel">&lt;table</span> <span class="t-prop">class</span>=<span class="t-str">"tabla-alergenos"</span><span class="t-sel">&gt;</span>
+  <span class="t-sel">&lt;thead&gt;</span>
+    <span class="t-sel">&lt;tr&gt;</span>
+      <span class="t-sel">&lt;th&gt;</span>Plato<span class="t-sel">&lt;/th&gt;</span>
+      <span class="t-sel">&lt;th&gt;</span>Descripción<span class="t-sel">&lt;/th&gt;</span>
+      <span class="t-sel">&lt;th&gt;</span>Alérgenos<span class="t-sel">&lt;/th&gt;</span>
+      <span class="t-sel">&lt;th&gt;</span>Precio<span class="t-sel">&lt;/th&gt;</span>
+    <span class="t-sel">&lt;/tr&gt;</span>
+  <span class="t-sel">&lt;/thead&gt;</span>
+  <span class="t-sel">&lt;tbody&gt;</span>
+    <span class="t-sel">&lt;tr&gt;</span>
+      <span class="t-sel">&lt;td&gt;</span>…<span class="t-sel">&lt;/td&gt;</span>
+      <span class="t-sel">&lt;td&gt;</span>…<span class="t-sel">&lt;/td&gt;</span>
+      <span class="t-sel">&lt;td&gt;</span>
+        <span class="t-sel">&lt;ul</span> <span class="t-prop">class</span>=<span class="t-str">"alergenos-lista"</span><span class="t-sel">&gt;</span>
+          <span class="t-sel">&lt;li&gt;&lt;span</span> <span class="t-prop">class</span>=<span class="t-str">"tag-alergeno"</span><span class="t-sel">&gt;</span>Soja<span class="t-sel">&lt;/span&gt;&lt;/li&gt;</span>
+        <span class="t-sel">&lt;/ul&gt;</span>
+      <span class="t-sel">&lt;/td&gt;</span>
+      <span class="t-sel">&lt;td&gt;</span>5,50 €<span class="t-sel">&lt;/td&gt;</span>
+    <span class="t-sel">&lt;/tr&gt;</span>
+    <span class="t-com">&lt;!-- …demás filas igual… --&gt;</span>
+  <span class="t-sel">&lt;/tbody&gt;</span>
+  <span class="t-sel">&lt;tfoot&gt;</span>
+    <span class="t-sel">&lt;tr&gt;</span>
+      <span class="t-sel">&lt;td</span> <span class="t-prop">colspan</span>=<span class="t-str">"4"</span><span class="t-sel">&gt;</span>ⓘ Reglamento (UE) 1169/2011<span class="t-sel">&lt;/td&gt;</span>
+    <span class="t-sel">&lt;/tr&gt;</span>
+  <span class="t-sel">&lt;/tfoot&gt;</span>
+<span class="t-sel">&lt;/table&gt;</span></pre></div>
+    </div>
+  </div>
+
+  <!-- ── CSS CON HUECOS ── -->
+  <div class="seccion">
+    <div class="seccion__cab">
+      <h2 class="seccion__titulo">CSS — rellena los 16 huecos</h2>
+    </div>
+    <div class="seccion__cuerpo">
+      <div class="code-block"><pre><span class="t-com">/* ── ZONA 1: tabla base ── */</span>
+<span class="t-sel">.tabla-alergenos</span> {
+  <span class="t-prop">width</span>: <span class="t-val">100%</span>;                           <span class="t-com">/* ocupa todo el ancho */</span>
+  <span class="t-prop">border-collapse</span>: <span class="t-gap">/* ① */</span>;          <span class="t-com">/* fusiona los bordes */</span>
+  <span class="t-prop">font-size</span>: <span class="t-gap">/* ② */</span>;               <span class="t-com">/* texto pequeño del sistema */</span>
+
+  <span class="t-com">/* ── ZONA 2: cabecera ── */</span>
+  <span class="t-sel">& thead tr</span> {
+    <span class="t-prop">background</span>: <span class="t-gap">/* ③ */</span>;              <span class="t-com">/* fondo muy oscuro */</span>
+    <span class="t-prop">color</span>: <span class="t-gap">/* ④ */</span>;                  <span class="t-com">/* texto sobre fondo oscuro */</span>
+  }
+  <span class="t-sel">& thead th</span> {
+    <span class="t-prop">padding</span>: <span class="t-val">var(--space-3) var(--space-4)</span>;
+    <span class="t-prop">text-align</span>: <span class="t-val">left</span>;
+    <span class="t-prop">font-weight</span>: <span class="t-val">600</span>;
+    <span class="t-prop">letter-spacing</span>: <span class="t-val">0.04em</span>;
+  }
+  <span class="t-sel">& thead th:<span class="t-pseudo">first-child</span></span> {
+    <span class="t-prop">border-radius</span>: <span class="t-gap">/* ⑤ */</span>;           <span class="t-com">/* solo esquina sup-izq */</span>
+  }
+  <span class="t-sel">& thead th:<span class="t-pseudo">last-child</span></span> {
+    <span class="t-prop">border-radius</span>: <span class="t-gap">/* ⑥ */</span>;           <span class="t-com">/* solo esquina sup-der */</span>
+  }
+
+  <span class="t-com">/* ── ZONA 3: celdas del cuerpo ── */</span>
+  <span class="t-sel">& tbody td</span> {
+    <span class="t-prop">padding</span>: <span class="t-val">var(--space-3) var(--space-4)</span>;
+    <span class="t-prop">border-bottom</span>: <span class="t-gap">/* ⑦ */</span>;          <span class="t-com">/* línea fina entre filas */</span>
+    <span class="t-prop">vertical-align</span>: <span class="t-val">top</span>;
+  }
+  <span class="t-sel">& tbody tr:<span class="t-pseudo">last-child</span> td</span> {
+    <span class="t-prop">border-bottom</span>: <span class="t-gap">/* ⑧ */</span>;          <span class="t-com">/* elimina borde última fila */</span>
+  }
+
+  <span class="t-com">/* ── ZONA 4: filas alternas ── */</span>
+  <span class="t-sel">& tbody tr:<span class="t-pseudo">nth-child(<span class="t-gap">/* ⑨ */</span>)</span></span> {
+    <span class="t-prop">background</span>: <span class="t-gap">/* ⑩ */</span>;             <span class="t-com">/* gris cálido muy sutil */</span>
+  }
+
+  <span class="t-com">/* ── ZONA 5: hover sobre fila ── */</span>
+  <span class="t-sel">& tbody tr</span> {
+    <span class="t-prop">transition</span>: <span class="t-gap">/* ⑪ */</span>;            <span class="t-com">/* background 0.15s ease */</span>
+  }
+  <span class="t-sel">& tbody tr:<span class="t-pseudo">hover</span></span> {
+    <span class="t-prop">background</span>: <span class="t-gap">/* ⑫ */</span>;             <span class="t-com">/* token acento dorado suave */</span>
+  }
+
+  <span class="t-com">/* ── ZONA 6: pie de tabla ── */</span>
+  <span class="t-sel">& tfoot td</span> {
+    <span class="t-prop">padding</span>: <span class="t-val">var(--space-3) var(--space-4)</span>;
+    <span class="t-prop">font-size</span>: <span class="t-gap">/* ⑬ */</span>;              <span class="t-com">/* más pequeño que el cuerpo */</span>
+    <span class="t-prop">color</span>: <span class="t-val">var(--color-sutil)</span>;
+    <span class="t-prop">font-style</span>: <span class="t-val">italic</span>;
+    <span class="t-prop">border-top</span>: <span class="t-gap">/* ⑭ */</span>;             <span class="t-com">/* separador grueso (2px) */</span>
+  }
+}
+
+<span class="t-com">/* ── ZONA 6 (cont.): viñeta de alérgenos ── */</span>
+<span class="t-sel">.alergenos-lista</span> {
+  <span class="t-prop">list-style</span>: <span class="t-val">disc</span>;
+  <span class="t-prop">padding-left</span>: <span class="t-val">var(--space-5)</span>;
+  <span class="t-prop">display</span>: <span class="t-val">flex</span>;
+  <span class="t-prop">flex-direction</span>: <span class="t-val">column</span>;
+  <span class="t-prop">gap</span>: <span class="t-val">var(--space-1)</span>;
+
+  <span class="t-sel">& li::<span class="t-pseudo">marker</span></span> {
+    <span class="t-prop">color</span>: <span class="t-gap">/* ⑮ */</span>;               <span class="t-com">/* punto en color acento dorado */</span>
+    <span class="t-prop">font-size</span>: <span class="t-gap">/* ⑯ */</span>;           <span class="t-com">/* punto algo más grande: 1.1em */</span>
+  }
+}</pre></div>
+    </div>
+  </div>
+
+  <!-- ── GUÍA DE HUECOS ── -->
+  <div class="seccion">
+    <div class="seccion__cab">
+      <h2 class="seccion__titulo">Guía de huecos</h2>
+    </div>
+    <div class="seccion__cuerpo">
+      <table class="gap-table">
+        <thead>
+          <tr>
+            <th style="width:3rem">#</th>
+            <th style="width:8rem">Zona</th>
+            <th>Qué debes escribir</th>
+            <th>Pista</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="num-chip">①</span></td>
+            <td><span class="zona-chip z1">tabla base</span></td>
+            <td>Valor que hace que los bordes de celdas adyacentes se fusionen en uno solo</td>
+            <td>Opuesto a <code>separate</code></td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">②</span></td>
+            <td><span class="zona-chip z1">tabla base</span></td>
+            <td>Token del sistema para texto pequeño (0.875 rem)</td>
+            <td><code>--text-??</code></td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">③</span></td>
+            <td><span class="zona-chip z2">thead</span></td>
+            <td>Token para el fondo muy oscuro de la cabecera</td>
+            <td>El mismo que usan los badges del código de práctica</td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">④</span></td>
+            <td><span class="zona-chip z2">thead</span></td>
+            <td>Token para el texto blanco/claro sobre fondo oscuro</td>
+            <td><code>--color-sup???</code></td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">⑤</span></td>
+            <td><span class="zona-chip z2">thead</span></td>
+            <td>Radio que redondea <em>solo</em> la esquina superior izquierda</td>
+            <td>4 valores en orden horario: TL TR BR BL</td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">⑥</span></td>
+            <td><span class="zona-chip z2">thead</span></td>
+            <td>Radio que redondea <em>solo</em> la esquina superior derecha</td>
+            <td>4 valores: 0 TL→0, TR→radio, BR→0, BL→0</td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">⑦</span></td>
+            <td><span class="zona-chip z3">tbody td</span></td>
+            <td>Borde inferior fino de 1px entre cada fila del cuerpo</td>
+            <td><code>1px solid var(--color-???)</code></td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">⑧</span></td>
+            <td><span class="zona-chip z3">tbody td</span></td>
+            <td>Valor para <em>eliminar</em> el borde inferior de la última fila</td>
+            <td>Una sola palabra</td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">⑨</span></td>
+            <td><span class="zona-chip z4">:nth-child</span></td>
+            <td>Keyword para seleccionar filas pares (2ª, 4ª, 6ª…)</td>
+            <td>Opuesto a <code>odd</code></td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">⑩</span></td>
+            <td><span class="zona-chip z4">:nth-child</span></td>
+            <td>Color de fondo gris cálido muy sutil para las filas pares</td>
+            <td><code>hsl(30 15% 97%)</code></td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">⑪</span></td>
+            <td><span class="zona-chip z5">:hover</span></td>
+            <td>Shorthand de transición sobre la propiedad <code>background</code>, 0.15 s, curva suave</td>
+            <td>La transición va en el estado base, no en <code>:hover</code></td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">⑫</span></td>
+            <td><span class="zona-chip z5">:hover</span></td>
+            <td>Token del design system para el acento dorado con baja opacidad</td>
+            <td><code>--color-acento-???</code></td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">⑬</span></td>
+            <td><span class="zona-chip z6">tfoot</span></td>
+            <td>Token de tamaño de texto más pequeño que <code>--text-sm</code></td>
+            <td><code>--text-??</code></td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">⑭</span></td>
+            <td><span class="zona-chip z6">tfoot</span></td>
+            <td>Borde superior del pie, más grueso que los bordes de fila (2px)</td>
+            <td><code>2px solid var(--color-???)</code></td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">⑮</span></td>
+            <td><span class="zona-chip z6">tfoot</span></td>
+            <td>Token del color dorado de acento para colorear el punto de lista</td>
+            <td><code>--color-acento</code> a secas</td>
+          </tr>
+          <tr>
+            <td><span class="num-chip">⑯</span></td>
+            <td><span class="zona-chip z6">tfoot</span></td>
+            <td>Tamaño del marcador ligeramente mayor que el texto del elemento</td>
+            <td>Valor relativo con <code>em</code>, algo por encima de 1</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── ENTREGA + RÚBRICA ── -->
+  <div class="seccion">
+    <div class="seccion__cab">
+      <h2 class="seccion__titulo">Entrega y rúbrica</h2>
+    </div>
+    <div class="seccion__cuerpo">
+      <ol style="padding-left:1.5rem;display:flex;flex-direction:column;gap:0.4rem;font-size:var(--text-sm)">
+        <li>Nombra el archivo <strong>ut02-p6c.html</strong>.</li>
+        <li>Sube a la carpeta <code>hana/</code> del repositorio.</li>
+        <li>Pasa el ratón por las filas antes de entregar — el hover debe funcionar.</li>
+      </ol>
+
+      <table class="rubrica" style="margin-top:var(--space-4)">
+        <thead>
+          <tr>
+            <th>Criterio</th>
+            <th style="width:5rem;text-align:right">Puntos</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>border-collapse: collapse</code> correcto</td>
+            <td class="pts">2</td>
+          </tr>
+          <tr>
+            <td><code>thead</code> oscuro + <code>:first-child</code> / <code>:last-child</code> redondeados</td>
+            <td class="pts">2</td>
+          </tr>
+          <tr>
+            <td><code>:nth-child(even)</code> filas alternas visibles</td>
+            <td class="pts">2</td>
+          </tr>
+          <tr>
+            <td><code>tr:hover</code> con <code>transition</code> en estado base</td>
+            <td class="pts">2</td>
+          </tr>
+          <tr>
+            <td><code>li::marker</code> en color acento y tamaño 1.1em</td>
+            <td class="pts">2</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>Total</td>
+            <td class="pts">10</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>
+
+</body></html>

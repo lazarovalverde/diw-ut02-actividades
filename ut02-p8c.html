@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NORI · P8C — Consolidación integración</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ── tokens ── */
+:root {
+  --nori-negro:       hsl(210 15% 10%);
+  --nori-grafito:     hsl(210 12% 18%);
+  --nori-jade:        hsl(160 45% 42%);
+  --nori-jade-suave:  hsl(160 45% 42% / 0.12);
+  --nori-arena:       hsl(40 30% 94%);
+  --nori-texto:       hsl(210 12% 20%);
+  --nori-sutil:       hsl(210 10% 55%);
+  --nori-borde:       hsl(210 15% 87%);
+  --nori-sans:  'DM Sans', system-ui, sans-serif;
+  --nori-serif: 'DM Serif Display', Georgia, serif;
+
+  --s-1:0.25rem; --s-2:0.5rem; --s-3:0.75rem; --s-4:1rem;
+  --s-5:1.25rem; --s-6:1.5rem; --s-8:2rem;    --s-10:2.5rem;
+  --s-12:3rem;   --s-16:4rem;
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+}
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family: var(--nori-sans);
+  color: var(--nori-texto);
+  background: var(--nori-arena);
+  line-height: 1.6;
+}
+
+/* ── cabecera práctica ── */
+.practica-header {
+  background: var(--nori-negro);
+  color: hsl(0 0% 95%);
+  padding: var(--s-6) var(--s-8);
+  border-bottom: 3px solid var(--nori-jade);
+}
+.practica-header h1 { font-family: var(--nori-serif); font-size: 1.6rem; margin-bottom: var(--s-2); }
+.practica-header .meta { font-size: 0.85rem; opacity: 0.65; letter-spacing: 0.04em; }
+.practica-header .consigna {
+  margin-top: var(--s-4);
+  padding: var(--s-4);
+  background: hsl(0 0% 100% / 0.06);
+  border-left: 3px solid var(--nori-jade);
+  border-radius: var(--r-md);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.practica-header .consigna strong { color: hsl(160 60% 70%); }
+
+/* ── layout principal ── */
+.page-wrap { max-width: 1100px; margin: 0 auto; padding: var(--s-8) var(--s-6); }
+
+/* ── sección ── */
+.section { margin-bottom: var(--s-10); }
+.section-title {
+  font-family: var(--nori-serif);
+  font-size: 1.3rem;
+  color: var(--nori-negro);
+  border-bottom: 2px solid var(--nori-jade);
+  padding-bottom: var(--s-2);
+  margin-bottom: var(--s-6);
+}
+
+/* ── live demo ── */
+.demo-frame {
+  border: 1px solid var(--nori-borde);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: hsl(0 0% 100%);
+  box-shadow: 0 4px 20px hsl(0 0% 0% / 0.06);
+}
+.demo-label {
+  background: var(--nori-grafito);
+  color: hsl(0 0% 90%);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: var(--s-2) var(--s-4);
+}
+
+/* ══════════════════════════════════════
+   DEMO HERO (sección hero de NORI)
+   ══════════════════════════════════════ */
+.demo-hero {
+  min-height: 50vh;
+  background-color: var(--nori-negro);
+  background-image:
+    linear-gradient(to bottom, hsl(210 15% 10% / 0.7), hsl(210 15% 10% / 0.85)),
+    url('https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1200&q=80');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--s-12) var(--s-6);
+  color: hsl(0 0% 100%);
+}
+.demo-hero h2 {
+  font-family: var(--nori-serif);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1.1;
+  max-width: 12ch;
+  margin-bottom: var(--s-4);
+}
+.demo-hero p {
+  font-size: 1.1rem;
+  max-width: 45ch;
+  opacity: 0.85;
+  margin-bottom: var(--s-8);
+}
+.demo-btn-ghost {
+  padding: 0.75rem 2rem;
+  border-radius: var(--r-md);
+  font-family: var(--nori-sans);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  background: transparent;
+  border: 2px solid hsl(0 0% 100% / 0.45);
+  color: hsl(0 0% 100%);
+}
+.demo-btn-ghost:hover { filter: brightness(1.25); }
+
+/* ══════════════════════════════════════
+   DEMO GRID
+   ══════════════════════════════════════ */
+.demo-grid-section { padding: var(--s-12) var(--s-6); background: hsl(0 0% 100%); }
+.demo-grid-section h3 {
+  font-family: var(--nori-serif);
+  font-size: 1.8rem;
+  text-align: center;
+  margin-bottom: var(--s-8);
+  color: var(--nori-negro);
+}
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--s-6);
+}
+.demo-card {
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border: 1px solid var(--nori-borde);
+}
+.demo-card-img {
+  height: 160px;
+  background: var(--nori-grafito);
+  display: flex; align-items:center; justify-content:center;
+  color: hsl(0 0% 60%); font-size: 0.8rem; letter-spacing:0.05em;
+}
+.demo-card-body { padding: var(--s-4); }
+.demo-card-body h4 { font-family:var(--nori-serif); font-size:1.1rem; margin-bottom:var(--s-1); color:var(--nori-negro); }
+.demo-card-body p { font-size:0.875rem; color:var(--nori-sutil); }
+
+/* ══════════════════════════════════════
+   DEMO HISTORIA (tipografía)
+   ══════════════════════════════════════ */
+.demo-historia {
+  padding: var(--s-12) var(--s-6);
+  background: var(--nori-arena);
+}
+.demo-historia h3 {
+  font-family: var(--nori-serif);
+  font-size: 1.8rem;
+  margin-bottom: var(--s-6);
+  color: var(--nori-negro);
+}
+.demo-historia p {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  max-width: 60ch;
+  color: var(--nori-texto);
+}
+.demo-historia p::first-letter {
+  font-family: var(--nori-serif);
+  font-size: 4rem;
+  color: var(--nori-jade);
+  float: left;
+  line-height: 0.8;
+  margin-right: 0.1em;
+  margin-top: 0.05em;
+}
+.demo-historia p::selection, .demo-historia p *::selection {
+  background-color: var(--nori-jade);
+  color: hsl(0 0% 100%);
+}
+
+/* ══════════════════════════════════════
+   DEMO TABLA ALERGENOS
+   ══════════════════════════════════════ */
+.demo-tabla-section { padding: var(--s-12) var(--s-6); background: hsl(0 0% 100%); }
+.demo-tabla-section h3 {
+  font-family: var(--nori-serif);
+  font-size: 1.8rem;
+  margin-bottom: var(--s-8);
+  color: var(--nori-negro);
+}
+.demo-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.demo-tabla thead th {
+  background: var(--nori-negro);
+  color: hsl(0 0% 100%);
+  padding: var(--s-3) var(--s-4);
+  text-align: left;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.demo-tabla thead th:first-child { border-radius: var(--r-lg) 0 0 0; }
+.demo-tabla thead th:last-child  { border-radius: 0 var(--r-lg) 0 0; }
+.demo-tabla td { padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--nori-borde); }
+.demo-tabla tbody tr:nth-child(even) td { background: var(--nori-jade-suave); }
+.demo-tabla tbody tr:hover td { background: hsl(160 45% 42% / 0.18); }
+.demo-tabla tfoot td { border-top: 2px solid var(--nori-borde); border-bottom: none; font-style: italic; color: var(--nori-sutil); font-size:0.8rem; }
+.demo-tabla .alergenos-lista { list-style: disc; padding-left: 1.2em; }
+.demo-tabla .alergenos-lista li::marker { color: var(--nori-jade); font-size: 1.1em; }
+
+/* ── SVG anatomía ── */
+.svg-wrap {
+  background: hsl(0 0% 100%);
+  border: 1px solid var(--nori-borde);
+  border-radius: var(--r-lg);
+  padding: var(--s-6);
+  margin-bottom: var(--s-6);
+}
+.svg-wrap svg { width: 100%; height: auto; display: block; }
+
+/* ── código con huecos ── */
+.code-block {
+  background: hsl(220 20% 13%);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+.code-block .code-bar {
+  background: hsl(220 20% 18%);
+  padding: var(--s-2) var(--s-4);
+  font-size: 0.75rem;
+  color: hsl(0 0% 55%);
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.code-block .code-bar::before {
+  content: '';
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: hsl(160 45% 42%);
+  display: inline-block;
+}
+.code-block pre { padding: var(--s-5) var(--s-6); overflow-x: auto; color: hsl(0 0% 85%); }
+.kw  { color: hsl(280 70% 75%); }   /* keyword / selector */
+.pr  { color: hsl(200 80% 72%); }   /* property */
+.vl  { color: hsl(100 50% 68%); }   /* value */
+.cm  { color: hsl(0 0% 45%); font-style:italic; } /* comment */
+.t-gap {
+  display: inline-block;
+  background: hsl(43 74% 52% / 0.25);
+  border: 1.5px dashed hsl(43 74% 62%);
+  border-radius: 3px;
+  padding: 0 6px;
+  color: hsl(43 74% 75%);
+  font-style: normal;
+  min-width: 5ch;
+  text-align: center;
+}
+
+/* ── tabla de huecos ── */
+.gap-table-wrap { overflow-x: auto; }
+.gap-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.gap-table th {
+  background: var(--nori-negro);
+  color: hsl(0 0% 90%);
+  padding: var(--s-2) var(--s-3);
+  text-align: left;
+  font-weight: 500;
+}
+.gap-table td { padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--nori-borde); }
+.gap-table tbody tr:nth-child(even) { background: var(--nori-jade-suave); }
+.gap-num {
+  display: inline-block;
+  background: hsl(43 74% 52%);
+  color: hsl(0 0% 100%);
+  border-radius: 50%;
+  width: 1.6em; height: 1.6em;
+  text-align: center; line-height: 1.6em;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.zona-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.z-hero    { background: hsl(210 15% 20%); color: hsl(0 0% 90%); }
+.z-grid    { background: hsl(160 45% 30%); color: hsl(0 0% 95%); }
+.z-typo    { background: hsl(40 50% 35%);  color: hsl(0 0% 95%); }
+.z-form    { background: hsl(260 40% 40%); color: hsl(0 0% 95%); }
+.z-tabla   { background: hsl(0 40% 35%);   color: hsl(0 0% 95%); }
+
+/* ── rúbrica ── */
+.rubrica {
+  background: hsl(0 0% 100%);
+  border: 1px solid var(--nori-borde);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.rubrica table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.rubrica th { background: var(--nori-negro); color: hsl(0 0% 90%); padding: var(--s-2) var(--s-4); text-align: left; }
+.rubrica td { padding: var(--s-2) var(--s-4); border-bottom: 1px solid var(--nori-borde); vertical-align: top; }
+.rubrica tr:last-child td { border-bottom: none; font-weight: 600; background: var(--nori-jade-suave); }
+
+/* ── nota ── */
+.nota-info {
+  background: hsl(160 45% 42% / 0.1);
+  border-left: 3px solid var(--nori-jade);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  padding: var(--s-3) var(--s-4);
+  font-size: 0.875rem;
+  color: var(--nori-texto);
+  margin-bottom: var(--s-4);
+}
+</style>
+</head>
+<body>
+
+<!-- ══ CABECERA ══════════════════════════════════════════════════════════ -->
+<header class="practica-header">
+  <h1>P8C · Consolidación — NORI Landing</h1>
+  <p class="meta">UT02 · Diseño de Interfaces Web · HANA Series</p>
+  <div class="consigna">
+    <strong>Sin apuntes.</strong> Tienes el mockup de la landing NORI y el diagrama de zonas.
+    Completa los <strong>16 huecos</strong> distribuidos por las cinco zonas de la página
+    (hero, grid, tipografía, formulario, tabla).
+    Solo se evalúa lo que escribas tú — el resto ya está dado.
+  </div>
+</header>
+
+<div class="page-wrap">
+
+  <!-- ══ 1. DEMO EN VIVO ══════════════════════════════════════════════ -->
+  <section class="section">
+    <h2 class="section-title">Resultado que debes reproducir</h2>
+
+    <div class="demo-frame">
+      <div class="demo-label">▶ Demo en vivo — NORI landing (fragmentos)</div>
+
+      <!-- Hero -->
+      <div class="demo-hero">
+        <h2>Cocina japonesa de autor</h2>
+        <p>Ingredientes de temporada, técnica milenaria, presentación contemporánea.</p>
+        <button class="demo-btn-ghost">Reserva tu mesa</button>
+      </div>
+
+      <!-- Grid menú -->
+      <div class="demo-grid-section">
+        <h3>Nuestra carta</h3>
+        <div class="demo-grid">
+          <div class="demo-card">
+            <div class="demo-card-img">FOTO PLATO</div>
+            <div class="demo-card-body">
+              <h4>Nigiri de atún</h4>
+              <p>Atún rojo de almadraba sobre arroz de grano corto.</p>
+            </div>
+          </div>
+          <div class="demo-card">
+            <div class="demo-card-img">FOTO PLATO</div>
+            <div class="demo-card-body">
+              <h4>Ramen de miso</h4>
+              <p>Caldo de hueso de cerdo, fideos artesanos, huevo ajitsuke.</p>
+            </div>
+          </div>
+          <div class="demo-card">
+            <div class="demo-card-img">FOTO PLATO</div>
+            <div class="demo-card-body">
+              <h4>Tempura de verduras</h4>
+              <p>Rebozado ligero con agua helada, salsa tentsuyu.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historia (tipografía) -->
+      <div class="demo-historia">
+        <h3>Nuestra historia</h3>
+        <p>
+          NORI nació en 2018 de la mano del chef Kenji Morales, que tras una década
+          perfeccionando su técnica en Tokio decidió traer a España su visión de la
+          gastronomía japonesa. Selecciona los mejores ingredientes de temporada,
+          respeta los tiempos de la naturaleza y eleva cada plato a una experiencia estética.
+          <span>Selecciona este texto para ver el color de selección personalizado.</span>
+        </p>
+      </div>
+
+      <!-- Tabla alérgenos -->
+      <div class="demo-tabla-section">
+        <h3>Información de alérgenos</h3>
+        <table class="demo-tabla">
+          <thead>
+            <tr>
+              <th>Plato</th>
+              <th>Alérgenos principales</th>
+              <th>Sin gluten</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Nigiri de atún</td>
+              <td>
+                <ul class="alergenos-lista">
+                  <li>Soja</li>
+                  <li>Sésamo</li>
+                </ul>
+              </td>
+              <td>✓</td>
+            </tr>
+            <tr>
+              <td>Ramen de miso</td>
+              <td>
+                <ul class="alergenos-lista">
+                  <li>Gluten</li>
+                  <li>Soja</li>
+                  <li>Huevo</li>
+                </ul>
+              </td>
+              <td>✗</td>
+            </tr>
+            <tr>
+              <td>Tempura</td>
+              <td>
+                <ul class="alergenos-lista">
+                  <li>Gluten</li>
+                  <li>Sésamo</li>
+                </ul>
+              </td>
+              <td>✗</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">Infórmese con el personal ante cualquier alergia o intolerancia.</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+    </div><!-- /demo-frame -->
+  </section>
+
+  <!-- ══ 2. ANATOMÍA SVG ══════════════════════════════════════════════ -->
+  <section class="section">
+    <h2 class="section-title">Mapa de zonas CSS</h2>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 760 520" xmlns="http://www.w3.org/2000/svg" font-family="'DM Sans',sans-serif" font-size="13">
+
+        <!-- Hero zone -->
+        <rect x="10" y="10" width="740" height="120" rx="6" fill="hsl(210 15% 15%)" stroke="hsl(210 30% 50%)" stroke-width="2"/>
+        <text x="30" y="35" fill="hsl(0 0% 70%)" font-size="11" font-weight="600" letter-spacing="1">ZONA A · HERO</text>
+        <text x="30" y="55" fill="hsl(0 0% 50%)" font-size="10">min-height · background-image multilayer · display · flex-direction · align-items · justify-content</text>
+        <text x="30" y="72" fill="hsl(0 0% 50%)" font-size="10">font-size: clamp() · max-width: 12ch · btn-ghost: background · border</text>
+        <circle cx="380" cy="95" r="12" fill="hsl(43 74% 52%)"/>
+        <text x="380" y="99" fill="white" text-anchor="middle" font-size="11" font-weight="700">①–⑦</text>
+
+        <!-- Grid zone -->
+        <rect x="10" y="140" width="740" height="80" rx="6" fill="hsl(160 30% 12%)" stroke="hsl(160 45% 42%)" stroke-width="2"/>
+        <text x="30" y="163" fill="hsl(160 60% 70%)" font-size="11" font-weight="600" letter-spacing="1">ZONA B · GRID MENÚ</text>
+        <text x="30" y="183" fill="hsl(0 0% 50%)" font-size="10">display: grid · grid-template-columns: repeat(auto-fit, minmax()) · gap</text>
+        <circle cx="380" cy="198" r="12" fill="hsl(43 74% 52%)"/>
+        <text x="380" y="202" fill="white" text-anchor="middle" font-size="11" font-weight="700">⑧–⑩</text>
+
+        <!-- Tipografía zone -->
+        <rect x="10" y="230" width="740" height="80" rx="6" fill="hsl(40 20% 15%)" stroke="hsl(40 50% 55%)" stroke-width="2"/>
+        <text x="30" y="253" fill="hsl(40 70% 70%)" font-size="11" font-weight="600" letter-spacing="1">ZONA C · TIPOGRAFÍA</text>
+        <text x="30" y="273" fill="hsl(0 0% 50%)" font-size="10">font-size: 1.0625rem · line-height: 1.8 · ::first-letter (color) · ::selection (background-color + color)</text>
+        <circle cx="380" cy="289" r="12" fill="hsl(43 74% 52%)"/>
+        <text x="380" y="293" fill="white" text-anchor="middle" font-size="11" font-weight="700">⑪–⑬</text>
+
+        <!-- Formulario zone -->
+        <rect x="10" y="320" width="740" height="80" rx="6" fill="hsl(260 20% 15%)" stroke="hsl(260 40% 55%)" stroke-width="2"/>
+        <text x="30" y="343" fill="hsl(260 60% 75%)" font-size="11" font-weight="600" letter-spacing="1">ZONA D · FORMULARIO</text>
+        <text x="30" y="363" fill="hsl(0 0% 50%)" font-size="10">:user-invalid · content: attr(data-error) · :required · ::placeholder · :focus-visible · [type="email"]</text>
+        <circle cx="380" cy="379" r="12" fill="hsl(43 74% 52%)"/>
+        <text x="380" y="383" fill="white" text-anchor="middle" font-size="11" font-weight="700">⑭–⑮</text>
+
+        <!-- Tabla zone -->
+        <rect x="10" y="410" width="740" height="100" rx="6" fill="hsl(0 20% 14%)" stroke="hsl(0 40% 50%)" stroke-width="2"/>
+        <text x="30" y="433" fill="hsl(0 60% 70%)" font-size="11" font-weight="600" letter-spacing="1">ZONA E · TABLA ALÉRGENOS</text>
+        <text x="30" y="453" fill="hsl(0 0% 50%)" font-size="10">border-collapse: collapse · :first-child/:last-child radius · :last-child (tfoot) · :nth-child(even)</text>
+        <text x="30" y="470" fill="hsl(0 0% 50%)" font-size="10">:hover · li::marker color</text>
+        <circle cx="380" cy="489" r="12" fill="hsl(43 74% 52%)"/>
+        <text x="380" y="493" fill="white" text-anchor="middle" font-size="11" font-weight="700">⑯</text>
+
+      </svg>
+    </div>
+  </section>
+
+  <!-- ══ 3. HTML DADO ══════════════════════════════════════════════════ -->
+  <section class="section">
+    <h2 class="section-title">HTML dado (no modificar)</h2>
+    <p class="nota-info">
+      El HTML está completo. Tu trabajo es únicamente el CSS. Aquí se muestra la estructura de referencia
+      para que identifiques los selectores correctos.
+    </p>
+    <div class="code-block">
+      <div class="code-bar">estructura HTML · NORI landing</div>
+      <pre><span class="cm">&lt;!-- HERO --&gt;</span>
+<span class="kw">&lt;section</span> class=<span class="vl">"hero"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;h1</span> class=<span class="vl">"hero-titulo"</span><span class="kw">&gt;</span>…<span class="kw">&lt;/h1&gt;</span>
+  <span class="kw">&lt;p&gt;</span>…<span class="kw">&lt;/p&gt;</span>
+  <span class="kw">&lt;button</span> class=<span class="vl">"btn btn-ghost"</span><span class="kw">&gt;</span>…<span class="kw">&lt;/button&gt;</span>
+<span class="kw">&lt;/section&gt;</span>
+
+<span class="cm">&lt;!-- MENÚ GRID --&gt;</span>
+<span class="kw">&lt;section</span> class=<span class="vl">"menu"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;div</span> class=<span class="vl">"menu-grid"</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;article</span> class=<span class="vl">"menu-card"</span><span class="kw">&gt;</span>…<span class="kw">&lt;/article&gt;</span>
+  <span class="kw">&lt;/div&gt;</span>
+<span class="kw">&lt;/section&gt;</span>
+
+<span class="cm">&lt;!-- HISTORIA --&gt;</span>
+<span class="kw">&lt;section</span> class=<span class="vl">"historia"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;p</span> class=<span class="vl">"historia-texto"</span><span class="kw">&gt;</span>…<span class="kw">&lt;/p&gt;</span>
+<span class="kw">&lt;/section&gt;</span>
+
+<span class="cm">&lt;!-- FORMULARIO --&gt;</span>
+<span class="kw">&lt;section</span> class=<span class="vl">"reserva"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;form</span> class=<span class="vl">"reserva-form"</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;div</span> class=<span class="vl">"field"</span> data-error=<span class="vl">"Email inválido"</span><span class="kw">&gt;</span>
+      <span class="kw">&lt;input</span> type=<span class="vl">"email"</span> required placeholder=<span class="vl">"tu@email.com"</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;/div&gt;</span>
+  <span class="kw">&lt;/form&gt;</span>
+<span class="kw">&lt;/section&gt;</span>
+
+<span class="cm">&lt;!-- TABLA ALÉRGENOS --&gt;</span>
+<span class="kw">&lt;table</span> class=<span class="vl">"alergenos-tabla"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>…<span class="kw">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</span>
+  <span class="kw">&lt;tbody&gt;</span>
+    <span class="kw">&lt;tr&gt;&lt;td&gt;</span>…<span class="kw">&lt;/td&gt;&lt;/tr&gt;</span>
+  <span class="kw">&lt;/tbody&gt;</span>
+  <span class="kw">&lt;tfoot&gt;&lt;tr&gt;&lt;td</span> colspan=<span class="vl">"3"</span><span class="kw">&gt;</span>…<span class="kw">&lt;/td&gt;&lt;/tr&gt;&lt;/tfoot&gt;</span>
+<span class="kw">&lt;/table&gt;</span></pre>
+    </div>
+  </section>
+
+  <!-- ══ 4. CSS CON HUECOS ══════════════════════════════════════════════ -->
+  <section class="section">
+    <h2 class="section-title">CSS con huecos — completa los 16</h2>
+
+    <div class="nota-info">
+      Los comentarios entre paréntesis describen el efecto visual que debe producir cada valor.
+      Las propiedades ya están escritas — solo los valores son tuyos.
+    </div>
+
+    <!-- ZONA A · HERO -->
+    <div class="code-block" style="margin-bottom:1.5rem">
+      <div class="code-bar">ZONA A · hero</div>
+      <pre><span class="kw">.hero</span> {
+  <span class="pr">min-height</span>: <span class="t-gap">/* ① */</span>; <span class="cm">/* ocupa toda la pantalla */</span>
+  <span class="pr">background-image</span>:
+    linear-gradient(<span class="cm">/* fade oscuro dado */</span>),
+    url(<span class="vl">'img/nori-hero.jpg'</span>);
+  <span class="pr">background-size</span>: cover;
+  <span class="pr">display</span>: <span class="t-gap">/* ② */</span>; <span class="cm">/* activa flex */</span>
+  <span class="pr">flex-direction</span>: <span class="t-gap">/* ③ */</span>; <span class="cm">/* apila elementos en columna */</span>
+  <span class="pr">align-items</span>: <span class="t-gap">/* ④ */</span>; <span class="cm">/* centra en el eje cruzado */</span>
+  <span class="pr">justify-content</span>: <span class="t-gap">/* ⑤ */</span>; <span class="cm">/* centra en el eje principal */</span>
+}
+
+<span class="kw">.hero-titulo</span> {
+  <span class="pr">font-size</span>: <span class="t-gap">/* ⑥ */</span>; <span class="cm">/* clamp entre 2.5rem y 4.5rem, centro 6vw */</span>
+  <span class="pr">max-width</span>: <span class="t-gap">/* ⑦ */</span>; <span class="cm">/* máximo 12 caracteres de ancho */</span>
+}
+
+<span class="kw">.btn-ghost</span> {
+  <span class="pr">background</span>: <span class="t-gap">/* ⑧ */</span>; <span class="cm">/* sin relleno de color */</span>
+  <span class="pr">border</span>: 2px solid <span class="t-gap">/* ⑨ */</span>; <span class="cm">/* blanco con 45% de opacidad */</span>
+  <span class="pr">transition</span>: filter 0.2s ease; <span class="cm">/* dado */</span>
+}</pre>
+    </div>
+
+    <!-- ZONA B · GRID -->
+    <div class="code-block" style="margin-bottom:1.5rem">
+      <div class="code-bar">ZONA B · grid menú</div>
+      <pre><span class="kw">.menu-grid</span> {
+  <span class="pr">display</span>: <span class="t-gap">/* ⑩ */</span>; <span class="cm">/* activa grid */</span>
+  <span class="pr">grid-template-columns</span>: repeat(<span class="t-gap">/* ⑪ */</span>, minmax(280px, 1fr));
+  <span class="cm">/* columnas automáticas, mínimo 280 px */</span>
+  <span class="pr">gap</span>: var(--s-6);
+}</pre>
+    </div>
+
+    <!-- ZONA C · TIPOGRAFÍA -->
+    <div class="code-block" style="margin-bottom:1.5rem">
+      <div class="code-bar">ZONA C · tipografía</div>
+      <pre><span class="kw">.historia-texto</span> {
+  <span class="pr">font-size</span>: 1.0625rem; <span class="cm">/* dado */</span>
+  <span class="pr">line-height</span>: 1.8; <span class="cm">/* dado */</span>
+}
+
+<span class="kw">.historia-texto</span><span class="vl">::first-letter</span> {
+  <span class="pr">color</span>: <span class="t-gap">/* ⑫ */</span>; <span class="cm">/* color jade del sistema */</span>
+  <span class="pr">font-family</span>: var(--nori-serif); <span class="cm">/* dado */</span>
+  <span class="pr">font-size</span>: 4rem; <span class="cm">/* dado */</span>
+  <span class="pr">float</span>: left; <span class="cm">/* dado */</span>
+}
+
+<span class="kw">.historia-texto</span><span class="vl">::selection</span> {
+  <span class="pr">background-color</span>: <span class="t-gap">/* ⑬ */</span>; <span class="cm">/* selección en jade */</span>
+  <span class="pr">color</span>: hsl(0 0% 100%); <span class="cm">/* dado */</span>
+}</pre>
+    </div>
+
+    <!-- ZONA D · FORMULARIO -->
+    <div class="code-block" style="margin-bottom:1.5rem">
+      <div class="code-bar">ZONA D · formulario</div>
+      <pre><span class="cm">/* el campo de email ha sido tocado y tiene un valor inválido */</span>
+<span class="kw">.field</span>:<span class="t-gap">/* ⑭ */</span> { <span class="cm">/* pseudo-clase para input inválido tocado */</span>
+  <span class="pr">&amp;::after</span> {
+    <span class="pr">content</span>: attr(data-error);
+    <span class="cm">/* muestra el mensaje de error del atributo HTML */</span>
+    <span class="pr">color</span>: hsl(0 70% 55%); <span class="cm">/* dado */</span>
+  }
+}
+
+<span class="cm">/* el input tiene borde jade cuando está enfocado con teclado */</span>
+<span class="kw">.reserva-form input</span>:<span class="t-gap">/* ⑮ */</span> { <span class="cm">/* pseudo-clase para foco visible */</span>
+  <span class="pr">outline</span>: 2px solid var(--nori-jade);
+  <span class="pr">outline-offset</span>: 2px;
+}</pre>
+    </div>
+
+    <!-- ZONA E · TABLA -->
+    <div class="code-block" style="margin-bottom:1.5rem">
+      <div class="code-bar">ZONA E · tabla alérgenos</div>
+      <pre><span class="kw">.alergenos-tabla</span> {
+  <span class="pr">border-collapse</span>: <span class="t-gap">/* ⑯ */</span>; <span class="cm">/* fusiona los bordes adyacentes */</span>
+}
+
+<span class="cm">/* los estilos de thead, :nth-child(even), :hover y li::marker
+   están dados en la práctica P8 — aquí solo se pide el ⑯ */</span></pre>
+    </div>
+
+  </section>
+
+  <!-- ══ 5. GUÍA DE HUECOS ══════════════════════════════════════════════ -->
+  <section class="section">
+    <h2 class="section-title">Guía de huecos</h2>
+    <div class="gap-table-wrap">
+      <table class="gap-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Zona</th>
+            <th>Descripción visual</th>
+            <th>Concepto CSS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="gap-num">①</span></td>
+            <td><span class="zona-badge z-hero">Hero</span></td>
+            <td>El hero ocupa exactamente la altura de la pantalla</td>
+            <td><code>100vh</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">②</span></td>
+            <td><span class="zona-badge z-hero">Hero</span></td>
+            <td>Activa el modelo de caja flex</td>
+            <td><code>flex</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">③</span></td>
+            <td><span class="zona-badge z-hero">Hero</span></td>
+            <td>Los hijos se apilan de arriba a abajo</td>
+            <td><code>column</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">④</span></td>
+            <td><span class="zona-badge z-hero">Hero</span></td>
+            <td>Centra horizontalmente en un flex column</td>
+            <td><code>center</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">⑤</span></td>
+            <td><span class="zona-badge z-hero">Hero</span></td>
+            <td>Centra verticalmente en un flex column</td>
+            <td><code>center</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">⑥</span></td>
+            <td><span class="zona-badge z-hero">Hero</span></td>
+            <td>Tamaño de fuente fluido entre 2.5 rem y 4.5 rem</td>
+            <td><code>clamp(2.5rem, 6vw, 4.5rem)</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">⑦</span></td>
+            <td><span class="zona-badge z-hero">Hero</span></td>
+            <td>El título no supera 12 caracteres de ancho</td>
+            <td><code>12ch</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">⑧</span></td>
+            <td><span class="zona-badge z-hero">Hero</span></td>
+            <td>El botón no tiene relleno de color visible</td>
+            <td><code>transparent</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">⑨</span></td>
+            <td><span class="zona-badge z-hero">Hero</span></td>
+            <td>Borde blanco semitransparente (45% opacidad)</td>
+            <td><code>hsl(0 0% 100% / 0.45)</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">⑩</span></td>
+            <td><span class="zona-badge z-grid">Grid</span></td>
+            <td>Activa el layout de cuadrícula</td>
+            <td><code>grid</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">⑪</span></td>
+            <td><span class="zona-badge z-grid">Grid</span></td>
+            <td>Columnas automáticas que se adaptan al espacio</td>
+            <td><code>auto-fit</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">⑫</span></td>
+            <td><span class="zona-badge z-typo">Tipografía</span></td>
+            <td>La primera letra usa el color verde jade del sistema</td>
+            <td><code>var(--nori-jade)</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">⑬</span></td>
+            <td><span class="zona-badge z-typo">Tipografía</span></td>
+            <td>Al seleccionar texto, el fondo es verde jade</td>
+            <td><code>var(--nori-jade)</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">⑭</span></td>
+            <td><span class="zona-badge z-form">Formulario</span></td>
+            <td>Se activa cuando el input ha sido tocado y el valor es inválido</td>
+            <td><code>user-invalid</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">⑮</span></td>
+            <td><span class="zona-badge z-form">Formulario</span></td>
+            <td>Se activa cuando el foco proviene del teclado, no del ratón</td>
+            <td><code>focus-visible</code></td>
+          </tr>
+          <tr>
+            <td><span class="gap-num">⑯</span></td>
+            <td><span class="zona-badge z-tabla">Tabla</span></td>
+            <td>Los bordes de celdas adyacentes se fusionan en uno solo</td>
+            <td><code>collapse</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══ 6. RÚBRICA ══════════════════════════════════════════════════ -->
+  <section class="section">
+    <h2 class="section-title">Rúbrica de evaluación</h2>
+    <div class="rubrica">
+      <table>
+        <thead>
+          <tr>
+            <th>Zona</th>
+            <th>Huecos</th>
+            <th>Criterio</th>
+            <th style="text-align:right">Puntos</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="zona-badge z-hero">Hero</span></td>
+            <td>①–⑨</td>
+            <td>min-height, flex column center, clamp, 12ch, btn-ghost transparent + border semitransparente</td>
+            <td style="text-align:right">4</td>
+          </tr>
+          <tr>
+            <td><span class="zona-badge z-grid">Grid</span></td>
+            <td>⑩–⑪</td>
+            <td>display grid y auto-fit para columnas responsivas</td>
+            <td style="text-align:right">1.5</td>
+          </tr>
+          <tr>
+            <td><span class="zona-badge z-typo">Tipografía</span></td>
+            <td>⑫–⑬</td>
+            <td>::first-letter jade y ::selection jade</td>
+            <td style="text-align:right">2</td>
+          </tr>
+          <tr>
+            <td><span class="zona-badge z-form">Formulario</span></td>
+            <td>⑭–⑮</td>
+            <td>:user-invalid y :focus-visible en el formulario de reserva</td>
+            <td style="text-align:right">1.5</td>
+          </tr>
+          <tr>
+            <td><span class="zona-badge z-tabla">Tabla</span></td>
+            <td>⑯</td>
+            <td>border-collapse: collapse — borde único entre celdas</td>
+            <td style="text-align:right">1</td>
+          </tr>
+          <tr>
+            <td colspan="3"><strong>Total</strong></td>
+            <td style="text-align:right"><strong>10</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div><!-- /page-wrap -->
+</body>
+</html>

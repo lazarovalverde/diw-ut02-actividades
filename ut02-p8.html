@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NORI · P8 — Landing page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN SYSTEM — NORI (ya dado, no modifiques)
+   ============================================================ */
+:root {
+  /* Paleta — inspirada en piedra volcánica y arroz */
+  --nori-negro:    hsl(210 15% 10%);
+  --nori-grafito:  hsl(210 12% 18%);
+  --nori-piedra:   hsl(210  8% 35%);
+  --nori-niebla:   hsl(210  6% 90%);
+  --nori-blanco:   hsl(0    0% 98%);
+  --nori-jade:     hsl(160 45% 42%);
+  --nori-jade-suave: hsl(160 45% 42% / 0.12);
+
+  /* Tipografía */
+  --nori-sans:  'DM Sans', system-ui, sans-serif;
+  --nori-serif: 'DM Serif Display', Georgia, serif;
+
+  /* Espaciado */
+  --s-1: 0.25rem; --s-2: 0.5rem;  --s-3: 0.75rem; --s-4: 1rem;
+  --s-5: 1.25rem; --s-6: 1.5rem;  --s-8: 2rem;    --s-10: 2.5rem;
+  --s-12: 3rem;   --s-16: 4rem;   --s-20: 5rem;   --s-24: 6rem;
+
+  /* Tipografía */
+  --t-xs:  0.75rem;
+  --t-sm:  0.875rem;
+  --t-md:  1rem;
+  --t-lg:  1.125rem;
+  --t-xl:  1.25rem;
+  --t-2xl: 1.5rem;
+  --t-3xl: 1.875rem;
+  --t-4xl: 2.25rem;
+  --t-5xl: 3rem;
+
+  /* Radios */
+  --r-sm: 4px; --r-md: 8px; --r-lg: 16px;
+
+  /* Sombras */
+  --sh-sm: 0 1px 4px hsl(210 15% 10% / 0.12);
+  --sh-md: 0 4px 16px hsl(210 15% 10% / 0.16);
+  --sh-lg: 0 12px 40px hsl(210 15% 10% / 0.22);
+}
+
+/* ── reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--nori-sans);
+  font-size: var(--t-md);
+  color: var(--nori-negro);
+  background: var(--nori-blanco);
+  line-height: 1.6;
+}
+img { display: block; max-width: 100%; }
+
+/* ============================================================
+   NAVEGACIÓN — ya dada y completa
+   ============================================================ */
+.nav {
+  position: fixed;                      /* fija en la parte superior */
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: hsl(210 15% 10% / 0.92);
+  backdrop-filter: blur(12px);
+  padding: var(--s-4) var(--s-8);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav__logo {
+  font-family: var(--nori-serif);
+  font-size: var(--t-xl);
+  color: var(--nori-blanco);
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+.nav__menu {
+  display: flex;
+  list-style: none;
+  gap: var(--s-8);
+}
+.nav__enlace {
+  font-size: var(--t-sm);
+  font-weight: 500;
+  color: hsl(0 0% 70%);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--nori-blanco);
+  }
+}
+.nav__cta {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--nori-negro);
+  background: var(--nori-jade);
+  padding: var(--s-2) var(--s-5);
+  border-radius: var(--r-md);
+  text-decoration: none;
+  transition: filter 0.2s ease;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+}
+
+/* ============================================================
+   HERO — COMPLETA TÚ las partes marcadas
+   ============================================================ */
+.hero {
+  min-height: /* ① */;               /* altura mínima: toda la ventana */
+  background:
+    linear-gradient(
+      160deg,
+      hsl(210 15% 10% / 0.85) 0%,
+      hsl(210 15% 10% / 0.50) 60%,
+      hsl(160 45% 42% / 0.25) 100%
+    ),
+    /* ② */;                         /* imagen de fondo: url('img/nori-hero.jpg') */
+  background-size: cover;
+  background-position: center;
+  display: /* ③ */;                  /* flex para centrar contenido */
+  flex-direction: /* ④ */;           /* columna */
+  align-items: /* ⑤ */;             /* centrado horizontal */
+  justify-content: /* ⑥ */;         /* centrado vertical */
+  text-align: center;
+  padding: var(--s-24) var(--s-6);
+  padding-top: calc(var(--s-24) + 4rem); /* compensa la nav fija */
+}
+.hero__etiqueta {
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--nori-jade);
+  margin-bottom: var(--s-4);
+}
+.hero__titulo {
+  font-family: var(--nori-serif);
+  font-size: clamp(/* ⑦ */);         /* fluido: mínimo 2.5rem, ideal 6vw, máximo 4.5rem */
+  font-weight: 400;                   /* DM Serif Display es elegante en regular */
+  color: var(--nori-blanco);
+  line-height: 1.1;
+  max-width: /* ⑧ */;               /* máximo 12 caracteres de ancho */
+  margin: 0 auto var(--s-6);
+}
+.hero__subtitulo {
+  font-size: var(--t-lg);
+  color: hsl(0 0% 80%);
+  max-width: 42ch;
+  margin: 0 auto var(--s-10);
+  line-height: 1.65;
+}
+.hero__botones {
+  display: flex;
+  gap: var(--s-4);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── Botón principal (relleno) ── */
+.btn-jade {
+  font-family: var(--nori-sans);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--nori-negro);
+  background: var(--nori-jade);
+  padding: var(--s-3) var(--s-8);
+  border-radius: /* ⑨ */;           /* radio pequeño del sistema */
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: /* ⑩ */;              /* filter 0.2s ease */
+
+  &:hover {
+    filter: brightness(1.12);
+  }
+}
+
+/* ── Botón fantasma (borde blanco) — COMPLETA TÚ ── */
+.btn-ghost {
+  font-family: var(--nori-sans);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--nori-blanco);
+  background: /* ⑪ */;              /* transparente */
+  padding: var(--s-3) var(--s-8);
+  border-radius: var(--r-md);
+  border: /* ⑫ */;                  /* 2px solid con blanco al 45% de opacidad */
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: hsl(0 0% 100%);
+  }
+}
+
+/* ============================================================
+   SECCIÓN DE MENÚ — GRID — COMPLETA TÚ
+   ============================================================ */
+.menu {
+  padding: var(--s-24) var(--s-8);
+  background: var(--nori-blanco);
+}
+.menu__cabecera {
+  text-align: center;
+  margin-bottom: var(--s-12);
+}
+.menu__etiqueta {
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--nori-jade);
+  margin-bottom: var(--s-3);
+}
+.menu__titulo {
+  font-family: var(--nori-serif);
+  font-size: var(--t-4xl);
+  font-weight: 400;
+  color: var(--nori-negro);
+}
+
+/* grid de platos — COMPLETA TÚ */
+.menu__grid {
+  display: /* ⑬ */;                 /* grid */
+  grid-template-columns: /* ⑭ */;   /* repeat auto-fit, minmax 280px, 1fr */
+  gap: /* ⑮ */;                     /* espaciado entre cards: --s-6 */
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* card de plato — ya dada y completa */
+.plato-card {
+  background: var(--nori-blanco);
+  border: 1px solid var(--nori-niebla);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--sh-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--sh-md);
+  }
+}
+.plato-card__imagen {
+  width: 100%;
+  height: 200px;
+  background: var(--nori-niebla);         /* placeholder color */
+  object-fit: cover;
+  display: block;
+}
+.plato-card__cuerpo {
+  padding: var(--s-5);
+}
+.plato-card__nombre {
+  font-family: var(--nori-serif);
+  font-size: var(--t-xl);
+  font-weight: 400;
+  margin-bottom: var(--s-2);
+  color: var(--nori-negro);
+}
+.plato-card__desc {
+  font-size: var(--t-sm);
+  color: var(--nori-piedra);
+  line-height: 1.55;
+  margin-bottom: var(--s-4);
+}
+.plato-card__pie {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.plato-card__precio {
+  font-size: var(--t-lg);
+  font-weight: 600;
+  color: var(--nori-negro);
+}
+.plato-card__tag {
+  font-size: var(--t-xs);
+  font-weight: 600;
+  padding: 2px var(--s-3);
+  border-radius: 999px;
+  background: var(--nori-jade-suave);
+  color: var(--nori-jade);
+  border: 1px solid hsl(160 45% 42% / 0.25);
+}
+
+/* ============================================================
+   SECCIÓN HISTORIA — TIPOGRAFÍA — COMPLETA TÚ
+   ============================================================ */
+.historia {
+  background: var(--nori-negro);
+  color: var(--nori-blanco);
+  padding: var(--s-24) var(--s-8);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-16);
+  align-items: center;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.historia__etiqueta {
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--nori-jade);
+  margin-bottom: var(--s-4);
+}
+.historia__titulo {
+  font-family: var(--nori-serif);
+  font-size: var(--t-4xl);
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: var(--s-6);
+}
+.historia__texto {
+  font-size: /* ⑯ */;               /* 17px = 1.0625rem */
+  line-height: /* ⑰ */;             /* interlineado cómodo: 1.8 */
+  color: hsl(0 0% 70%);
+  max-width: 52ch;
+}
+.historia__texto p { margin-bottom: var(--s-4); }
+.historia__texto p:last-child { margin-bottom: 0; }
+
+/* drop cap en la sección historia — COMPLETA TÚ */
+.historia__texto p:first-child::/* ⑱ */ {   /* pseudoelemento primera letra */
+  font-family: var(--nori-serif);
+  font-size: 3.5rem;
+  font-weight: 400;
+  color: /* ⑲ */;                   /* color jade */
+  float: left;
+  line-height: 0.8;
+  margin-right: 0.1em;
+  margin-top: 0.1em;
+}
+
+/* selección de texto — COMPLETA TÚ */
+.historia__texto ::/* ⑳ */ {         /* pseudoelemento de selección */
+  background: var(--nori-jade);
+  color: var(--nori-negro);
+}
+
+/* imagen decorativa */
+.historia__imagen {
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  background: var(--nori-grafito);  /* placeholder */
+}
+
+/* ============================================================
+   FORMULARIO DE RESERVA — COMPLETA TÚ
+   ============================================================ */
+.reserva {
+  padding: var(--s-24) var(--s-8);
+  background: var(--nori-niebla);
+}
+.reserva__inner {
+  max-width: 560px;
+  margin: 0 auto;
+}
+.reserva__cabecera {
+  text-align: center;
+  margin-bottom: var(--s-10);
+}
+.reserva__etiqueta {
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--nori-jade);
+  margin-bottom: var(--s-3);
+}
+.reserva__titulo {
+  font-family: var(--nori-serif);
+  font-size: var(--t-3xl);
+  font-weight: 400;
+  color: var(--nori-negro);
+}
+
+/* formulario */
+.reserva-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+/* campo — COMPLETA TÚ */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  position: relative;
+
+  /* mensaje de error via ::after + data-error — COMPLETA TÚ */
+  &:has(.campo__input:/* ㉑ */)::after {   /* pseudoclase de error tras interacción */
+    content: /* ㉒ */;                      /* lee el atributo data-error */
+    display: block;
+    font-size: var(--t-xs);
+    color: hsl(0 65% 50%);
+    margin-top: var(--s-1);
+  }
+}
+
+.campo__label {
+  font-size: var(--t-sm);
+  font-weight: 500;
+  color: var(--nori-negro);
+
+  /* asterisco en campos obligatorios — COMPLETA TÚ */
+  &:has(+ .campo__input:/* ㉓ */)::after {  /* propiedad de campo obligatorio */
+    content: ' *';
+    color: var(--nori-jade);
+  }
+}
+
+.campo__input {
+  font-family: var(--nori-sans);
+  font-size: var(--t-md);
+  padding: var(--s-3) var(--s-4);
+  border: 1.5px solid hsl(210 8% 78%);
+  border-radius: var(--r-md);
+  background: var(--nori-blanco);
+  color: var(--nori-negro);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  /* placeholder — COMPLETA TÚ */
+  &::/* ㉔ */ {                          /* pseudoelemento del texto de ejemplo */
+    color: hsl(210 8% 62%);
+    font-style: italic;
+  }
+
+  /* foco por teclado — COMPLETA TÚ */
+  &:/* ㉕ */ {                           /* pseudoclase foco visible (solo teclado) */
+    border-color: var(--nori-jade);
+    box-shadow: 0 0 0 3px hsl(160 45% 42% / 0.2);
+  }
+
+  /* error tras interacción — COMPLETA TÚ */
+  &:/* ㉖ */ {                           /* pseudoclase error solo tras blur */
+    border-color: hsl(0 65% 50%);
+    background: hsl(0 65% 50% / 0.04);
+  }
+}
+
+/* fecha con selector de atributo — ya dado */
+.campo__input[type="date"] {
+  color-scheme: light;
+}
+/* email específico — COMPLETA TÚ */
+.campo__input/* ㉗ */ {                  /* selector de atributo para type email */
+  text-transform: lowercase;
+}
+
+/* botón enviar */
+.reserva-form__btn {
+  font-family: var(--nori-sans);
+  font-size: var(--t-md);
+  font-weight: 600;
+  color: var(--nori-negro);
+  background: var(--nori-jade);
+  border: none;
+  padding: var(--s-4) var(--s-8);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  margin-top: var(--s-3);
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+  &:focus-visible {
+    outline: 3px solid var(--nori-jade);
+    outline-offset: 3px;
+  }
+}
+
+/* ============================================================
+   TABLA ALÉRGENOS — COMPLETA TÚ
+   ============================================================ */
+.alergenos {
+  padding: var(--s-24) var(--s-8);
+  background: var(--nori-blanco);
+}
+.alergenos__inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.alergenos__cabecera {
+  margin-bottom: var(--s-8);
+}
+.alergenos__etiqueta {
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--nori-jade);
+  margin-bottom: var(--s-3);
+}
+.alergenos__titulo {
+  font-family: var(--nori-serif);
+  font-size: var(--t-3xl);
+  font-weight: 400;
+  color: var(--nori-negro);
+}
+
+/* tabla — COMPLETA TÚ */
+.tabla-nori {
+  width: 100%;
+  border-collapse: /* ㉘ */;        /* fusiona bordes */
+  font-size: var(--t-sm);
+}
+.tabla-nori thead tr {
+  background: var(--nori-negro);
+  color: var(--nori-blanco);
+}
+.tabla-nori thead th {
+  padding: var(--s-3) var(--s-4);
+  text-align: left;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.tabla-nori thead th:/* ㉙ */ {     /* primera columna cabecera — esquina sup-izq */
+  border-radius: var(--r-sm) 0 0 0;
+}
+.tabla-nori thead th:/* ㉚ */ {     /* última columna cabecera — esquina sup-der */
+  border-radius: 0 var(--r-sm) 0 0;
+}
+.tabla-nori tbody td {
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid hsl(210 8% 88%);
+  vertical-align: top;
+}
+.tabla-nori tbody tr:/* ㉛ */ td {  /* última fila: sin borde inferior */
+  border-bottom: none;
+}
+.tabla-nori tbody tr:/* ㉜ */(even) { /* filas pares */
+  background: hsl(210 6% 96%);
+}
+.tabla-nori tbody tr {
+  transition: background 0.15s ease;
+}
+.tabla-nori tbody tr:/* ㉝ */ {     /* hover sobre fila */
+  background: var(--nori-jade-suave);
+}
+
+/* viñeta de lista de alérgenos — COMPLETA TÚ */
+.nori-alergenos-lista {
+  list-style: disc;
+  padding-left: var(--s-5);
+}
+.nori-alergenos-lista li::/* ㉞ */ { /* pseudoelemento del punto de lista */
+  color: var(--nori-jade);
+}
+
+/* ============================================================
+   PIE DE PÁGINA — ya dado y completo
+   ============================================================ */
+.footer {
+  background: var(--nori-negro);
+  color: hsl(0 0% 60%);
+  padding: var(--s-12) var(--s-8);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+}
+.footer__logo {
+  font-family: var(--nori-serif);
+  font-size: var(--t-2xl);
+  color: var(--nori-blanco);
+  letter-spacing: 0.08em;
+}
+.footer__texto {
+  font-size: var(--t-xs);
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     CABECERA PRÁCTICA (instrucciones)
+══════════════════════════════ -->
+<div style="background:hsl(210 15% 10%);color:hsl(0 0% 90%);padding:1.5rem 2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;font-family:'Inter',system-ui,sans-serif;border-bottom:2px solid hsl(160 45% 42%)">
+  <span style="font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:hsl(160 45% 42%);color:hsl(210 15% 10%);padding:3px 10px;border-radius:4px">UT02 · P8</span>
+  <span style="font-size:1.25rem;font-weight:400;font-family:'DM Serif Display',serif">NORI — Landing page completa</span>
+  <span style="font-size:0.75rem;font-weight:700;padding:3px 10px;border-radius:999px;border:1.5px solid hsl(210 80% 60%);color:hsl(210 80% 75%)">Integración UT02</span>
+</div>
+
+<div style="background:hsl(210 12% 18%);color:hsl(0 0% 80%);padding:1rem 2rem;font-family:'Inter',system-ui,sans-serif;font-size:0.875rem;border-bottom:1px solid hsl(210 10% 28%)">
+  <strong style="color:hsl(160 45% 55%)">Instrucciones:</strong>
+  Lee todo el CSS antes de rellenar. Los huecos están marcados con <code style="background:hsl(38 90% 62% / 0.15);color:hsl(38 90% 62%);padding:1px 5px;border-radius:3px">/* ① */</code> a <code style="background:hsl(38 90% 62% / 0.15);color:hsl(38 90% 62%);padding:1px 5px;border-radius:3px">/* ㉞ */</code>.
+  El HTML no se modifica. Sube el archivo terminado como <strong style="color:hsl(0 0% 95%)">ut02-p8.html</strong>.
+</div>
+
+<!-- ══════════════════════════════
+     NAVEGACIÓN
+══════════════════════════════ -->
+<nav class="nav">
+  <a href="#" class="nav__logo">NORI</a>
+  <ul class="nav__menu">
+    <li><a href="#menu" class="nav__enlace">Menú</a></li>
+    <li><a href="#historia" class="nav__enlace">Historia</a></li>
+    <li><a href="#alergenos" class="nav__enlace">Alérgenos</a></li>
+  </ul>
+  <a href="#reserva" class="nav__cta">Reservar</a>
+</nav>
+
+<!-- ══════════════════════════════
+     HERO
+══════════════════════════════ -->
+<section class="hero" id="inicio">
+  <p class="hero__etiqueta">Cocina japonesa · Murcia</p>
+  <h1 class="hero__titulo">Silencio<br>y sabor</h1>
+  <p class="hero__subtitulo">NORI lleva la precisión del kaiseki japonés a una sala de paredes de piedra y luz natural del Mediterráneo.</p>
+  <div class="hero__botones">
+    <a href="#menu" class="btn-jade">Ver menú</a>
+    <a href="#reserva" class="btn-ghost">Reservar mesa</a>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     MENÚ — GRID
+══════════════════════════════ -->
+<section class="menu" id="menu">
+  <div class="menu__cabecera">
+    <p class="menu__etiqueta">Nuestros platos</p>
+    <h2 class="menu__titulo">Selección de temporada</h2>
+  </div>
+  <div class="menu__grid">
+
+    <article class="plato-card">
+      <div class="plato-card__imagen"></div>
+      <div class="plato-card__cuerpo">
+        <h3 class="plato-card__nombre">Tataki de atún rojo</h3>
+        <p class="plato-card__desc">Vuelta y vuelta en plancha de piedra volcánica, con emulsión de ponzu y ralladura de lima kaffir.</p>
+        <div class="plato-card__pie">
+          <span class="plato-card__precio">18 €</span>
+          <span class="plato-card__tag">Temporada</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="plato-card">
+      <div class="plato-card__imagen"></div>
+      <div class="plato-card__cuerpo">
+        <h3 class="plato-card__nombre">Tofu de maíz frito</h3>
+        <p class="plato-card__desc">Crujiente de polenta, dashi vegetal reducido, brote de alfalfa y aceite de sésamo tostado.</p>
+        <div class="plato-card__pie">
+          <span class="plato-card__precio">12 €</span>
+          <span class="plato-card__tag">Vegano</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="plato-card">
+      <div class="plato-card__imagen"></div>
+      <div class="plato-card__cuerpo">
+        <h3 class="plato-card__nombre">Ramen negro de sepia</h3>
+        <p class="plato-card__desc">Fideos artesanos en caldo de tinta de sepia con chashu de presa ibérica y nori tostado.</p>
+        <div class="plato-card__pie">
+          <span class="plato-card__precio">16 €</span>
+          <span class="plato-card__tag">Firma</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="plato-card">
+      <div class="plato-card__imagen"></div>
+      <div class="plato-card__cuerpo">
+        <h3 class="plato-card__nombre">Gyoza de pato y trufa</h3>
+        <p class="plato-card__desc">Seis piezas al vapor con relleno de confit de pato, trufa negra de Molina y aceite de kombu.</p>
+        <div class="plato-card__pie">
+          <span class="plato-card__precio">14 €</span>
+          <span class="plato-card__tag">Popular</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="plato-card">
+      <div class="plato-card__imagen"></div>
+      <div class="plato-card__cuerpo">
+        <h3 class="plato-card__nombre">Miso de verduras de huerta</h3>
+        <p class="plato-card__desc">Caldo de miso blanco con tofu sedoso, algas wakame y verduras de temporada de la huerta murciana.</p>
+        <div class="plato-card__pie">
+          <span class="plato-card__precio">9 €</span>
+          <span class="plato-card__tag">Vegano</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="plato-card">
+      <div class="plato-card__imagen"></div>
+      <div class="plato-card__cuerpo">
+        <h3 class="plato-card__nombre">Mochi de yuzu y sal</h3>
+        <p class="plato-card__desc">Bola de arroz glutinoso con relleno de crema de yuzu y escamas de sal de Añana.</p>
+        <div class="plato-card__pie">
+          <span class="plato-card__precio">8 €</span>
+          <span class="plato-card__tag">Postre</span>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     HISTORIA — TIPOGRAFÍA
+══════════════════════════════ -->
+<section class="historia" id="historia">
+  <div class="historia__texto-col">
+    <p class="historia__etiqueta">Nuestra filosofía</p>
+    <h2 class="historia__titulo">El silencio también tiene sabor</h2>
+    <div class="historia__texto">
+      <p>Ken Nakamura llegó a Murcia siguiendo el rastro del esparto y la piedra caliza. Buscaba el mismo silencio que encontraba en los templos zen de Kyoto: un espacio donde la comida pueda ser escuchada.</p>
+      <p>Cada elemento del menú de NORI nace de una pregunta: ¿qué sucede cuando la austeridad japonesa dialoga con la exuberancia de la huerta mediterránea?</p>
+      <p>La respuesta es NORI: un lugar donde comer es también un acto de atención.</p>
+    </div>
+  </div>
+  <div class="historia__imagen" aria-hidden="true"></div>
+</section>
+
+<!-- ══════════════════════════════
+     RESERVAS — FORMULARIO
+══════════════════════════════ -->
+<section class="reserva" id="reserva">
+  <div class="reserva__inner">
+    <div class="reserva__cabecera">
+      <p class="reserva__etiqueta">Haz tu reserva</p>
+      <h2 class="reserva__titulo">Te esperamos</h2>
+    </div>
+    <form class="reserva-form" novalidate>
+
+      <div class="campo" data-error="Introduce un nombre">
+        <label class="campo__label" for="nombre">Nombre</label>
+        <input class="campo__input" id="nombre" type="text"
+               placeholder="Tu nombre completo" required minlength="2">
+      </div>
+
+      <div class="campo" data-error="El correo no es válido">
+        <label class="campo__label" for="email">Correo electrónico</label>
+        <input class="campo__input" id="email" type="email"
+               placeholder="tu@correo.es" required>
+      </div>
+
+      <div class="campo" data-error="Selecciona una fecha">
+        <label class="campo__label" for="fecha">Fecha de la reserva</label>
+        <input class="campo__input" id="fecha" type="date" required>
+      </div>
+
+      <div class="campo">
+        <label class="campo__label" for="personas">Número de personas</label>
+        <input class="campo__input" id="personas" type="number"
+               placeholder="2" min="1" max="12">
+      </div>
+
+      <button type="submit" class="reserva-form__btn">Confirmar reserva</button>
+    </form>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     ALÉRGENOS
+══════════════════════════════ -->
+<section class="alergenos" id="alergenos">
+  <div class="alergenos__inner">
+    <div class="alergenos__cabecera">
+      <p class="alergenos__etiqueta">Información</p>
+      <h2 class="alergenos__titulo">Tabla de alérgenos</h2>
+    </div>
+    <table class="tabla-nori">
+      <thead>
+        <tr>
+          <th>Plato</th>
+          <th>Descripción breve</th>
+          <th>Alérgenos</th>
+          <th>Precio</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Tataki de atún</strong></td>
+          <td>Atún rojo con ponzu y lima kaffir</td>
+          <td><ul class="nori-alergenos-lista"><li>Pescado</li><li>Soja</li></ul></td>
+          <td>18 €</td>
+        </tr>
+        <tr>
+          <td><strong>Tofu de maíz</strong></td>
+          <td>Polenta crujiente, dashi vegetal</td>
+          <td><ul class="nori-alergenos-lista"><li>Sésamo</li></ul></td>
+          <td>12 €</td>
+        </tr>
+        <tr>
+          <td><strong>Ramen negro</strong></td>
+          <td>Fideos en tinta de sepia, chashu ibérico</td>
+          <td><ul class="nori-alergenos-lista"><li>Gluten</li><li>Moluscos</li></ul></td>
+          <td>16 €</td>
+        </tr>
+        <tr>
+          <td><strong>Gyoza de pato</strong></td>
+          <td>Confit de pato y trufa negra</td>
+          <td><ul class="nori-alergenos-lista"><li>Gluten</li><li>Soja</li></ul></td>
+          <td>14 €</td>
+        </tr>
+        <tr>
+          <td><strong>Miso de verduras</strong></td>
+          <td>Miso blanco, wakame y tofu</td>
+          <td><ul class="nori-alergenos-lista"><li>Soja</li></ul></td>
+          <td>9 €</td>
+        </tr>
+        <tr>
+          <td><strong>Mochi de yuzu</strong></td>
+          <td>Arroz glutinoso, crema de yuzu</td>
+          <td><ul class="nori-alergenos-lista"><li>Lácteos</li></ul></td>
+          <td>8 €</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4" style="padding:0.75rem 1rem;font-size:0.75rem;color:hsl(210 8% 50%);font-style:italic;border-top:2px solid hsl(210 8% 88%)">
+            ⓘ Elaborado en cocina compartida. Reglamento (UE) 1169/2011.
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     PIE
+══════════════════════════════ -->
+<footer class="footer">
+  <span class="footer__logo">NORI</span>
+  <p class="footer__texto">Calle del Arrabal, 12 · Murcia · Reservas: 968 000 000</p>
+  <p class="footer__texto">© 2025 NORI Restaurant</p>
+</footer>
+
+</body>
+</html>
