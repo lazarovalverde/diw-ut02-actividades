@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HANA · P6 — Tabla de alérgenos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN SYSTEM — tokens de HANA (ya dados, no los toques)
+   ============================================================ */
+:root {
+  --color-fondo:      hsl(30 15% 96%);
+  --color-superficie: hsl(0 0% 100%);
+  --color-borde:      hsl(30 10% 85%);
+  --color-texto:      hsl(20 10% 20%);
+  --color-sutil:      hsl(20 10% 50%);
+  --color-acento:     hsl(43 74% 52%);
+  --color-acento-suave: hsl(43 74% 52% / 0.12);
+  --color-error:      hsl(0 65% 50%);
+  --color-ok:         hsl(145 55% 38%);
+
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --shadow-sm: 0 1px 3px hsl(0 0% 0% / 0.08);
+  --shadow-md: 0 4px 12px hsl(0 0% 0% / 0.10);
+  --shadow-lg: 0 8px 24px hsl(0 0% 0% / 0.14);
+
+  --font-sans:  'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+}
+
+/* ============================================================
+   SHELL DE PÁGINA (ya dado)
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--color-texto);
+  background: var(--color-fondo);
+  line-height: 1.6;
+}
+
+/* ============================================================
+   CABECERA DE PRÁCTICA (ya dada)
+   ============================================================ */
+.practica-header {
+  background: var(--color-superficie);
+  border-bottom: 1px solid var(--color-borde);
+  padding: var(--space-6) var(--space-8);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.practica-header__codigo {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-superficie);
+  background: var(--color-texto);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+}
+.practica-header__titulo {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--color-texto);
+}
+.practica-header__badge {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  border: 1.5px solid currentColor;
+}
+.practica-header__badge--nuevo {
+  color: hsl(210 80% 45%);
+  border-color: hsl(210 80% 45%);
+  background: hsl(210 80% 45% / 0.08);
+}
+
+/* ============================================================
+   LAYOUT DE CONTENIDO (ya dado)
+   ============================================================ */
+.contenido {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+/* ============================================================
+   SECCIONES DE PASO (ya dadas)
+   ============================================================ */
+.paso {
+  background: var(--color-superficie);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-borde);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.paso__cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  background: hsl(30 15% 98%);
+  border-bottom: 1px solid var(--color-borde);
+}
+.paso__num {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-texto);
+  color: var(--color-superficie);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.paso__titulo {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-texto);
+}
+.paso__cuerpo {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ============================================================
+   CONCEPTO CLAVE (ya dado)
+   ============================================================ */
+.concepto {
+  background: hsl(43 74% 52% / 0.07);
+  border-left: 3px solid var(--color-acento);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: var(--space-4) var(--space-5);
+}
+.concepto__titulo {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: hsl(43 74% 38%);
+  margin-bottom: var(--space-2);
+}
+.concepto p, .concepto li { font-size: var(--text-sm); color: var(--color-texto); }
+.concepto ul { padding-left: var(--space-5); }
+.concepto li { margin-bottom: var(--space-1); }
+
+/* ============================================================
+   BLOQUES DE CÓDIGO (ya dados)
+   ============================================================ */
+.code-block {
+  background: hsl(220 15% 14%);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  overflow-x: auto;
+}
+.code-block pre {
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  color: hsl(220 15% 85%);
+  white-space: pre;
+}
+/* colores sintaxis */
+.t-sel   { color: hsl(210 80% 72%); }   /* selector */
+.t-prop  { color: hsl(195 70% 68%); }   /* propiedad */
+.t-val   { color: hsl(100 55% 68%); }   /* valor */
+.t-pseudo{ color: hsl(280 65% 75%); }   /* pseudoclase / pseudoelemento */
+.t-com   { color: hsl(220 15% 50%); font-style: italic; } /* comentario */
+.t-gap   { /* hueco a rellenar */
+  color: hsl(38 90% 62%);
+  background: hsl(38 90% 62% / 0.12);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-style: italic;
+}
+.t-at    { color: hsl(38 90% 70%); }    /* at-rule / número */
+.t-str   { color: hsl(25 80% 68%); }    /* string / url */
+
+/* ============================================================
+   ETIQUETA DE SELECTOR (ya dada)
+   ============================================================ */
+.selector-chip {
+  display: inline-block;
+  font-family: monospace;
+  font-size: var(--text-xs);
+  background: hsl(220 15% 18%);
+  color: hsl(210 80% 72%);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid hsl(220 15% 28%);
+}
+
+/* ============================================================
+   AVISO / NOTA (ya dado)
+   ============================================================ */
+.nota {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  background: hsl(210 80% 45% / 0.08);
+  border: 1px solid hsl(210 80% 45% / 0.25);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  font-size: var(--text-sm);
+  color: hsl(210 80% 30%);
+}
+.nota__icono { font-size: 1.1rem; flex-shrink: 0; }
+
+/* ============================================================
+   DEMO VISUAL — tabla de alérgenos (resultado final)
+   ============================================================ */
+.demo {
+  border: 2px dashed var(--color-borde);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  background: var(--color-fondo);
+}
+.demo__label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-sutil);
+  margin-bottom: var(--space-4);
+}
+
+/* ── tabla resultado final ── */
+.alergenos-seccion {
+  padding: var(--space-8) 0;
+}
+.alergenos-seccion__titulo {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  color: var(--color-texto);
+  margin-bottom: var(--space-2);
+}
+.alergenos-seccion__subtitulo {
+  font-size: var(--text-sm);
+  color: var(--color-sutil);
+  margin-bottom: var(--space-6);
+}
+
+.tabla-alergenos {
+  width: 100%;
+  border-collapse: collapse;           /* ← fusiona bordes */
+  font-size: var(--text-sm);
+}
+
+/* cabecera thead */
+.tabla-alergenos thead tr {
+  background: var(--color-texto);
+  color: var(--color-superficie);
+}
+.tabla-alergenos thead th {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+/* primera columna de cabecera */
+.tabla-alergenos thead th:first-child {
+  border-radius: var(--radius-sm) 0 0 0;
+}
+/* última columna de cabecera */
+.tabla-alergenos thead th:last-child {
+  border-radius: 0 var(--radius-sm) 0 0;
+}
+
+/* cuerpo tbody */
+.tabla-alergenos tbody td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-borde);
+  vertical-align: top;
+}
+
+/* filas pares — fondo tenue */
+.tabla-alergenos tbody tr:nth-child(even) {
+  background: hsl(30 15% 97%);
+}
+
+/* hover sobre fila */
+.tabla-alergenos tbody tr {
+  transition: background 0.15s ease;
+}
+.tabla-alergenos tbody tr:hover {
+  background: var(--color-acento-suave);
+}
+
+/* última fila del cuerpo — sin borde inferior */
+.tabla-alergenos tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* pie tfoot */
+.tabla-alergenos tfoot td {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-sutil);
+  font-style: italic;
+  border-top: 2px solid var(--color-borde);
+}
+
+/* celda de alérgenos — lista con viñetas */
+.tabla-alergenos .alergenos-lista {
+  list-style: disc;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.tabla-alergenos .alergenos-lista li::marker {
+  color: var(--color-acento);         /* ← ::marker en acción */
+  font-size: 1.1em;
+}
+
+/* chip de alérgeno */
+.tag-alergeno {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-acento-suave);
+  color: hsl(43 74% 32%);
+  border: 1px solid hsl(43 74% 52% / 0.3);
+}
+.tag-alergeno--rojo {
+  background: hsl(0 65% 50% / 0.10);
+  color: hsl(0 65% 38%);
+  border-color: hsl(0 65% 50% / 0.3);
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════
+     CABECERA DE PRÁCTICA
+════════════════════════════════════════════════════════════ -->
+<header class="practica-header">
+  <span class="practica-header__codigo">UT02 · P6</span>
+  <h1 class="practica-header__titulo">Tabla de alérgenos</h1>
+  <span class="practica-header__badge practica-header__badge--nuevo">Nuevos selectores</span>
+</header>
+
+<main class="contenido">
+
+  <!-- ══════════════════════════════════════════════════
+       DEMO FINAL — resultado que van a construir
+  ══════════════════════════════════════════════════ -->
+  <div class="demo">
+    <p class="demo__label">✦ Así quedará al terminar</p>
+
+    <section class="alergenos-seccion">
+      <h2 class="alergenos-seccion__titulo">Información sobre alérgenos</h2>
+      <p class="alergenos-seccion__subtitulo">
+        Nuestros platos se elaboran en cocina compartida. Consulta con el personal si tienes alguna alergia severa.
+      </p>
+
+      <table class="tabla-alergenos">
+        <thead>
+          <tr>
+            <th>Plato</th>
+            <th>Descripción</th>
+            <th>Alérgenos</th>
+            <th>Precio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Edamame</strong></td>
+            <td>Vainas de soja al vapor con sal marina</td>
+            <td>
+              <ul class="alergenos-lista">
+                <li><span class="tag-alergeno">Soja</span></li>
+              </ul>
+            </td>
+            <td>5,50 €</td>
+          </tr>
+          <tr>
+            <td><strong>Gyoza de gambas</strong></td>
+            <td>Empanadillas al vapor rellenas de gambas y jengibre</td>
+            <td>
+              <ul class="alergenos-lista">
+                <li><span class="tag-alergeno tag-alergeno--rojo">Crustáceos</span></li>
+                <li><span class="tag-alergeno">Gluten</span></li>
+              </ul>
+            </td>
+            <td>9,50 €</td>
+          </tr>
+          <tr>
+            <td><strong>Ramen de pollo</strong></td>
+            <td>Caldo dashi, fideos ramen, chashu de pollo y nori</td>
+            <td>
+              <ul class="alergenos-lista">
+                <li><span class="tag-alergeno">Gluten</span></li>
+                <li><span class="tag-alergeno">Huevo</span></li>
+                <li><span class="tag-alergeno">Soja</span></li>
+              </ul>
+            </td>
+            <td>14,00 €</td>
+          </tr>
+          <tr>
+            <td><strong>Sashimi salmón</strong></td>
+            <td>Seis lonchas de salmón con wasabi y jengibre encurtido</td>
+            <td>
+              <ul class="alergenos-lista">
+                <li><span class="tag-alergeno tag-alergeno--rojo">Pescado</span></li>
+                <li><span class="tag-alergeno">Soja</span></li>
+              </ul>
+            </td>
+            <td>16,00 €</td>
+          </tr>
+          <tr>
+            <td><strong>Mochi de té verde</strong></td>
+            <td>Bolas de arroz glutinoso rellenas de helado matcha</td>
+            <td>
+              <ul class="alergenos-lista">
+                <li><span class="tag-alergeno">Lácteos</span></li>
+              </ul>
+            </td>
+            <td>7,50 €</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4">
+              ⓘ Lista de alérgenos según el Reglamento (UE) 1169/2011 sobre información alimentaria.
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       PASO 1 — Estructura HTML de la tabla
+  ══════════════════════════════════════════════════ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num">1</span>
+      <h2 class="paso__titulo">Estructura HTML de la tabla</h2>
+    </div>
+    <div class="paso__cuerpo">
+
+      <div class="concepto">
+        <p class="concepto__titulo">Anatomía de una tabla HTML</p>
+        <ul>
+          <li><strong>&lt;table&gt;</strong> — contenedor raíz</li>
+          <li><strong>&lt;thead&gt;</strong> — fila(s) de cabecera (semántica + estilos)</li>
+          <li><strong>&lt;tbody&gt;</strong> — filas de datos</li>
+          <li><strong>&lt;tfoot&gt;</strong> — fila de pie (notas, totales)</li>
+          <li><strong>&lt;tr&gt;</strong> — fila (table row)</li>
+          <li><strong>&lt;th&gt;</strong> — celda de cabecera (negrita + centrado por defecto)</li>
+          <li><strong>&lt;td&gt;</strong> — celda de dato</li>
+        </ul>
+      </div>
+
+      <p>Escribe la tabla dentro de <code>&lt;section class="alergenos-seccion"&gt;</code>. Copia esta estructura:</p>
+
+      <div class="code-block"><pre><span class="t-sel">&lt;table</span> <span class="t-prop">class</span>=<span class="t-str">"tabla-alergenos"</span><span class="t-sel">&gt;</span>
+
+  <span class="t-com">&lt;!-- Cabecera --&gt;</span>
+  <span class="t-sel">&lt;thead&gt;</span>
+    <span class="t-sel">&lt;tr&gt;</span>
+      <span class="t-sel">&lt;th&gt;</span>Plato<span class="t-sel">&lt;/th&gt;</span>
+      <span class="t-sel">&lt;th&gt;</span>Descripción<span class="t-sel">&lt;/th&gt;</span>
+      <span class="t-sel">&lt;th&gt;</span>Alérgenos<span class="t-sel">&lt;/th&gt;</span>
+      <span class="t-sel">&lt;th&gt;</span>Precio<span class="t-sel">&lt;/th&gt;</span>
+    <span class="t-sel">&lt;/tr&gt;</span>
+  <span class="t-sel">&lt;/thead&gt;</span>
+
+  <span class="t-com">&lt;!-- Datos --&gt;</span>
+  <span class="t-sel">&lt;tbody&gt;</span>
+    <span class="t-sel">&lt;tr&gt;</span>
+      <span class="t-sel">&lt;td&gt;&lt;strong&gt;</span>Edamame<span class="t-sel">&lt;/strong&gt;&lt;/td&gt;</span>
+      <span class="t-sel">&lt;td&gt;</span>Vainas de soja al vapor con sal marina<span class="t-sel">&lt;/td&gt;</span>
+      <span class="t-sel">&lt;td&gt;</span>
+        <span class="t-sel">&lt;ul</span> <span class="t-prop">class</span>=<span class="t-str">"alergenos-lista"</span><span class="t-sel">&gt;</span>
+          <span class="t-sel">&lt;li&gt;&lt;span</span> <span class="t-prop">class</span>=<span class="t-str">"tag-alergeno"</span><span class="t-sel">&gt;</span>Soja<span class="t-sel">&lt;/span&gt;&lt;/li&gt;</span>
+        <span class="t-sel">&lt;/ul&gt;</span>
+      <span class="t-sel">&lt;/td&gt;</span>
+      <span class="t-sel">&lt;td&gt;</span>5,50 €<span class="t-sel">&lt;/td&gt;</span>
+    <span class="t-sel">&lt;/tr&gt;</span>
+    <span class="t-com">&lt;!-- … añade los demás platos igual --&gt;</span>
+  <span class="t-sel">&lt;/tbody&gt;</span>
+
+  <span class="t-com">&lt;!-- Pie --&gt;</span>
+  <span class="t-sel">&lt;tfoot&gt;</span>
+    <span class="t-sel">&lt;tr&gt;</span>
+      <span class="t-sel">&lt;td</span> <span class="t-prop">colspan</span>=<span class="t-str">"4"</span><span class="t-sel">&gt;</span>
+        ⓘ Lista de alérgenos según el Reglamento (UE) 1169/2011.
+      <span class="t-sel">&lt;/td&gt;</span>
+    <span class="t-sel">&lt;/tr&gt;</span>
+  <span class="t-sel">&lt;/tfoot&gt;</span>
+
+<span class="t-sel">&lt;/table&gt;</span></pre></div>
+
+      <div class="nota">
+        <span class="nota__icono">💡</span>
+        <span><strong>colspan="4"</strong> hace que la celda del pie ocupe las 4 columnas. Sin él, el texto quedaría solo en la primera columna.</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       PASO 2 — border-collapse y estilos base
+  ══════════════════════════════════════════════════ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num">2</span>
+      <h2 class="paso__titulo">
+        <span class="selector-chip">.tabla-alergenos</span>
+        — <code>border-collapse</code> y base
+      </h2>
+    </div>
+    <div class="paso__cuerpo">
+
+      <div class="concepto">
+        <p class="concepto__titulo">border-collapse</p>
+        <p>Por defecto, cada celda tiene su propio borde + espacio entre celdas (<code>border-spacing</code>). Con <code>border-collapse: collapse</code> los bordes adyacentes se fusionan en uno solo — el aspecto habitual de las tablas de datos.</p>
+      </div>
+
+      <p>Añade los estilos base de la tabla. <strong>Tu tarea</strong>: rellena los dos huecos.</p>
+
+      <div class="code-block"><pre><span class="t-sel">.tabla-alergenos</span> {
+  <span class="t-prop">width</span>: <span class="t-val">100%</span>;                      <span class="t-com">/* ocupa todo el ancho */</span>
+  <span class="t-prop">border-collapse</span>: <span class="t-gap">/* ① */</span>;   <span class="t-com">/* fusiona los bordes de celdas */</span>
+  <span class="t-prop">font-size</span>: <span class="t-gap">/* ② */</span>;          <span class="t-com">/* texto pequeño: var(--text-sm) */</span>
+}</pre></div>
+
+      <p><strong>Tu tarea:</strong></p>
+      <ul style="padding-left:1.5rem; display:flex; flex-direction:column; gap:0.25rem; font-size:var(--text-sm)">
+        <li>① Valor que fusiona los bordes</li>
+        <li>② Token del sistema para texto pequeño</li>
+      </ul>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       PASO 3 — Cabecera thead
+  ══════════════════════════════════════════════════ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num">3</span>
+      <h2 class="paso__titulo">
+        <span class="selector-chip">thead tr</span> y
+        <span class="selector-chip">thead th</span>
+        — Cabecera oscura
+      </h2>
+    </div>
+    <div class="paso__cuerpo">
+
+      <div class="concepto">
+        <p class="concepto__titulo">:first-child y :last-child</p>
+        <p>Seleccionan el primer y último elemento hijo dentro de su contenedor. En una fila de cabecera <code>th:first-child</code> es la celda de la izquierda y <code>th:last-child</code> la de la derecha — útiles para redondear esquinas.</p>
+      </div>
+
+      <p>Copia el bloque. <strong>Tu tarea</strong>: rellena los cuatro huecos.</p>
+
+      <div class="code-block"><pre><span class="t-sel">.tabla-alergenos</span> {
+  <span class="t-com">/* … lo del paso anterior … */</span>
+
+  <span class="t-com">/* —— cabecera —— */</span>
+  <span class="t-sel">& thead tr</span> {
+    <span class="t-prop">background</span>: <span class="t-gap">/* ③ */</span>;     <span class="t-com">/* fondo: token color texto */</span>
+    <span class="t-prop">color</span>: <span class="t-gap">/* ④ */</span>;           <span class="t-com">/* letras: token color superficie */</span>
+  }
+
+  <span class="t-sel">& thead th</span> {
+    <span class="t-prop">padding</span>: <span class="t-val">var(--space-3) var(--space-4)</span>;
+    <span class="t-prop">text-align</span>: <span class="t-val">left</span>;
+    <span class="t-prop">font-weight</span>: <span class="t-val">600</span>;
+    <span class="t-prop">letter-spacing</span>: <span class="t-val">0.04em</span>;
+  }
+
+  <span class="t-com">/* primera columna de cabecera: redondea esquina superior izquierda */</span>
+  <span class="t-sel">& thead th:<span class="t-pseudo">first-child</span></span> {
+    <span class="t-prop">border-radius</span>: <span class="t-gap">/* ⑤ */</span>;    <span class="t-com">/* var(--radius-sm) 0 0 0 */</span>
+  }
+
+  <span class="t-com">/* última columna de cabecera: redondea esquina superior derecha */</span>
+  <span class="t-sel">& thead th:<span class="t-pseudo">last-child</span></span> {
+    <span class="t-prop">border-radius</span>: <span class="t-gap">/* ⑥ */</span>;    <span class="t-com">/* 0 var(--radius-sm) 0 0 */</span>
+  }
+}</pre></div>
+
+      <p><strong>Tu tarea:</strong></p>
+      <ul style="padding-left:1.5rem; display:flex; flex-direction:column; gap:0.25rem; font-size:var(--text-sm)">
+        <li>③ Token para el fondo oscuro de cabecera</li>
+        <li>④ Token para el texto claro de cabecera</li>
+        <li>⑤ Radio que solo redondea la esquina superior izquierda</li>
+        <li>⑥ Radio que solo redondea la esquina superior derecha</li>
+      </ul>
+
+      <div class="nota">
+        <span class="nota__icono">💡</span>
+        <span><code>border-radius</code> con 4 valores sigue el orden <strong>superior-izq, superior-der, inferior-der, inferior-izq</strong> (sentido horario desde arriba a la izquierda).</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       PASO 4 — Cuerpo tbody: bordes, padding, última fila
+  ══════════════════════════════════════════════════ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num">4</span>
+      <h2 class="paso__titulo">
+        <span class="selector-chip">tbody td</span> y
+        <span class="selector-chip">tr:last-child td</span>
+        — Cuerpo de la tabla
+      </h2>
+    </div>
+    <div class="paso__cuerpo">
+
+      <div class="concepto">
+        <p class="concepto__titulo">:last-child para eliminar el borde final</p>
+        <p>Si ponemos <code>border-bottom</code> a todas las celdas, la última fila tendrá borde debajo del contenido — se ve raro si la tabla tiene bordes exteriores o está dentro de una card. <code>tr:last-child td</code> lo elimina selectivamente.</p>
+      </div>
+
+      <p><strong>Tu tarea</strong>: rellena los tres huecos.</p>
+
+      <div class="code-block"><pre><span class="t-sel">.tabla-alergenos</span> {
+  <span class="t-com">/* … pasos anteriores … */</span>
+
+  <span class="t-com">/* —— cuerpo —— */</span>
+  <span class="t-sel">& tbody td</span> {
+    <span class="t-prop">padding</span>: <span class="t-val">var(--space-3) var(--space-4)</span>;
+    <span class="t-prop">border-bottom</span>: <span class="t-gap">/* ⑦ */</span>;     <span class="t-com">/* 1px solid color borde */</span>
+    <span class="t-prop">vertical-align</span>: <span class="t-val">top</span>;
+  }
+
+  <span class="t-com">/* última fila: sin borde inferior */</span>
+  <span class="t-sel">& tbody tr:<span class="t-pseudo">last-child</span> td</span> {
+    <span class="t-prop">border-bottom</span>: <span class="t-gap">/* ⑧ */</span>;        <span class="t-com">/* quita el borde */</span>
+  }
+
+  <span class="t-com">/* pie: separador superior más grueso */</span>
+  <span class="t-sel">& tfoot td</span> {
+    <span class="t-prop">padding</span>: <span class="t-val">var(--space-3) var(--space-4)</span>;
+    <span class="t-prop">font-size</span>: <span class="t-val">var(--text-xs)</span>;
+    <span class="t-prop">color</span>: <span class="t-val">var(--color-sutil)</span>;
+    <span class="t-prop">font-style</span>: <span class="t-val">italic</span>;
+    <span class="t-prop">border-top</span>: <span class="t-gap">/* ⑨ */</span>;          <span class="t-com">/* 2px solid color borde */</span>
+  }
+}</pre></div>
+
+      <p><strong>Tu tarea:</strong></p>
+      <ul style="padding-left:1.5rem; display:flex; flex-direction:column; gap:0.25rem; font-size:var(--text-sm)">
+        <li>⑦ Borde inferior fino entre cada fila</li>
+        <li>⑧ Valor para eliminar un borde</li>
+        <li>⑨ Borde superior del pie, más grueso (2px)</li>
+      </ul>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       PASO 5 — Filas alternas: :nth-child(even)
+  ══════════════════════════════════════════════════ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num">5</span>
+      <h2 class="paso__titulo">
+        <span class="selector-chip">tr:nth-child(even)</span>
+        — Filas alternas (zebra)
+      </h2>
+    </div>
+    <div class="paso__cuerpo">
+
+      <div class="concepto">
+        <p class="concepto__titulo">:nth-child()</p>
+        <p>Selecciona elementos según su posición dentro del padre. Los valores más usados:</p>
+        <ul>
+          <li><code>:nth-child(odd)</code> — filas impares (1ª, 3ª, 5ª…)</li>
+          <li><code>:nth-child(even)</code> — filas pares (2ª, 4ª, 6ª…)</li>
+          <li><code>:nth-child(3)</code> — exactamente la tercera</li>
+          <li><code>:nth-child(3n)</code> — cada tres: 3ª, 6ª, 9ª…</li>
+        </ul>
+      </div>
+
+      <p><strong>Tu tarea</strong>: rellena los dos huecos para conseguir el patrón zebra.</p>
+
+      <div class="code-block"><pre><span class="t-sel">.tabla-alergenos</span> {
+  <span class="t-com">/* … pasos anteriores … */</span>
+
+  <span class="t-com">/* filas pares: fondo ligeramente distinto */</span>
+  <span class="t-sel">& tbody tr:<span class="t-pseudo">nth-child(<span class="t-gap">/* ⑩ */</span>)</span></span> {
+    <span class="t-prop">background</span>: <span class="t-gap">/* ⑪ */</span>;    <span class="t-com">/* hsl(30 15% 97%) — gris cálido muy sutil */</span>
+  }
+}</pre></div>
+
+      <p><strong>Tu tarea:</strong></p>
+      <ul style="padding-left:1.5rem; display:flex; flex-direction:column; gap:0.25rem; font-size:var(--text-sm)">
+        <li>⑩ Keyword para seleccionar filas pares</li>
+        <li>⑪ Color de fondo tenue para las filas pares</li>
+      </ul>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       PASO 6 — Hover sobre fila: tr:hover
+  ══════════════════════════════════════════════════ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num">6</span>
+      <h2 class="paso__titulo">
+        <span class="selector-chip">tbody tr:hover</span>
+        — Resaltar fila al pasar el ratón
+      </h2>
+    </div>
+    <div class="paso__cuerpo">
+
+      <div class="concepto">
+        <p class="concepto__titulo">Hover en filas de tabla</p>
+        <p><code>tr:hover</code> se aplica cuando el cursor entra en cualquier celda de esa fila. La transición se pone en el estado base (<code>tr</code>), no en el <code>:hover</code>, para que la animación funcione en las dos direcciones (entrada y salida).</p>
+      </div>
+
+      <p><strong>Tu tarea</strong>: rellena los tres huecos.</p>
+
+      <div class="code-block"><pre><span class="t-sel">.tabla-alergenos</span> {
+  <span class="t-com">/* … pasos anteriores … */</span>
+
+  <span class="t-com">/* transición en el estado base */</span>
+  <span class="t-sel">& tbody tr</span> {
+    <span class="t-prop">transition</span>: <span class="t-gap">/* ⑫ */</span>;   <span class="t-com">/* background 0.15s ease */</span>
+  }
+
+  <span class="t-com">/* color al pasar el ratón */</span>
+  <span class="t-sel">& tbody tr:<span class="t-pseudo">hover</span></span> {
+    <span class="t-prop">background</span>: <span class="t-gap">/* ⑬ */</span>;  <span class="t-com">/* token acento con baja opacidad */</span>
+  }
+}</pre></div>
+
+      <p><strong>Tu tarea:</strong></p>
+      <ul style="padding-left:1.5rem; display:flex; flex-direction:column; gap:0.25rem; font-size:var(--text-sm)">
+        <li>⑫ Shorthand de transición: propiedad, duración y curva</li>
+        <li>⑬ Token de acento dorado con opacidad baja (ya está en el design system)</li>
+      </ul>
+
+      <div class="nota">
+        <span class="nota__icono">⚠️</span>
+        <span>El <code>:hover</code> sobreescribirá el fondo de <code>:nth-child(even)</code> porque tiene más especificidad al combinarse con el selector padre. Eso es correcto — queremos que el hover siempre gane.</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       PASO 7 — ::marker en lista de alérgenos
+  ══════════════════════════════════════════════════ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num">7</span>
+      <h2 class="paso__titulo">
+        <span class="selector-chip">.alergenos-lista li::marker</span>
+        — Viñeta en color acento
+      </h2>
+    </div>
+    <div class="paso__cuerpo">
+
+      <div class="concepto">
+        <p class="concepto__titulo">::marker</p>
+        <p>Selecciona el marcador de un elemento de lista — el punto, número o símbolo que aparece delante del contenido. Permite cambiar su color, tamaño o incluso reemplazarlo con <code>content</code>, sin tocar el texto del elemento.</p>
+        <p>Antes de <code>::marker</code>, la única forma de colorear la viñeta era envolverla en un <code>&lt;span&gt;</code>.</p>
+      </div>
+
+      <p><strong>Tu tarea</strong>: rellena los dos huecos.</p>
+
+      <div class="code-block"><pre><span class="t-sel">.alergenos-lista</span> {
+  <span class="t-prop">list-style</span>: <span class="t-val">disc</span>;
+  <span class="t-prop">padding-left</span>: <span class="t-val">var(--space-5)</span>;
+  <span class="t-prop">display</span>: <span class="t-val">flex</span>;
+  <span class="t-prop">flex-direction</span>: <span class="t-val">column</span>;
+  <span class="t-prop">gap</span>: <span class="t-val">var(--space-1)</span>;
+
+  <span class="t-sel">& li::<span class="t-pseudo">marker</span></span> {
+    <span class="t-prop">color</span>: <span class="t-gap">/* ⑭ */</span>;     <span class="t-com">/* token color acento dorado */</span>
+    <span class="t-prop">font-size</span>: <span class="t-gap">/* ⑮ */</span>;  <span class="t-com">/* un poco más grande: 1.1em */</span>
+  }
+}</pre></div>
+
+      <p><strong>Tu tarea:</strong></p>
+      <ul style="padding-left:1.5rem; display:flex; flex-direction:column; gap:0.25rem; font-size:var(--text-sm)">
+        <li>⑭ Token del color de acento dorado</li>
+        <li>⑮ Tamaño relativo para que el punto sea ligeramente mayor que el texto</li>
+      </ul>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       PASO 8 — Bonus: selector de atributo [colspan]
+  ══════════════════════════════════════════════════ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num">8</span>
+      <h2 class="paso__titulo">
+        <span class="selector-chip">td[colspan]</span>
+        — Selectores de atributo (bonus)
+      </h2>
+    </div>
+    <div class="paso__cuerpo">
+
+      <div class="concepto">
+        <p class="concepto__titulo">Selectores de atributo</p>
+        <p>Seleccionan elementos por el valor (o presencia) de un atributo HTML:</p>
+        <ul>
+          <li><code>[attr]</code> — existe el atributo, sea cual sea su valor</li>
+          <li><code>[attr="valor"]</code> — atributo con valor exacto</li>
+          <li><code>[attr^="inicio"]</code> — valor empieza por "inicio"</li>
+          <li><code>[attr*="parte"]</code> — valor contiene "parte"</li>
+        </ul>
+        <p>Ya los usaste en P5 con <code>[type="email"]</code> y <code>[type="date"]</code>.</p>
+      </div>
+
+      <p>El pie usa <code>colspan="4"</code> para ocupar toda la fila. Podemos apuntarlo directamente <em>por ese atributo</em>, sin necesidad de clase:</p>
+
+      <div class="code-block"><pre><span class="t-com">/* versión alternativa sin usar tfoot — solo para práctica */</span>
+<span class="t-sel">td<span class="t-at">[colspan]</span></span> {
+  <span class="t-prop">font-size</span>: <span class="t-val">var(--text-xs)</span>;
+  <span class="t-prop">color</span>: <span class="t-val">var(--color-sutil)</span>;
+  <span class="t-prop">font-style</span>: <span class="t-val">italic</span>;
+}
+
+<span class="t-com">/* o con valor exacto */</span>
+<span class="t-sel">td<span class="t-at">[colspan="4"]</span></span> {
+  <span class="t-prop">border-top</span>: <span class="t-val">2px solid var(--color-borde)</span>;
+}</pre></div>
+
+      <div class="nota">
+        <span class="nota__icono">💡</span>
+        <span>No hace falta añadir este CSS a tu práctica — es solo para ver cómo funciona el selector de atributo en contexto real.</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       ENTREGA
+  ══════════════════════════════════════════════════ -->
+  <section class="paso">
+    <div class="paso__cabecera">
+      <span class="paso__num" style="background:var(--color-acento); color:#fff;">✓</span>
+      <h2 class="paso__titulo">Entrega</h2>
+    </div>
+    <div class="paso__cuerpo">
+      <ol style="padding-left:1.5rem; display:flex; flex-direction:column; gap:0.5rem; font-size:var(--text-sm)">
+        <li>Nombra el archivo <strong>ut02-p6.html</strong>.</li>
+        <li>Sube el archivo a la carpeta <code>hana/</code> de tu repositorio GitHub.</li>
+        <li>Comprueba que la tabla se ve correctamente en el navegador antes de entregar.</li>
+        <li>Verifica que el hover funciona pasando el ratón por las filas.</li>
+      </ol>
+
+      <div style="margin-top:var(--space-4); padding:var(--space-4); background:hsl(145 55% 38% / 0.08); border:1px solid hsl(145 55% 38% / 0.25); border-radius:var(--radius-md)">
+        <p style="font-size:var(--text-sm); font-weight:600; color:hsl(145 55% 30%); margin-bottom:var(--space-2)">Rúbrica (10 puntos)</p>
+        <table style="width:100%; font-size:var(--text-sm); border-collapse:collapse">
+          <tr style="background:hsl(145 55% 38% / 0.12)">
+            <th style="padding:var(--space-2) var(--space-3); text-align:left; color:hsl(145 55% 25%)">Criterio</th>
+            <th style="padding:var(--space-2) var(--space-3); text-align:right; color:hsl(145 55% 25%)">Pts</th>
+          </tr>
+          <tr><td style="padding:var(--space-2) var(--space-3)">border-collapse correcto</td><td style="padding:var(--space-2) var(--space-3); text-align:right; font-weight:600">2</td></tr>
+          <tr style="background:hsl(145 55% 38% / 0.05)"><td style="padding:var(--space-2) var(--space-3)">thead oscuro con :first-child / :last-child</td><td style="padding:var(--space-2) var(--space-3); text-align:right; font-weight:600">2</td></tr>
+          <tr><td style="padding:var(--space-2) var(--space-3)">:nth-child(even) filas alternas</td><td style="padding:var(--space-2) var(--space-3); text-align:right; font-weight:600">2</td></tr>
+          <tr style="background:hsl(145 55% 38% / 0.05)"><td style="padding:var(--space-2) var(--space-3)">tr:hover con transition en base</td><td style="padding:var(--space-2) var(--space-3); text-align:right; font-weight:600">2</td></tr>
+          <tr><td style="padding:var(--space-2) var(--space-3)">li::marker en color acento</td><td style="padding:var(--space-2) var(--space-3); text-align:right; font-weight:600">2</td></tr>
+          <tr style="background:hsl(145 55% 38% / 0.12); font-weight:700">
+            <td style="padding:var(--space-2) var(--space-3)">Total</td>
+            <td style="padding:var(--space-2) var(--space-3); text-align:right">10</td>
+          </tr>
+        </table>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+</body>
+</html>
